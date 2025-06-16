@@ -784,9 +784,6 @@ useEffect(() => {
     </div>
   );
 
-  export default function EVMarketplace() {
-  // ... all your state and functions ...
-
   // ADD THIS LOADING CHECK HERE (before the return)
   if (loading) {
     return (
@@ -808,7 +805,7 @@ useEffect(() => {
       {/* ... rest of your component */}
     </div>
   );
-}
+  
 
   return (
     <div className="min-h-screen bg-gray-100">
