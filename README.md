@@ -1,1 +1,1 @@
-# ev-marketplace-frontend
+# Polish EV Marketplace
