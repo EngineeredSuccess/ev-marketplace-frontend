@@ -1,8 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { Search, Filter, Car, Battery, Zap, MapPin, Phone, Mail, Heart, Star, ChevronDown, Menu, X } from 'lucide-react';
-
-import React, { useState, useEffect } from 'react';
-import { Search, Filter, Car, Battery, Zap, MapPin, Phone, Mail, Heart, Star, ChevronDown, Menu, X } from 'lucide-react';
 import ApiService from '../services/api'; // Add this import
 
 // Types for TypeScript
