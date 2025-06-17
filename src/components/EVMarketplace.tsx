@@ -196,12 +196,12 @@ export default function EVMarketplace() {
                 }}
                 onMouseEnter={(e) => {
                   if (currentView !== view) {
-                    e.target.style.background = 'rgba(255, 255, 255, 0.1)';
+                    (e.currentTarget as HTMLButtonElement).style.background = 'rgba(255, 255, 255, 0.1)';
                   }
                 }}
                 onMouseLeave={(e) => {
                   if (currentView !== view) {
-                    e.target.style.background = 'transparent';
+                    (e.currentTarget as HTMLButtonElement).style.background = 'transparent';
                   }
                 }}
               >
