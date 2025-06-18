@@ -14,6 +14,16 @@ interface Vehicle {
   description: string;
   photos?: string[];
   mileage?: number;
+  // Enhanced EV-specific properties
+  batteryType: 'Li-ion' | 'LiFePO4' | 'NMC' | 'LTO';
+  driveType: 'FWD' | 'RWD' | 'AWD';
+  powerOutput: number; // kW
+  maxChargingSpeed: number; // kW
+  efficiency: number; // kWh/100km
+  chargingPorts: string[];
+  autopilot: boolean;
+  heatedSeats: boolean;
+  heatPump: boolean;
   seller?: {
     name: string;
     phone: string;
@@ -33,9 +43,18 @@ const mockVehicles: Vehicle[] = [
     range: 500,
     chargingType: "Type 2, CCS",
     location: "Warszawa",
-    description: "Idealny stan, pełna dokumentacja serwisowa",
+    description: "Idealny stan, pełna dokumentacja serwisowa, autopilot",
     photos: ["https://images.unsplash.com/photo-1560958089-b8a1929cea89?w=400"],
     mileage: 25000,
+    batteryType: 'Li-ion',
+    driveType: 'RWD',
+    powerOutput: 239,
+    maxChargingSpeed: 170,
+    efficiency: 15.2,
+    chargingPorts: ['Type 2', 'CCS'],
+    autopilot: true,
+    heatedSeats: true,
+    heatPump: true,
     seller: {
       name: "Jan Kowalski",
       phone: "+48 123 456 789",
@@ -53,9 +72,18 @@ const mockVehicles: Vehicle[] = [
     range: 460,
     chargingType: "Type 2, CCS",
     location: "Kraków",
-    description: "Nowy pojazd, gwarancja producenta",
+    description: "Nowy pojazd, gwarancja producenta, premium wyposażenie",
     photos: ["https://images.unsplash.com/photo-1555215695-3004980ad54e?w=400"],
     mileage: 5000,
+    batteryType: 'NMC',
+    driveType: 'RWD',
+    powerOutput: 210,
+    maxChargingSpeed: 150,
+    efficiency: 17.8,
+    chargingPorts: ['Type 2', 'CCS'],
+    autopilot: false,
+    heatedSeats: true,
+    heatPump: true,
     seller: {
       name: "Anna Nowak",
       phone: "+48 987 654 321",
@@ -73,9 +101,18 @@ const mockVehicles: Vehicle[] = [
     range: 520,
     chargingType: "Type 2, CCS",
     location: "Gdańsk",
-    description: "Ekonomiczny SUV elektryczny, bardzo oszczędny",
+    description: "Ekonomiczny SUV elektryczny, bardzo oszczędny, rodzinny",
     photos: ["https://images.unsplash.com/photo-1605559424843-9e4c228bf1c2?w=400"],
     mileage: 15000,
+    batteryType: 'NMC',
+    driveType: 'RWD',
+    powerOutput: 150,
+    maxChargingSpeed: 125,
+    efficiency: 16.1,
+    chargingPorts: ['Type 2', 'CCS'],
+    autopilot: false,
+    heatedSeats: true,
+    heatPump: false,
     seller: {
       name: "Piotr Wiśniewski",
       phone: "+48 555 123 456",
@@ -93,14 +130,52 @@ const mockVehicles: Vehicle[] = [
     range: 450,
     chargingType: "Type 2, CCS",
     location: "Wrocław",
-    description: "Sportowy sedan elektryczny, maksymalne osiągi",
+    description: "Sportowy sedan elektryczny, maksymalne osiągi, napęd 4x4",
     photos: ["https://images.unsplash.com/photo-1544636331-e26879cd4d9b?w=400"],
     mileage: 18000,
+    batteryType: 'Li-ion',
+    driveType: 'AWD',
+    powerOutput: 350,
+    maxChargingSpeed: 270,
+    efficiency: 19.3,
+    chargingPorts: ['Type 2', 'CCS'],
+    autopilot: false,
+    heatedSeats: true,
+    heatPump: true,
     seller: {
       name: "Katarzyna Zielińska",
       phone: "+48 777 888 999",
       verified: true,
       rating: 4.6
+    }
+  },
+  {
+    id: 5,
+    make: "BYD",
+    model: "Tang",
+    year: 2023,
+    price: 280000,
+    batteryCapacity: 86,
+    range: 400,
+    chargingType: "Type 2, CCS",
+    location: "Poznań",
+    description: "Chiński SUV premium, bateria LiFePO4, bardzo bezpieczny",
+    photos: ["https://images.unsplash.com/photo-1549399381-f0b1fbb02c07?w=400"],
+    mileage: 8000,
+    batteryType: 'LiFePO4',
+    driveType: 'AWD',
+    powerOutput: 380,
+    maxChargingSpeed: 110,
+    efficiency: 21.5,
+    chargingPorts: ['Type 2', 'CCS'],
+    autopilot: false,
+    heatedSeats: true,
+    heatPump: false,
+    seller: {
+      name: "Marcin Lewandowski",
+      phone: "+48 666 555 444",
+      verified: true,
+      rating: 4.5
     }
   }
 ];
@@ -117,7 +192,14 @@ export default function EVMarketplace() {
     make: 'Wszystkie',
     priceRange: 'Wszystkie',
     year: 'Wszystkie',
-    location: 'Wszystkie'
+    location: 'Wszystkie',
+    // New EV-specific filters
+    batteryType: 'Wszystkie',
+    driveType: 'Wszystkie',
+    rangeCategory: 'Wszystkie',
+    chargingSpeed: 'Wszystkie',
+    batteryCapacity: 'Wszystkie',
+    features: 'Wszystkie'
   });
   const [showMobileMenu, setShowMobileMenu] = useState(false);
 
@@ -135,13 +217,76 @@ export default function EVMarketplace() {
       const matchesLocation = filters.location === 'Wszystkie' || vehicle.location === filters.location;
       const matchesYear = filters.year === 'Wszystkie' || vehicle.year.toString() === filters.year;
       
+      // Price filter
       let matchesPrice = true;
       if (filters.priceRange !== 'Wszystkie') {
         const [min, max] = filters.priceRange.split('-').map(p => parseInt(p) * 1000);
         matchesPrice = vehicle.price >= min && (max ? vehicle.price <= max : true);
       }
       
-      return matchesSearch && matchesMake && matchesLocation && matchesYear && matchesPrice;
+      // EV-specific filters
+      const matchesBatteryType = filters.batteryType === 'Wszystkie' || vehicle.batteryType === filters.batteryType;
+      const matchesDriveType = filters.driveType === 'Wszystkie' || vehicle.driveType === filters.driveType;
+      
+      // Range category filter
+      let matchesRange = true;
+      if (filters.rangeCategory !== 'Wszystkie') {
+        const ranges = {
+          '0-300': [0, 300],
+          '300-400': [300, 400],
+          '400-500': [400, 500],
+          '500+': [500, 9999]
+        };
+        const [minRange, maxRange] = ranges[filters.rangeCategory] || [0, 9999];
+        matchesRange = vehicle.range >= minRange && vehicle.range <= maxRange;
+      }
+      
+      // Charging speed filter
+      let matchesChargingSpeed = true;
+      if (filters.chargingSpeed !== 'Wszystkie') {
+        const speeds = {
+          'slow': [0, 50],      // Slow AC charging
+          'fast': [50, 150],    // Fast DC charging
+          'ultra': [150, 9999]  // Ultra-fast charging
+        };
+        const [minSpeed, maxSpeed] = speeds[filters.chargingSpeed] || [0, 9999];
+        matchesChargingSpeed = vehicle.maxChargingSpeed >= minSpeed && vehicle.maxChargingSpeed <= maxSpeed;
+      }
+      
+      // Battery capacity filter
+      let matchesBatteryCapacity = true;
+      if (filters.batteryCapacity !== 'Wszystkie') {
+        const capacities = {
+          'small': [0, 60],     // Small battery
+          'medium': [60, 80],   // Medium battery
+          'large': [80, 9999]   // Large battery
+        };
+        const [minCap, maxCap] = capacities[filters.batteryCapacity] || [0, 9999];
+        matchesBatteryCapacity = vehicle.batteryCapacity >= minCap && vehicle.batteryCapacity <= maxCap;
+      }
+      
+      // Features filter
+      let matchesFeatures = true;
+      if (filters.features !== 'Wszystkie') {
+        switch (filters.features) {
+          case 'autopilot':
+            matchesFeatures = vehicle.autopilot;
+            break;
+          case 'heatpump':
+            matchesFeatures = vehicle.heatPump;
+            break;
+          case 'heated':
+            matchesFeatures = vehicle.heatedSeats;
+            break;
+          case 'awd':
+            matchesFeatures = vehicle.driveType === 'AWD';
+            break;
+        }
+      }
+      
+      return matchesSearch && matchesMake && matchesLocation && matchesYear && matchesPrice &&
+             matchesBatteryType && matchesDriveType && matchesRange && matchesChargingSpeed &&
+             matchesBatteryCapacity && matchesFeatures;
     });
     
     setFilteredVehicles(filtered);
@@ -252,11 +397,8 @@ export default function EVMarketplace() {
       border: '1px solid rgba(255, 255, 255, 0.2)',
       marginBottom: '32px'
     }}>
-      <div style={{ 
-        display: 'grid', 
-        gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', 
-        gap: '16px' 
-      }}>
+      {/* Search Input */}
+      <div style={{ marginBottom: '20px' }}>
         <div style={{ position: 'relative' }}>
           <Search style={{ 
             position: 'absolute', 
@@ -269,7 +411,7 @@ export default function EVMarketplace() {
           }} />
           <input
             type="text"
-            placeholder="Szukaj pojazdu..."
+            placeholder="Szukaj pojazdu elektrycznego..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             style={{
@@ -295,11 +437,20 @@ export default function EVMarketplace() {
             }}
           />
         </div>
-        
+      </div>
+
+      {/* Basic Filters */}
+      <div style={{ 
+        display: 'grid', 
+        gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', 
+        gap: '16px',
+        marginBottom: '20px'
+      }}>
         {[
-          { key: 'make', label: 'Wszystkie marki', options: ['Wszystkie', 'Tesla', 'BMW', 'Audi', 'Volkswagen', 'Mercedes'] },
+          { key: 'make', label: 'Wszystkie marki', options: ['Wszystkie', 'Tesla', 'BMW', 'Audi', 'Volkswagen', 'BYD'] },
           { key: 'priceRange', label: 'Wszystkie ceny', options: ['Wszystkie', '0-100', '100-200', '200-300', '300-500', '500'] },
-          { key: 'location', label: 'Wszystkie lokalizacje', options: ['Wszystkie', 'Warszawa', 'Kraków', 'Gdańsk', 'Wrocław', 'Poznań'] }
+          { key: 'location', label: 'Wszystkie lokalizacje', options: ['Wszystkie', 'Warszawa', 'Kraków', 'Gdańsk', 'Wrocław', 'Poznań'] },
+          { key: 'year', label: 'Wszystkie roczniki', options: ['Wszystkie', '2024', '2023', '2022', '2021', '2020'] }
         ].map(({ key, label, options }) => (
           <select
             key={key}
@@ -328,7 +479,144 @@ export default function EVMarketplace() {
             ))}
           </select>
         ))}
+      </div>
 
+      {/* EV-Specific Filters */}
+      <div style={{ 
+        borderTop: '1px solid #e5e7eb',
+        paddingTop: '20px',
+        marginBottom: '20px'
+      }}>
+        <div style={{ 
+          display: 'flex', 
+          alignItems: 'center', 
+          marginBottom: '16px',
+          color: '#4b5563',
+          fontSize: '14px',
+          fontWeight: '600'
+        }}>
+          <Battery style={{ height: '16px', width: '16px', marginRight: '8px' }} />
+          Filtry specjalistyczne EV
+        </div>
+        
+        <div style={{ 
+          display: 'grid', 
+          gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', 
+          gap: '16px' 
+        }}>
+          {[
+            { 
+              key: 'batteryType', 
+              label: 'Typ baterii', 
+              options: ['Wszystkie', 'Li-ion', 'LiFePO4', 'NMC'] 
+            },
+            { 
+              key: 'driveType', 
+              label: 'Napęd', 
+              options: ['Wszystkie', 'FWD', 'RWD', 'AWD'] 
+            },
+            { 
+              key: 'rangeCategory', 
+              label: 'Zasięg', 
+              options: ['Wszystkie', '0-300', '300-400', '400-500', '500+'],
+              labels: {
+                '0-300': 'do 300 km',
+                '300-400': '300-400 km', 
+                '400-500': '400-500 km',
+                '500+': 'powyżej 500 km'
+              }
+            },
+            { 
+              key: 'chargingSpeed', 
+              label: 'Szybkość ładowania', 
+              options: ['Wszystkie', 'slow', 'fast', 'ultra'],
+              labels: {
+                'slow': 'Wolne (do 50kW)',
+                'fast': 'Szybkie (50-150kW)',
+                'ultra': 'Ultra (150kW+)'
+              }
+            },
+            { 
+              key: 'batteryCapacity', 
+              label: 'Pojemność baterii', 
+              options: ['Wszystkie', 'small', 'medium', 'large'],
+              labels: {
+                'small': 'Mała (do 60kWh)',
+                'medium': 'Średnia (60-80kWh)',
+                'large': 'Duża (80kWh+)'
+              }
+            },
+            { 
+              key: 'features', 
+              label: 'Dodatkowe funkcje', 
+              options: ['Wszystkie', 'autopilot', 'heatpump', 'heated', 'awd'],
+              labels: {
+                'autopilot': 'Autopilot',
+                'heatpump': 'Pompa ciepła',
+                'heated': 'Podgrzewane fotele',
+                'awd': 'Napęd 4x4'
+              }
+            }
+          ].map(({ key, label, options, labels }) => (
+            <select
+              key={key}
+              value={filters[key]}
+              onChange={(e) => setFilters({...filters, [key]: e.target.value})}
+              style={{
+                width: '100%',
+                padding: '12px 16px',
+                border: '2px solid #e5e7eb',
+                borderRadius: '12px',
+                fontSize: '14px',
+                outline: 'none',
+                background: 'white',
+                cursor: 'pointer'
+              }}
+            >
+              <option value="Wszystkie">{label}</option>
+              {options.slice(1).map(option => (
+                <option key={option} value={option}>
+                  {labels?.[option] || option}
+                </option>
+              ))}
+            </select>
+          ))}
+        </div>
+      </div>
+
+      {/* Search Button and Reset */}
+      <div style={{ display: 'flex', gap: '12px', justifyContent: 'flex-end' }}>
+        <button 
+          onClick={() => setFilters({
+            make: 'Wszystkie',
+            priceRange: 'Wszystkie',
+            year: 'Wszystkie',
+            location: 'Wszystkie',
+            batteryType: 'Wszystkie',
+            driveType: 'Wszystkie',
+            rangeCategory: 'Wszystkie',
+            chargingSpeed: 'Wszystkie',
+            batteryCapacity: 'Wszystkie',
+            features: 'Wszystkie'
+          })}
+          style={{
+            background: '#6b7280',
+            color: 'white',
+            border: 'none',
+            padding: '12px 24px',
+            borderRadius: '12px',
+            fontWeight: '600',
+            cursor: 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px',
+            transition: 'all 0.3s ease'
+          }}
+        >
+          <X style={{ height: '16px', width: '16px' }} />
+          Wyczyść filtry
+        </button>
+        
         <button style={{
           background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
           color: 'white',
@@ -345,7 +633,7 @@ export default function EVMarketplace() {
           boxShadow: '0 4px 15px rgba(102, 126, 234, 0.4)'
         }}>
           <Search style={{ height: '16px', width: '16px' }} />
-          Szukaj
+          Szukaj ({filteredVehicles.length})
         </button>
       </div>
     </div>
@@ -446,16 +734,66 @@ export default function EVMarketplace() {
           fontSize: '12px'
         }}>
           {[
-            { icon: Battery, text: `${vehicle.batteryCapacity} kWh` },
-            { icon: Zap, text: `${vehicle.range} km` },
-            { icon: MapPin, text: vehicle.location },
-            { icon: Car, text: `${vehicle.mileage?.toLocaleString('pl-PL')} km` }
-          ].map(({ icon: Icon, text }, index) => (
-            <div key={index} style={{ display: 'flex', alignItems: 'center', color: '#6b7280' }}>
-              <Icon style={{ height: '14px', width: '14px', marginRight: '6px' }} />
-              {text}
+            { icon: Battery, text: `${vehicle.batteryCapacity} kWh`, subtext: vehicle.batteryType },
+            { icon: Zap, text: `${vehicle.range} km`, subtext: `${vehicle.efficiency} kWh/100km` },
+            { icon: MapPin, text: vehicle.location, subtext: `${vehicle.mileage?.toLocaleString('pl-PL')} km` },
+            { icon: Car, text: `${vehicle.powerOutput} kW`, subtext: vehicle.driveType }
+          ].map(({ icon: Icon, text, subtext }, index) => (
+            <div key={index} style={{ display: 'flex', flexDirection: 'column', color: '#6b7280' }}>
+              <div style={{ display: 'flex', alignItems: 'center', marginBottom: '2px' }}>
+                <Icon style={{ height: '14px', width: '14px', marginRight: '6px' }} />
+                <span style={{ fontWeight: '600', color: '#1f2937' }}>{text}</span>
+              </div>
+              <div style={{ fontSize: '11px', color: '#9ca3af', paddingLeft: '20px' }}>
+                {subtext}
+              </div>
             </div>
           ))}
+        </div>
+
+        {/* EV Features */}
+        <div style={{ 
+          display: 'flex', 
+          flexWrap: 'wrap', 
+          gap: '6px', 
+          marginBottom: '16px' 
+        }}>
+          {vehicle.autopilot && (
+            <span style={{
+              background: 'linear-gradient(135deg, #667eea, #764ba2)',
+              color: 'white',
+              padding: '2px 8px',
+              borderRadius: '12px',
+              fontSize: '10px',
+              fontWeight: '600'
+            }}>
+              Autopilot
+            </span>
+          )}
+          {vehicle.heatPump && (
+            <span style={{
+              background: '#10b981',
+              color: 'white',
+              padding: '2px 8px',
+              borderRadius: '12px',
+              fontSize: '10px',
+              fontWeight: '600'
+            }}>
+              Pompa ciepła
+            </span>
+          )}
+          {vehicle.maxChargingSpeed > 150 && (
+            <span style={{
+              background: '#f59e0b',
+              color: 'white',
+              padding: '2px 8px',
+              borderRadius: '12px',
+              fontSize: '10px',
+              fontWeight: '600'
+            }}>
+              Ultra-fast
+            </span>
+          )}
         </div>
 
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -578,7 +916,8 @@ export default function EVMarketplace() {
           {[
             { number: `${vehicles.length}+`, label: 'Dostępnych pojazdów' },
             { number: '500+', label: 'Zadowolonych klientów' },
-            { number: '50+', label: 'Miast w Polsce' }
+            { number: '50+', label: 'Miast w Polsce' },
+            { number: `${Math.round(vehicles.reduce((acc, v) => acc + v.range, 0) / vehicles.length)}km`, label: 'Średni zasięg' }
           ].map(({ number, label }, index) => (
             <div key={index} style={{ textAlign: 'center' }}>
               <div style={{ 
@@ -721,13 +1060,18 @@ export default function EVMarketplace() {
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '40px' }}>
               <div>
                 <h3 style={{ fontSize: '20px', fontWeight: '700', marginBottom: '20px', color: '#1f2937' }}>
-                  Specyfikacja
+                  Specyfikacja techniczna
                 </h3>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                   {[
                     { label: 'Pojemność baterii:', value: `${selectedVehicle.batteryCapacity} kWh` },
-                    { label: 'Zasięg:', value: `${selectedVehicle.range} km` },
-                    { label: 'Typ ładowania:', value: selectedVehicle.chargingType },
+                    { label: 'Typ baterii:', value: selectedVehicle.batteryType },
+                    { label: 'Zasięg WLTP:', value: `${selectedVehicle.range} km` },
+                    { label: 'Zużycie energii:', value: `${selectedVehicle.efficiency} kWh/100km` },
+                    { label: 'Moc silnika:', value: `${selectedVehicle.powerOutput} kW` },
+                    { label: 'Rodzaj napędu:', value: selectedVehicle.driveType },
+                    { label: 'Maks. moc ładowania:', value: `${selectedVehicle.maxChargingSpeed} kW` },
+                    { label: 'Typy ładowania:', value: selectedVehicle.chargingPorts.join(', ') },
                     { label: 'Przebieg:', value: `${selectedVehicle.mileage?.toLocaleString('pl-PL')} km` },
                     { label: 'Lokalizacja:', value: selectedVehicle.location }
                   ].map(({ label, value }, index) => (
@@ -735,6 +1079,31 @@ export default function EVMarketplace() {
                       <span style={{ color: '#6b7280' }}>{label}</span>
                       <span style={{ fontWeight: '600', color: '#1f2937' }}>{value}</span>
                     </div>
+                  ))}
+                </div>
+
+                {/* Features Section */}
+                <h3 style={{ fontSize: '18px', fontWeight: '700', marginTop: '24px', marginBottom: '16px', color: '#1f2937' }}>
+                  Wyposażenie
+                </h3>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+                  {[
+                    { key: 'autopilot', label: 'Autopilot', color: '#667eea' },
+                    { key: 'heatPump', label: 'Pompa ciepła', color: '#10b981' },
+                    { key: 'heatedSeats', label: 'Podgrzewane fotele', color: '#f59e0b' }
+                  ].map(({ key, label, color }) => (
+                    selectedVehicle[key] && (
+                      <span key={key} style={{
+                        background: color,
+                        color: 'white',
+                        padding: '6px 12px',
+                        borderRadius: '16px',
+                        fontSize: '12px',
+                        fontWeight: '600'
+                      }}>
+                        ✓ {label}
+                      </span>
+                    )
                   ))}
                 </div>
               </div>
