@@ -1,5 +1,22 @@
 import React, { useState, useEffect } from 'react';
-import { Search, Filter, Car, Battery, Zap, MapPin, Phone, Mail, Heart, Star, ChevronDown, Menu, X, ArrowRight, Sparkles } from 'lucide-react';
+import { Search, Filter, Car, Battery, Zap, MapPin, Phone, Mail, Heart, Star, ChevronDown, Menu, X, ArrowRight, Sparkles, User, Shield, Building, CheckCircle, AlertCircle } from 'lucide-react';
+
+interface User {
+  id: number;
+  phone: string;
+  email: string;
+  firstName: string;
+  lastName: string;
+  isCompany: boolean;
+  street: string;
+  city: string;
+  postalCode: string;
+  country: string;
+  companyName?: string;
+  nip?: string;
+  isVerified: boolean;
+  registrationDate: Date;
+}
 
 interface Vehicle {
   id: number;
@@ -14,12 +31,11 @@ interface Vehicle {
   description: string;
   photos?: string[];
   mileage?: number;
-  // Enhanced EV-specific properties
   batteryType: 'Li-ion' | 'LiFePO4' | 'NMC' | 'LTO';
   driveType: 'FWD' | 'RWD' | 'AWD';
-  powerOutput: number; // kW
-  maxChargingSpeed: number; // kW
-  efficiency: number; // kWh/100km
+  powerOutput: number;
+  maxChargingSpeed: number;
+  efficiency: number;
   chargingPorts: string[];
   autopilot: boolean;
   heatedSeats: boolean;
@@ -29,8 +45,58 @@ interface Vehicle {
     phone: string;
     verified: boolean;
     rating: number;
+    isCompany?: boolean;
+    companyName?: string;
   };
+  sellerId: number;
 }
+
+const mockUsers: User[] = [
+  {
+    id: 1,
+    phone: "+48123456789",
+    email: "jan.kowalski@email.com",
+    firstName: "Jan",
+    lastName: "Kowalski",
+    isCompany: false,
+    street: "ul. Marszałkowska 1",
+    city: "Warszawa",
+    postalCode: "00-001",
+    country: "Polska",
+    isVerified: true,
+    registrationDate: new Date('2023-01-15')
+  },
+  {
+    id: 2,
+    phone: "+48987654321", 
+    email: "anna.nowak@email.com",
+    firstName: "Anna",
+    lastName: "Nowak",
+    isCompany: false,
+    street: "ul. Floriańska 10",
+    city: "Kraków",
+    postalCode: "31-019",
+    country: "Polska",
+    isVerified: true,
+    registrationDate: new Date('2023-02-20')
+  },
+  {
+    id: 3,
+    phone: "+48777888999",
+    email: "biuro@autosalonzielinski.pl",
+    firstName: "Katarzyna",
+    lastName: "Zielińska",
+    isCompany: true,
+    companyName: "Auto Salon Zieliński Sp. z o.o.",
+    nip: "1234567890",
+    street: "ul. Przemysłowa 15",
+    city: "Wrocław", 
+    postalCode: "50-001",
+    country: "Polska",
+    isVerified: true,
+    registrationDate: new Date('2022-11-10')
+  }
+];
 
 const mockVehicles: Vehicle[] = [
   {
@@ -55,11 +121,13 @@ const mockVehicles: Vehicle[] = [
     autopilot: true,
     heatedSeats: true,
     heatPump: true,
+    sellerId: 1,
     seller: {
       name: "Jan Kowalski",
       phone: "+48 123 456 789",
       verified: true,
-      rating: 4.8
+      rating: 4.8,
+      isCompany: false
     }
   },
   {
@@ -84,11 +152,13 @@ const mockVehicles: Vehicle[] = [
     autopilot: false,
     heatedSeats: true,
     heatPump: true,
+    sellerId: 2,
     seller: {
       name: "Anna Nowak",
       phone: "+48 987 654 321",
       verified: true,
-      rating: 4.9
+      rating: 4.9,
+      isCompany: false
     }
   },
   {
@@ -113,11 +183,13 @@ const mockVehicles: Vehicle[] = [
     autopilot: false,
     heatedSeats: true,
     heatPump: false,
+    sellerId: 1,
     seller: {
       name: "Piotr Wiśniewski",
       phone: "+48 555 123 456",
       verified: true,
-      rating: 4.7
+      rating: 4.7,
+      isCompany: false
     }
   },
   {
@@ -142,11 +214,14 @@ const mockVehicles: Vehicle[] = [
     autopilot: false,
     heatedSeats: true,
     heatPump: true,
+    sellerId: 3,
     seller: {
-      name: "Katarzyna Zielińska",
+      name: "Auto Salon Zieliński",
       phone: "+48 777 888 999",
       verified: true,
-      rating: 4.6
+      rating: 4.6,
+      isCompany: true,
+      companyName: "Auto Salon Zieliński Sp. z o.o."
     }
   },
   {
@@ -171,19 +246,29 @@ const mockVehicles: Vehicle[] = [
     autopilot: false,
     heatedSeats: true,
     heatPump: false,
+    sellerId: 3,
     seller: {
-      name: "Marcin Lewandowski",
-      phone: "+48 666 555 444",
+      name: "Auto Salon Zieliński",
+      phone: "+48 777 888 999",
       verified: true,
-      rating: 4.5
+      rating: 4.5,
+      isCompany: true,
+      companyName: "Auto Salon Zieliński Sp. z o.o."
     }
   }
 ];
 
 export default function EVMarketplace() {
-  const [vehicles, setVehicles] = useState<Vehicle[]>(mockVehicles);
+  const [vehicles] = useState<Vehicle[]>(mockVehicles);
   const [filteredVehicles, setFilteredVehicles] = useState<Vehicle[]>(mockVehicles);
   const [loading, setLoading] = useState(false);
+  
+  // Authentication state
+  const [currentUser, setCurrentUser] = useState<User | null>(null);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [showAuthModal, setShowAuthModal] = useState(false);
+  const [authMode, setAuthMode] = useState<'login' | 'register'>('login');
+  const [phoneVerificationStep, setPhoneVerificationStep] = useState<'phone' | 'code' | 'details'>('phone');
   
   const [currentView, setCurrentView] = useState('home');
   const [selectedVehicle, setSelectedVehicle] = useState<Vehicle | null>(null);
@@ -193,7 +278,6 @@ export default function EVMarketplace() {
     priceRange: 'Wszystkie',
     year: 'Wszystkie',
     location: 'Wszystkie',
-    // New EV-specific filters
     batteryType: 'Wszystkie',
     driveType: 'Wszystkie',
     rangeCategory: 'Wszystkie',
@@ -201,11 +285,22 @@ export default function EVMarketplace() {
     batteryCapacity: 'Wszystkie',
     features: 'Wszystkie'
   });
-  const [showMobileMenu, setShowMobileMenu] = useState(false);
 
-  useEffect(() => {
-    filterVehicles();
-  }, [searchTerm, filters, vehicles]);
+  // Auth form data
+  const [authFormData, setAuthFormData] = useState({
+    phone: '',
+    verificationCode: '',
+    email: '',
+    firstName: '',
+    lastName: '',
+    isCompany: false,
+    companyName: '',
+    nip: '',
+    street: '',
+    city: '',
+    postalCode: '',
+    country: 'Polska'
+  });
 
   const filterVehicles = () => {
     let filtered = vehicles.filter(vehicle => {
@@ -228,75 +323,378 @@ export default function EVMarketplace() {
       const matchesBatteryType = filters.batteryType === 'Wszystkie' || vehicle.batteryType === filters.batteryType;
       const matchesDriveType = filters.driveType === 'Wszystkie' || vehicle.driveType === filters.driveType;
       
-      // Range category filter
-      let matchesRange = true;
-      if (filters.rangeCategory !== 'Wszystkie') {
-        const ranges = {
-          '0-300': [0, 300],
-          '300-400': [300, 400],
-          '400-500': [400, 500],
-          '500+': [500, 9999]
-        };
-        const [minRange, maxRange] = ranges[filters.rangeCategory] || [0, 9999];
-        matchesRange = vehicle.range >= minRange && vehicle.range <= maxRange;
-      }
-      
-      // Charging speed filter
-      let matchesChargingSpeed = true;
-      if (filters.chargingSpeed !== 'Wszystkie') {
-        const speeds = {
-          'slow': [0, 50],      // Slow AC charging
-          'fast': [50, 150],    // Fast DC charging
-          'ultra': [150, 9999]  // Ultra-fast charging
-        };
-        const [minSpeed, maxSpeed] = speeds[filters.chargingSpeed] || [0, 9999];
-        matchesChargingSpeed = vehicle.maxChargingSpeed >= minSpeed && vehicle.maxChargingSpeed <= maxSpeed;
-      }
-      
-      // Battery capacity filter
-      let matchesBatteryCapacity = true;
-      if (filters.batteryCapacity !== 'Wszystkie') {
-        const capacities = {
-          'small': [0, 60],     // Small battery
-          'medium': [60, 80],   // Medium battery
-          'large': [80, 9999]   // Large battery
-        };
-        const [minCap, maxCap] = capacities[filters.batteryCapacity] || [0, 9999];
-        matchesBatteryCapacity = vehicle.batteryCapacity >= minCap && vehicle.batteryCapacity <= maxCap;
-      }
-      
-      // Features filter
-      let matchesFeatures = true;
-      if (filters.features !== 'Wszystkie') {
-        switch (filters.features) {
-          case 'autopilot':
-            matchesFeatures = vehicle.autopilot;
-            break;
-          case 'heatpump':
-            matchesFeatures = vehicle.heatPump;
-            break;
-          case 'heated':
-            matchesFeatures = vehicle.heatedSeats;
-            break;
-          case 'awd':
-            matchesFeatures = vehicle.driveType === 'AWD';
-            break;
-        }
-      }
-      
       return matchesSearch && matchesMake && matchesLocation && matchesYear && matchesPrice &&
-             matchesBatteryType && matchesDriveType && matchesRange && matchesChargingSpeed &&
-             matchesBatteryCapacity && matchesFeatures;
+             matchesBatteryType && matchesDriveType;
     });
     
     setFilteredVehicles(filtered);
   };
 
+  useEffect(() => {
+    filterVehicles();
+  }, [searchTerm, filters, vehicles]);
+
+  // Authentication functions
+  const sendVerificationCode = () => {
+    setLoading(true);
+    setTimeout(() => {
+      setLoading(false);
+      setPhoneVerificationStep('code');
+    }, 2000);
+  };
+
+  const verifyCode = () => {
+    setLoading(true);
+    setTimeout(() => {
+      setLoading(false);
+      if (authFormData.verificationCode === '123456') {
+        const existingUser = mockUsers.find(u => u.phone === authFormData.phone);
+        if (existingUser && authMode === 'login') {
+          setCurrentUser(existingUser);
+          setIsAuthenticated(true);
+          setShowAuthModal(false);
+          setPhoneVerificationStep('phone');
+        } else if (authMode === 'register') {
+          setPhoneVerificationStep('details');
+        }
+      } else {
+        alert('Nieprawidłowy kod weryfikacyjny');
+      }
+    }, 1000);
+  };
+
+  const completeRegistration = () => {
+    setLoading(true);
+    setTimeout(() => {
+      const newUser: User = {
+        id: mockUsers.length + 1,
+        phone: authFormData.phone,
+        email: authFormData.email,
+        firstName: authFormData.firstName,
+        lastName: authFormData.lastName,
+        isCompany: authFormData.isCompany,
+        companyName: authFormData.companyName,
+        nip: authFormData.nip,
+        street: authFormData.street,
+        city: authFormData.city,
+        postalCode: authFormData.postalCode,
+        country: authFormData.country,
+        isVerified: true,
+        registrationDate: new Date()
+      };
+      
+      setCurrentUser(newUser);
+      setIsAuthenticated(true);
+      setShowAuthModal(false);
+      setPhoneVerificationStep('phone');
+      setLoading(false);
+    }, 2000);
+  };
+
+  const logout = () => {
+    setCurrentUser(null);
+    setIsAuthenticated(false);
+    setCurrentView('home');
+  };
+
+  const handleSellClick = () => {
+    if (!isAuthenticated) {
+      setAuthMode('register');
+      setShowAuthModal(true);
+    } else {
+      setCurrentView('sell');
+    }
+  };
+
+  const AuthModal = () => {
+    if (!showAuthModal) return null;
+
+    return (
+      <div style={{
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        background: 'rgba(0, 0, 0, 0.5)',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        zIndex: 1000
+      }}>
+        <div style={{
+          background: 'white',
+          borderRadius: '20px',
+          padding: '32px',
+          maxWidth: '500px',
+          width: '90%',
+          maxHeight: '90vh',
+          overflowY: 'auto'
+        }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
+            <h2 style={{ fontSize: '24px', fontWeight: '800', color: '#1f2937', margin: 0 }}>
+              {authMode === 'login' ? 'Zaloguj się' : 'Zarejestruj się'}
+            </h2>
+            <button
+              onClick={() => {
+                setShowAuthModal(false);
+                setPhoneVerificationStep('phone');
+              }}
+              style={{
+                background: 'none',
+                border: 'none',
+                fontSize: '24px',
+                cursor: 'pointer',
+                color: '#6b7280'
+              }}
+            >
+              <X style={{ height: '24px', width: '24px' }} />
+            </button>
+          </div>
+
+          {phoneVerificationStep === 'phone' && (
+            <div>
+              <div style={{ textAlign: 'center', marginBottom: '24px' }}>
+                <Phone style={{ height: '48px', width: '48px', color: '#667eea', margin: '0 auto 16px' }} />
+                <p style={{ color: '#6b7280' }}>
+                  {authMode === 'login' 
+                    ? 'Podaj numer telefonu, aby się zalogować'
+                    : 'Podaj numer telefonu, aby rozpocząć rejestrację'
+                  }
+                </p>
+              </div>
+
+              <div style={{ marginBottom: '20px' }}>
+                <label style={{ display: 'block', fontSize: '14px', fontWeight: '600', color: '#374151', marginBottom: '8px' }}>
+                  Numer telefonu
+                </label>
+                <input
+                  type="tel"
+                  placeholder="+48 123 456 789"
+                  value={authFormData.phone}
+                  onChange={(e) => setAuthFormData({...authFormData, phone: e.target.value})}
+                  style={{
+                    width: '100%',
+                    padding: '12px 16px',
+                    border: '2px solid #e5e7eb',
+                    borderRadius: '12px',
+                    fontSize: '16px',
+                    outline: 'none'
+                  }}
+                />
+              </div>
+
+              <button
+                onClick={sendVerificationCode}
+                disabled={loading || !authFormData.phone}
+                style={{
+                  width: '100%',
+                  background: loading ? '#9ca3af' : 'linear-gradient(135deg, #667eea, #764ba2)',
+                  color: 'white',
+                  border: 'none',
+                  padding: '14px',
+                  borderRadius: '12px',
+                  fontSize: '16px',
+                  fontWeight: '600',
+                  cursor: loading ? 'not-allowed' : 'pointer'
+                }}
+              >
+                {loading ? 'Wysyłanie...' : 'Wyślij kod weryfikacyjny'}
+              </button>
+
+              <div style={{ textAlign: 'center', marginTop: '16px' }}>
+                <button
+                  onClick={() => setAuthMode(authMode === 'login' ? 'register' : 'login')}
+                  style={{
+                    background: 'none',
+                    border: 'none',
+                    color: '#667eea',
+                    fontSize: '14px',
+                    cursor: 'pointer',
+                    textDecoration: 'underline'
+                  }}
+                >
+                  {authMode === 'login' ? 'Nie masz konta? Zarejestruj się' : 'Masz już konto? Zaloguj się'}
+                </button>
+              </div>
+            </div>
+          )}
+
+          {phoneVerificationStep === 'code' && (
+            <div>
+              <div style={{ textAlign: 'center', marginBottom: '24px' }}>
+                <Shield style={{ height: '48px', width: '48px', color: '#10b981', margin: '0 auto 16px' }} />
+                <p style={{ color: '#6b7280' }}>
+                  Wysłaliśmy kod weryfikacyjny na numer<br />
+                  <strong>{authFormData.phone}</strong>
+                </p>
+                <p style={{ fontSize: '12px', color: '#9ca3af', marginTop: '8px' }}>
+                  Demo: użyj kodu <strong>123456</strong>
+                </p>
+              </div>
+
+              <div style={{ marginBottom: '20px' }}>
+                <label style={{ display: 'block', fontSize: '14px', fontWeight: '600', color: '#374151', marginBottom: '8px' }}>
+                  Kod weryfikacyjny
+                </label>
+                <input
+                  type="text"
+                  placeholder="123456"
+                  value={authFormData.verificationCode}
+                  onChange={(e) => setAuthFormData({...authFormData, verificationCode: e.target.value})}
+                  style={{
+                    width: '100%',
+                    padding: '12px 16px',
+                    border: '2px solid #e5e7eb',
+                    borderRadius: '12px',
+                    fontSize: '20px',
+                    outline: 'none',
+                    textAlign: 'center',
+                    letterSpacing: '0.2em'
+                  }}
+                />
+              </div>
+
+              <button
+                onClick={verifyCode}
+                disabled={loading || !authFormData.verificationCode}
+                style={{
+                  width: '100%',
+                  background: loading ? '#9ca3af' : 'linear-gradient(135deg, #10b981, #059669)',
+                  color: 'white',
+                  border: 'none',
+                  padding: '14px',
+                  borderRadius: '12px',
+                  fontSize: '16px',
+                  fontWeight: '600',
+                  cursor: loading ? 'not-allowed' : 'pointer'
+                }}
+              >
+                {loading ? 'Weryfikowanie...' : 'Zweryfikuj kod'}
+              </button>
+            </div>
+          )}
+
+          {phoneVerificationStep === 'details' && authMode === 'register' && (
+            <div>
+              <div style={{ textAlign: 'center', marginBottom: '24px' }}>
+                <User style={{ height: '48px', width: '48px', color: '#667eea', margin: '0 auto 16px' }} />
+                <p style={{ color: '#6b7280' }}>
+                  Uzupełnij swoje dane, aby zakończyć rejestrację
+                </p>
+              </div>
+
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                <div>
+                  <label style={{ display: 'block', fontSize: '14px', fontWeight: '600', color: '#374151', marginBottom: '8px' }}>
+                    Email *
+                  </label>
+                  <input
+                    type="email"
+                    placeholder="twoj@email.com"
+                    value={authFormData.email}
+                    onChange={(e) => setAuthFormData({...authFormData, email: e.target.value})}
+                    style={{
+                      width: '100%',
+                      padding: '12px 16px',
+                      border: '2px solid #e5e7eb',
+                      borderRadius: '12px',
+                      fontSize: '14px',
+                      outline: 'none'
+                    }}
+                  />
+                </div>
+
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+                  <div>
+                    <label style={{ display: 'block', fontSize: '14px', fontWeight: '600', color: '#374151', marginBottom: '8px' }}>
+                      Imię *
+                    </label>
+                    <input
+                      type="text"
+                      placeholder="Jan"
+                      value={authFormData.firstName}
+                      onChange={(e) => setAuthFormData({...authFormData, firstName: e.target.value})}
+                      style={{
+                        width: '100%',
+                        padding: '12px 16px',
+                        border: '2px solid #e5e7eb',
+                        borderRadius: '12px',
+                        fontSize: '14px',
+                        outline: 'none'
+                      }}
+                    />
+                  </div>
+                  <div>
+                    <label style={{ display: 'block', fontSize: '14px', fontWeight: '600', color: '#374151', marginBottom: '8px' }}>
+                      Nazwisko *
+                    </label>
+                    <input
+                      type="text"
+                      placeholder="Kowalski"
+                      value={authFormData.lastName}
+                      onChange={(e) => setAuthFormData({...authFormData, lastName: e.target.value})}
+                      style={{
+                        width: '100%',
+                        padding: '12px 16px',
+                        border: '2px solid #e5e7eb',
+                        borderRadius: '12px',
+                        fontSize: '14px',
+                        outline: 'none'
+                      }}
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label style={{ display: 'block', fontSize: '14px', fontWeight: '600', color: '#374151', marginBottom: '8px' }}>
+                    Miasto *
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="Warszawa"
+                    value={authFormData.city}
+                    onChange={(e) => setAuthFormData({...authFormData, city: e.target.value})}
+                    style={{
+                      width: '100%',
+                      padding: '12px 16px',
+                      border: '2px solid #e5e7eb',
+                      borderRadius: '12px',
+                      fontSize: '14px',
+                      outline: 'none'
+                    }}
+                  />
+                </div>
+              </div>
+
+              <button
+                onClick={completeRegistration}
+                disabled={loading}
+                style={{
+                  width: '100%',
+                  background: loading ? '#9ca3af' : 'linear-gradient(135deg, #667eea, #764ba2)',
+                  color: 'white',
+                  border: 'none',
+                  padding: '14px',
+                  borderRadius: '12px',
+                  fontSize: '16px',
+                  fontWeight: '600',
+                  cursor: loading ? 'not-allowed' : 'pointer',
+                  marginTop: '24px'
+                }}
+              >
+                {loading ? 'Rejestrowanie...' : 'Zakończ rejestrację'}
+              </button>
+            </div>
+          )}
+        </div>
+      </div>
+    );
+  };
+
   const Navigation = () => (
     <nav style={{
-      background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-      backdropFilter: 'blur(10px)',
-      borderBottom: '1px solid rgba(255, 255, 255, 0.1)'
+      background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'
     }}>
       <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '0 20px' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '16px 0' }}>
@@ -305,16 +703,14 @@ export default function EVMarketplace() {
               background: 'linear-gradient(135deg, #ff6b6b, #ffd93d)',
               borderRadius: '12px',
               padding: '8px',
-              marginRight: '12px',
-              boxShadow: '0 4px 15px rgba(0,0,0,0.2)'
+              marginRight: '12px'
             }}>
               <Car style={{ height: '24px', width: '24px', color: 'white' }} />
             </div>
             <span style={{ 
               fontSize: '24px', 
               fontWeight: 'bold', 
-              color: 'white',
-              textShadow: '0 2px 4px rgba(0,0,0,0.3)'
+              color: 'white'
             }}>
               EV Marketplace
             </span>
@@ -324,7 +720,13 @@ export default function EVMarketplace() {
             {['home', 'browse', 'sell'].map((view) => (
               <button
                 key={view}
-                onClick={() => setCurrentView(view)}
+                onClick={() => {
+                  if (view === 'sell') {
+                    handleSellClick();
+                  } else {
+                    setCurrentView(view);
+                  }
+                }}
                 style={{
                   padding: '8px 16px',
                   borderRadius: '8px',
@@ -332,22 +734,10 @@ export default function EVMarketplace() {
                   fontSize: '14px',
                   fontWeight: '500',
                   cursor: 'pointer',
-                  transition: 'all 0.3s ease',
                   background: currentView === view 
                     ? 'rgba(255, 255, 255, 0.2)' 
                     : 'transparent',
-                  color: 'white',
-                  backdropFilter: 'blur(10px)'
-                }}
-                onMouseEnter={(e) => {
-                  if (currentView !== view) {
-                    (e.currentTarget as HTMLButtonElement).style.background = 'rgba(255, 255, 255, 0.1)';
-                  }
-                }}
-                onMouseLeave={(e) => {
-                  if (currentView !== view) {
-                    (e.currentTarget as HTMLButtonElement).style.background = 'transparent';
-                  }
+                  color: 'white'
                 }}
               >
                 {view === 'home' ? 'Strona główna' : 
@@ -356,31 +746,65 @@ export default function EVMarketplace() {
             ))}
           </div>
 
-          <div style={{ display: 'flex', gap: '12px' }}>
-            <button style={{
-              background: 'rgba(255, 255, 255, 0.9)',
-              color: '#667eea',
-              border: 'none',
-              padding: '8px 16px',
-              borderRadius: '8px',
-              fontWeight: '600',
-              cursor: 'pointer',
-              transition: 'all 0.3s ease'
-            }}>
-              Zaloguj się
-            </button>
-            <button style={{
-              background: 'transparent',
-              color: 'white',
-              border: '2px solid rgba(255, 255, 255, 0.3)',
-              padding: '8px 16px',
-              borderRadius: '8px',
-              fontWeight: '600',
-              cursor: 'pointer',
-              transition: 'all 0.3s ease'
-            }}>
-              Zarejestruj się
-            </button>
+          <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+            {isAuthenticated ? (
+              <>
+                <span style={{ color: 'white', fontSize: '14px' }}>
+                  {currentUser?.firstName} {currentUser?.lastName}
+                </span>
+                <button 
+                  onClick={logout}
+                  style={{
+                    background: 'transparent',
+                    color: 'white',
+                    border: '2px solid rgba(255, 255, 255, 0.3)',
+                    padding: '8px 16px',
+                    borderRadius: '8px',
+                    fontWeight: '600',
+                    cursor: 'pointer'
+                  }}
+                >
+                  Wyloguj
+                </button>
+              </>
+            ) : (
+              <>
+                <button 
+                  onClick={() => {
+                    setAuthMode('login');
+                    setShowAuthModal(true);
+                  }}
+                  style={{
+                    background: 'rgba(255, 255, 255, 0.9)',
+                    color: '#667eea',
+                    border: 'none',
+                    padding: '8px 16px',
+                    borderRadius: '8px',
+                    fontWeight: '600',
+                    cursor: 'pointer'
+                  }}
+                >
+                  Zaloguj się
+                </button>
+                <button 
+                  onClick={() => {
+                    setAuthMode('register');
+                    setShowAuthModal(true);
+                  }}
+                  style={{
+                    background: 'transparent',
+                    color: 'white',
+                    border: '2px solid rgba(255, 255, 255, 0.3)',
+                    padding: '8px 16px',
+                    borderRadius: '8px',
+                    fontWeight: '600',
+                    cursor: 'pointer'
+                  }}
+                >
+                  Zarejestruj się
+                </button>
+              </>
+            )}
           </div>
         </div>
       </div>
@@ -392,12 +816,8 @@ export default function EVMarketplace() {
       background: 'rgba(255, 255, 255, 0.95)',
       padding: '24px',
       borderRadius: '16px',
-      boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)',
-      backdropFilter: 'blur(10px)',
-      border: '1px solid rgba(255, 255, 255, 0.2)',
       marginBottom: '32px'
     }}>
-      {/* Search Input */}
       <div style={{ marginBottom: '20px' }}>
         <div style={{ position: 'relative' }}>
           <Search style={{ 
@@ -424,22 +844,12 @@ export default function EVMarketplace() {
               borderRadius: '12px',
               fontSize: '14px',
               outline: 'none',
-              transition: 'all 0.3s ease',
               background: 'white'
-            }}
-            onFocus={(e) => {
-              e.target.style.borderColor = '#667eea';
-              e.target.style.boxShadow = '0 0 0 3px rgba(102, 126, 234, 0.1)';
-            }}
-            onBlur={(e) => {
-              e.target.style.borderColor = '#e5e7eb';
-              e.target.style.boxShadow = 'none';
             }}
           />
         </div>
       </div>
 
-      {/* Basic Filters */}
       <div style={{ 
         display: 'grid', 
         gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', 
@@ -448,7 +858,6 @@ export default function EVMarketplace() {
       }}>
         {[
           { key: 'make', label: 'Wszystkie marki', options: ['Wszystkie', 'Tesla', 'BMW', 'Audi', 'Volkswagen', 'BYD'] },
-          { key: 'priceRange', label: 'Wszystkie ceny', options: ['Wszystkie', '0-100', '100-200', '200-300', '300-500', '500'] },
           { key: 'location', label: 'Wszystkie lokalizacje', options: ['Wszystkie', 'Warszawa', 'Kraków', 'Gdańsk', 'Wrocław', 'Poznań'] },
           { key: 'year', label: 'Wszystkie roczniki', options: ['Wszystkie', '2024', '2023', '2022', '2021', '2020'] }
         ].map(({ key, label, options }) => (
@@ -469,173 +878,27 @@ export default function EVMarketplace() {
           >
             <option value="Wszystkie">{label}</option>
             {options.slice(1).map(option => (
-              <option key={option} value={option}>
-                {key === 'priceRange' && option !== 'Wszystkie' 
-                  ? option === '500' 
-                    ? 'powyżej 500 000 zł'
-                    : `${option.replace('-', ' 000 - ')} 000 zł`
-                  : option}
-              </option>
+              <option key={option} value={option}>{option}</option>
             ))}
           </select>
         ))}
       </div>
 
-      {/* EV-Specific Filters */}
-      <div style={{ 
-        borderTop: '1px solid #e5e7eb',
-        paddingTop: '20px',
-        marginBottom: '20px'
+      <button style={{
+        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+        color: 'white',
+        border: 'none',
+        padding: '12px 24px',
+        borderRadius: '12px',
+        fontWeight: '600',
+        cursor: 'pointer',
+        display: 'flex',
+        alignItems: 'center',
+        gap: '8px'
       }}>
-        <div style={{ 
-          display: 'flex', 
-          alignItems: 'center', 
-          marginBottom: '16px',
-          color: '#4b5563',
-          fontSize: '14px',
-          fontWeight: '600'
-        }}>
-          <Battery style={{ height: '16px', width: '16px', marginRight: '8px' }} />
-          Filtry specjalistyczne EV
-        </div>
-        
-        <div style={{ 
-          display: 'grid', 
-          gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', 
-          gap: '16px' 
-        }}>
-          {[
-            { 
-              key: 'batteryType', 
-              label: 'Typ baterii', 
-              options: ['Wszystkie', 'Li-ion', 'LiFePO4', 'NMC'] 
-            },
-            { 
-              key: 'driveType', 
-              label: 'Napęd', 
-              options: ['Wszystkie', 'FWD', 'RWD', 'AWD'] 
-            },
-            { 
-              key: 'rangeCategory', 
-              label: 'Zasięg', 
-              options: ['Wszystkie', '0-300', '300-400', '400-500', '500+'],
-              labels: {
-                '0-300': 'do 300 km',
-                '300-400': '300-400 km', 
-                '400-500': '400-500 km',
-                '500+': 'powyżej 500 km'
-              }
-            },
-            { 
-              key: 'chargingSpeed', 
-              label: 'Szybkość ładowania', 
-              options: ['Wszystkie', 'slow', 'fast', 'ultra'],
-              labels: {
-                'slow': 'Wolne (do 50kW)',
-                'fast': 'Szybkie (50-150kW)',
-                'ultra': 'Ultra (150kW+)'
-              }
-            },
-            { 
-              key: 'batteryCapacity', 
-              label: 'Pojemność baterii', 
-              options: ['Wszystkie', 'small', 'medium', 'large'],
-              labels: {
-                'small': 'Mała (do 60kWh)',
-                'medium': 'Średnia (60-80kWh)',
-                'large': 'Duża (80kWh+)'
-              }
-            },
-            { 
-              key: 'features', 
-              label: 'Dodatkowe funkcje', 
-              options: ['Wszystkie', 'autopilot', 'heatpump', 'heated', 'awd'],
-              labels: {
-                'autopilot': 'Autopilot',
-                'heatpump': 'Pompa ciepła',
-                'heated': 'Podgrzewane fotele',
-                'awd': 'Napęd 4x4'
-              }
-            }
-          ].map(({ key, label, options, labels }) => (
-            <select
-              key={key}
-              value={filters[key]}
-              onChange={(e) => setFilters({...filters, [key]: e.target.value})}
-              style={{
-                width: '100%',
-                padding: '12px 16px',
-                border: '2px solid #e5e7eb',
-                borderRadius: '12px',
-                fontSize: '14px',
-                outline: 'none',
-                background: 'white',
-                cursor: 'pointer'
-              }}
-            >
-              <option value="Wszystkie">{label}</option>
-              {options.slice(1).map(option => (
-                <option key={option} value={option}>
-                  {labels?.[option] || option}
-                </option>
-              ))}
-            </select>
-          ))}
-        </div>
-      </div>
-
-      {/* Search Button and Reset */}
-      <div style={{ display: 'flex', gap: '12px', justifyContent: 'flex-end' }}>
-        <button 
-          onClick={() => setFilters({
-            make: 'Wszystkie',
-            priceRange: 'Wszystkie',
-            year: 'Wszystkie',
-            location: 'Wszystkie',
-            batteryType: 'Wszystkie',
-            driveType: 'Wszystkie',
-            rangeCategory: 'Wszystkie',
-            chargingSpeed: 'Wszystkie',
-            batteryCapacity: 'Wszystkie',
-            features: 'Wszystkie'
-          })}
-          style={{
-            background: '#6b7280',
-            color: 'white',
-            border: 'none',
-            padding: '12px 24px',
-            borderRadius: '12px',
-            fontWeight: '600',
-            cursor: 'pointer',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '8px',
-            transition: 'all 0.3s ease'
-          }}
-        >
-          <X style={{ height: '16px', width: '16px' }} />
-          Wyczyść filtry
-        </button>
-        
-        <button style={{
-          background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-          color: 'white',
-          border: 'none',
-          padding: '12px 24px',
-          borderRadius: '12px',
-          fontWeight: '600',
-          cursor: 'pointer',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          gap: '8px',
-          transition: 'all 0.3s ease',
-          boxShadow: '0 4px 15px rgba(102, 126, 234, 0.4)'
-        }}>
-          <Search style={{ height: '16px', width: '16px' }} />
-          Szukaj ({filteredVehicles.length})
-        </button>
-      </div>
+        <Search style={{ height: '16px', width: '16px' }} />
+        Szukaj ({filteredVehicles.length})
+      </button>
     </div>
   );
 
@@ -646,19 +909,8 @@ export default function EVMarketplace() {
       overflow: 'hidden',
       boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)',
       transition: 'all 0.4s ease',
-      border: '1px solid rgba(255, 255, 255, 0.2)',
-      backdropFilter: 'blur(10px)',
       cursor: 'pointer'
-    }}
-    onMouseEnter={(e) => {
-      e.currentTarget.style.transform = 'translateY(-8px)';
-      e.currentTarget.style.boxShadow = '0 20px 40px rgba(0, 0, 0, 0.15)';
-    }}
-    onMouseLeave={(e) => {
-      e.currentTarget.style.transform = 'translateY(0)';
-      e.currentTarget.style.boxShadow = '0 8px 32px rgba(0, 0, 0, 0.1)';
-    }}
-    >
+    }}>
       <div style={{ position: 'relative' }}>
         <img
           src={vehicle.photos?.[0] || "https://images.unsplash.com/photo-1560958089-b8a1929cea89?w=400"}
@@ -669,18 +921,6 @@ export default function EVMarketplace() {
             objectFit: 'cover'
           }}
         />
-        <div style={{
-          position: 'absolute',
-          top: '12px',
-          right: '12px',
-          background: 'rgba(255, 255, 255, 0.9)',
-          borderRadius: '50%',
-          padding: '8px',
-          backdropFilter: 'blur(10px)',
-          cursor: 'pointer'
-        }}>
-          <Heart style={{ height: '16px', width: '16px', color: '#ef4444' }} />
-        </div>
         <div style={{
           position: 'absolute',
           bottom: '12px',
@@ -720,8 +960,7 @@ export default function EVMarketplace() {
         <p style={{ 
           color: '#6b7280', 
           marginBottom: '16px', 
-          fontSize: '14px',
-          lineHeight: '1.5'
+          fontSize: '14px'
         }}>
           {vehicle.description}
         </p>
@@ -733,147 +972,69 @@ export default function EVMarketplace() {
           marginBottom: '16px',
           fontSize: '12px'
         }}>
-          {[
-            { icon: Battery, text: `${vehicle.batteryCapacity} kWh`, subtext: vehicle.batteryType },
-            { icon: Zap, text: `${vehicle.range} km`, subtext: `${vehicle.efficiency} kWh/100km` },
-            { icon: MapPin, text: vehicle.location, subtext: `${vehicle.mileage?.toLocaleString('pl-PL')} km` },
-            { icon: Car, text: `${vehicle.powerOutput} kW`, subtext: vehicle.driveType }
-          ].map(({ icon: Icon, text, subtext }, index) => (
-            <div key={index} style={{ display: 'flex', flexDirection: 'column', color: '#6b7280' }}>
-              <div style={{ display: 'flex', alignItems: 'center', marginBottom: '2px' }}>
-                <Icon style={{ height: '14px', width: '14px', marginRight: '6px' }} />
-                <span style={{ fontWeight: '600', color: '#1f2937' }}>{text}</span>
-              </div>
-              <div style={{ fontSize: '11px', color: '#9ca3af', paddingLeft: '20px' }}>
-                {subtext}
-              </div>
-            </div>
-          ))}
+          <div style={{ display: 'flex', alignItems: 'center', color: '#6b7280' }}>
+            <Battery style={{ height: '14px', width: '14px', marginRight: '6px' }} />
+            <span style={{ fontWeight: '600', color: '#1f2937' }}>{vehicle.batteryCapacity} kWh</span>
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', color: '#6b7280' }}>
+            <Zap style={{ height: '14px', width: '14px', marginRight: '6px' }} />
+            <span style={{ fontWeight: '600', color: '#1f2937' }}>{vehicle.range} km</span>
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', color: '#6b7280' }}>
+            <MapPin style={{ height: '14px', width: '14px', marginRight: '6px' }} />
+            <span style={{ fontWeight: '600', color: '#1f2937' }}>{vehicle.location}</span>
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', color: '#6b7280' }}>
+            <Car style={{ height: '14px', width: '14px', marginRight: '6px' }} />
+            <span style={{ fontWeight: '600', color: '#1f2937' }}>{vehicle.powerOutput} kW</span>
+          </div>
         </div>
 
-        {/* EV Features */}
-        <div style={{ 
-          display: 'flex', 
-          flexWrap: 'wrap', 
-          gap: '6px', 
-          marginBottom: '16px' 
-        }}>
-          {vehicle.autopilot && (
-            <span style={{
-              background: 'linear-gradient(135deg, #667eea, #764ba2)',
-              color: 'white',
-              padding: '2px 8px',
-              borderRadius: '12px',
-              fontSize: '10px',
-              fontWeight: '600'
-            }}>
-              Autopilot
-            </span>
-          )}
-          {vehicle.heatPump && (
-            <span style={{
-              background: '#10b981',
-              color: 'white',
-              padding: '2px 8px',
-              borderRadius: '12px',
-              fontSize: '10px',
-              fontWeight: '600'
-            }}>
-              Pompa ciepła
-            </span>
-          )}
-          {vehicle.maxChargingSpeed > 150 && (
-            <span style={{
-              background: '#f59e0b',
-              color: 'white',
-              padding: '2px 8px',
-              borderRadius: '12px',
-              fontSize: '10px',
-              fontWeight: '600'
-            }}>
-              Ultra-fast
-            </span>
-          )}
-        </div>
-
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <button
-            onClick={() => {
-              setSelectedVehicle(vehicle);
-              setCurrentView('details');
-            }}
-            style={{
-              background: 'linear-gradient(135deg, #667eea, #764ba2)',
-              color: 'white',
-              border: 'none',
-              padding: '10px 20px',
-              borderRadius: '10px',
-              fontSize: '14px',
-              fontWeight: '600',
-              cursor: 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '6px',
-              transition: 'all 0.3s ease'
-            }}
-          >
-            Zobacz szczegóły
-            <ArrowRight style={{ height: '14px', width: '14px' }} />
-          </button>
-          
-          {vehicle.seller?.verified && (
-            <div style={{ 
-              display: 'flex', 
-              alignItems: 'center', 
-              color: '#10b981', 
-              fontSize: '12px',
-              fontWeight: '600'
-            }}>
-              <Star style={{ height: '12px', width: '12px', marginRight: '4px' }} />
-              Zweryfikowany
-            </div>
-          )}
-        </div>
+        <button
+          onClick={() => {
+            setSelectedVehicle(vehicle);
+            setCurrentView('details');
+          }}
+          style={{
+            background: 'linear-gradient(135deg, #667eea, #764ba2)',
+            color: 'white',
+            border: 'none',
+            padding: '10px 20px',
+            borderRadius: '10px',
+            fontSize: '14px',
+            fontWeight: '600',
+            cursor: 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '6px'
+          }}
+        >
+          Zobacz szczegóły
+          <ArrowRight style={{ height: '14px', width: '14px' }} />
+        </button>
       </div>
     </div>
   );
 
   const HomePage = () => (
     <div>
-      {/* Hero Section */}
       <div style={{
         background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
         color: 'white',
         padding: '80px 0',
-        position: 'relative',
-        overflow: 'hidden'
+        textAlign: 'center'
       }}>
-        <div style={{
-          position: 'absolute',
-          top: '0',
-          left: '0',
-          right: '0',
-          bottom: '0',
-          background: 'url("data:image/svg+xml,%3Csvg width="60" height="60" viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg"%3E%3Cg fill="none" fill-rule="evenodd"%3E%3Cg fill="%23ffffff" fill-opacity="0.1"%3E%3Ccircle cx="30" cy="30" r="2"/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")',
-          opacity: 0.3
-        }} />
-        <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '0 20px', textAlign: 'center', position: 'relative' }}>
-          <div style={{ marginBottom: '24px' }}>
-            <Sparkles style={{ height: '48px', width: '48px', margin: '0 auto', marginBottom: '16px' }} />
-          </div>
+        <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '0 20px' }}>
           <h1 style={{ 
             fontSize: '48px', 
             fontWeight: '800', 
-            marginBottom: '24px',
-            textShadow: '0 4px 8px rgba(0,0,0,0.3)',
-            lineHeight: '1.2'
+            marginBottom: '24px'
           }}>
-            Marketplace Pojazdów<br />Elektrycznych
+            Marketplace Pojazdów Elektrycznych
           </h1>
           <p style={{ 
             fontSize: '20px', 
-            marginBottom: '32px', 
-            color: 'rgba(255, 255, 255, 0.9)',
+            marginBottom: '32px',
             maxWidth: '600px',
             margin: '0 auto 32px'
           }}>
@@ -890,8 +1051,6 @@ export default function EVMarketplace() {
               fontSize: '18px',
               fontWeight: '700',
               cursor: 'pointer',
-              transition: 'all 0.3s ease',
-              boxShadow: '0 8px 32px rgba(0, 0, 0, 0.2)',
               display: 'inline-flex',
               alignItems: 'center',
               gap: '8px'
@@ -906,7 +1065,6 @@ export default function EVMarketplace() {
       <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '60px 20px' }}>
         <SearchBar />
         
-        {/* Stats */}
         <div style={{ 
           display: 'grid', 
           gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', 
@@ -917,7 +1075,7 @@ export default function EVMarketplace() {
             { number: `${vehicles.length}+`, label: 'Dostępnych pojazdów' },
             { number: '500+', label: 'Zadowolonych klientów' },
             { number: '50+', label: 'Miast w Polsce' },
-            { number: `${Math.round(vehicles.reduce((acc, v) => acc + v.range, 0) / vehicles.length)}km`, label: 'Średni zasięg' }
+            { number: '450km', label: 'Średni zasięg' }
           ].map(({ number, label }, index) => (
             <div key={index} style={{ textAlign: 'center' }}>
               <div style={{ 
@@ -935,7 +1093,6 @@ export default function EVMarketplace() {
           ))}
         </div>
 
-        {/* Featured Vehicles */}
         <div style={{ marginBottom: '60px' }}>
           <h2 style={{ 
             fontSize: '36px', 
@@ -983,16 +1140,6 @@ export default function EVMarketplace() {
           <VehicleCard key={vehicle.id} vehicle={vehicle} />
         ))}
       </div>
-      
-      {filteredVehicles.length === 0 && (
-        <div style={{ textAlign: 'center', padding: '60px 0' }}>
-          <Car style={{ height: '48px', width: '48px', color: '#9ca3af', margin: '0 auto 16px' }} />
-          <h3 style={{ fontSize: '18px', fontWeight: '600', color: '#1f2937', marginBottom: '8px' }}>
-            Brak wyników
-          </h3>
-          <p style={{ color: '#6b7280' }}>Spróbuj zmienić kryteria wyszukiwania</p>
-        </div>
-      )}
     </div>
   );
 
@@ -1021,9 +1168,7 @@ export default function EVMarketplace() {
         <div style={{
           background: 'rgba(255, 255, 255, 0.95)',
           borderRadius: '20px',
-          overflow: 'hidden',
-          boxShadow: '0 20px 40px rgba(0, 0, 0, 0.1)',
-          backdropFilter: 'blur(10px)'
+          overflow: 'hidden'
         }}>
           <img
             src={selectedVehicle.photos?.[0] || "https://images.unsplash.com/photo-1560958089-b8a1929cea89?w=600"}
@@ -1044,16 +1189,14 @@ export default function EVMarketplace() {
                 </h1>
                 <p style={{ color: '#6b7280', fontSize: '18px', margin: '0' }}>{selectedVehicle.year}</p>
               </div>
-              <div style={{ textAlign: 'right' }}>
-                <div style={{ 
-                  fontSize: '32px', 
-                  fontWeight: '800',
-                  background: 'linear-gradient(135deg, #667eea, #764ba2)',
-                  WebkitBackgroundClip: 'text',
-                  WebkitTextFillColor: 'transparent'
-                }}>
-                  {selectedVehicle.price.toLocaleString('pl-PL')} zł
-                </div>
+              <div style={{ 
+                fontSize: '32px', 
+                fontWeight: '800',
+                background: 'linear-gradient(135deg, #667eea, #764ba2)',
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent'
+              }}>
+                {selectedVehicle.price.toLocaleString('pl-PL')} zł
               </div>
             </div>
 
@@ -1067,11 +1210,8 @@ export default function EVMarketplace() {
                     { label: 'Pojemność baterii:', value: `${selectedVehicle.batteryCapacity} kWh` },
                     { label: 'Typ baterii:', value: selectedVehicle.batteryType },
                     { label: 'Zasięg WLTP:', value: `${selectedVehicle.range} km` },
-                    { label: 'Zużycie energii:', value: `${selectedVehicle.efficiency} kWh/100km` },
                     { label: 'Moc silnika:', value: `${selectedVehicle.powerOutput} kW` },
                     { label: 'Rodzaj napędu:', value: selectedVehicle.driveType },
-                    { label: 'Maks. moc ładowania:', value: `${selectedVehicle.maxChargingSpeed} kW` },
-                    { label: 'Typy ładowania:', value: selectedVehicle.chargingPorts.join(', ') },
                     { label: 'Przebieg:', value: `${selectedVehicle.mileage?.toLocaleString('pl-PL')} km` },
                     { label: 'Lokalizacja:', value: selectedVehicle.location }
                   ].map(({ label, value }, index) => (
@@ -1079,31 +1219,6 @@ export default function EVMarketplace() {
                       <span style={{ color: '#6b7280' }}>{label}</span>
                       <span style={{ fontWeight: '600', color: '#1f2937' }}>{value}</span>
                     </div>
-                  ))}
-                </div>
-
-                {/* Features Section */}
-                <h3 style={{ fontSize: '18px', fontWeight: '700', marginTop: '24px', marginBottom: '16px', color: '#1f2937' }}>
-                  Wyposażenie
-                </h3>
-                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
-                  {[
-                    { key: 'autopilot', label: 'Autopilot', color: '#667eea' },
-                    { key: 'heatPump', label: 'Pompa ciepła', color: '#10b981' },
-                    { key: 'heatedSeats', label: 'Podgrzewane fotele', color: '#f59e0b' }
-                  ].map(({ key, label, color }) => (
-                    selectedVehicle[key] && (
-                      <span key={key} style={{
-                        background: color,
-                        color: 'white',
-                        padding: '6px 12px',
-                        borderRadius: '16px',
-                        fontSize: '12px',
-                        fontWeight: '600'
-                      }}>
-                        ✓ {label}
-                      </span>
-                    )
                   ))}
                 </div>
               </div>
@@ -1114,34 +1229,12 @@ export default function EVMarketplace() {
                 </h3>
                 {selectedVehicle.seller && (
                   <div style={{
-                    background: 'linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%)',
+                    background: '#f8fafc',
                     padding: '20px',
                     borderRadius: '16px'
                   }}>
-                    <div style={{ display: 'flex', alignItems: 'center', marginBottom: '16px' }}>
-                      <div style={{
-                        background: 'linear-gradient(135deg, #667eea, #764ba2)',
-                        color: 'white',
-                        width: '40px',
-                        height: '40px',
-                        borderRadius: '50%',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        fontWeight: '700',
-                        marginRight: '12px'
-                      }}>
-                        {selectedVehicle.seller.name.charAt(0)}
-                      </div>
-                      <div>
-                        <div style={{ fontWeight: '600', color: '#1f2937' }}>{selectedVehicle.seller.name}</div>
-                        {selectedVehicle.seller.verified && (
-                          <div style={{ display: 'flex', alignItems: 'center', color: '#10b981', fontSize: '14px' }}>
-                            <Star style={{ height: '12px', width: '12px', marginRight: '4px' }} />
-                            Zweryfikowany sprzedawca
-                          </div>
-                        )}
-                      </div>
+                    <div style={{ fontWeight: '600', color: '#1f2937', marginBottom: '16px' }}>
+                      {selectedVehicle.seller.name}
                     </div>
                     
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
@@ -1197,144 +1290,150 @@ export default function EVMarketplace() {
     );
   };
 
-  const SellPage = () => (
-    <div style={{ maxWidth: '600px', margin: '0 auto', padding: '40px 20px' }}>
-      <h1 style={{ fontSize: '36px', fontWeight: '800', marginBottom: '32px', color: '#1f2937' }}>
-        Dodaj swój pojazd elektryczny
-      </h1>
-      
-      <div style={{
-        background: 'rgba(255, 255, 255, 0.95)',
-        borderRadius: '20px',
-        padding: '32px',
-        boxShadow: '0 20px 40px rgba(0, 0, 0, 0.1)',
-        backdropFilter: 'blur(10px)'
-      }}>
-        <form style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
-            <div>
-              <label style={{ display: 'block', fontSize: '14px', fontWeight: '600', color: '#374151', marginBottom: '8px' }}>
-                Marka
-              </label>
-              <select style={{
-                width: '100%',
-                padding: '12px 16px',
-                border: '2px solid #e5e7eb',
-                borderRadius: '12px',
-                fontSize: '14px',
-                outline: 'none',
-                background: 'white'
-              }}>
-                <option>Wybierz markę</option>
-                <option>Tesla</option>
-                <option>BMW</option>
-                <option>Audi</option>
-                <option>Volkswagen</option>
-                <option>Mercedes</option>
-              </select>
-            </div>
-            
-            <div>
-              <label style={{ display: 'block', fontSize: '14px', fontWeight: '600', color: '#374151', marginBottom: '8px' }}>
-                Model
-              </label>
-              <input
-                type="text"
-                placeholder="np. Model 3"
-                style={{
-                  width: '100%',
-                  padding: '12px 16px',
-                  border: '2px solid #e5e7eb',
-                  borderRadius: '12px',
-                  fontSize: '14px',
-                  outline: 'none',
-                  background: 'white'
-                }}
-              />
-            </div>
-          </div>
-
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
-            <div>
-              <label style={{ display: 'block', fontSize: '14px', fontWeight: '600', color: '#374151', marginBottom: '8px' }}>
-                Rok produkcji
-              </label>
-              <input
-                type="number"
-                placeholder="2023"
-                style={{
-                  width: '100%',
-                  padding: '12px 16px',
-                  border: '2px solid #e5e7eb',
-                  borderRadius: '12px',
-                  fontSize: '14px',
-                  outline: 'none',
-                  background: 'white'
-                }}
-              />
-            </div>
-            
-            <div>
-              <label style={{ display: 'block', fontSize: '14px', fontWeight: '600', color: '#374151', marginBottom: '8px' }}>
-                Cena (zł)
-              </label>
-              <input
-                type="number"
-                placeholder="250000"
-                style={{
-                  width: '100%',
-                  padding: '12px 16px',
-                  border: '2px solid #e5e7eb',
-                  borderRadius: '12px',
-                  fontSize: '14px',
-                  outline: 'none',
-                  background: 'white'
-                }}
-              />
-            </div>
-          </div>
-
-          <div>
-            <label style={{ display: 'block', fontSize: '14px', fontWeight: '600', color: '#374151', marginBottom: '8px' }}>
-              Opis
-            </label>
-            <textarea
-              rows={4}
-              placeholder="Opisz swój pojazd..."
-              style={{
-                width: '100%',
-                padding: '12px 16px',
-                border: '2px solid #e5e7eb',
-                borderRadius: '12px',
-                fontSize: '14px',
-                outline: 'none',
-                background: 'white',
-                resize: 'vertical'
+  const SellPage = () => {
+    if (!isAuthenticated) {
+      return (
+        <div style={{ maxWidth: '600px', margin: '0 auto', padding: '40px 20px', textAlign: 'center' }}>
+          <div style={{
+            background: 'rgba(255, 255, 255, 0.95)',
+            borderRadius: '20px',
+            padding: '60px 32px'
+          }}>
+            <Shield style={{ height: '64px', width: '64px', color: '#667eea', margin: '0 auto 24px' }} />
+            <h1 style={{ fontSize: '28px', fontWeight: '800', marginBottom: '16px', color: '#1f2937' }}>
+              Wymagana rejestracja
+            </h1>
+            <p style={{ color: '#6b7280', marginBottom: '32px', fontSize: '16px' }}>
+              Aby sprzedawać pojazdy na naszej platformie, musisz być zarejestrowanym użytkownikiem.
+            </p>
+            <button
+              onClick={() => {
+                setAuthMode('register');
+                setShowAuthModal(true);
               }}
-            />
+              style={{
+                background: 'linear-gradient(135deg, #667eea, #764ba2)',
+                color: 'white',
+                border: 'none',
+                padding: '14px 24px',
+                borderRadius: '12px',
+                fontSize: '16px',
+                fontWeight: '700',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '8px',
+                margin: '0 auto'
+              }}
+            >
+              <User style={{ height: '18px', width: '18px' }} />
+              Zarejestruj się teraz
+            </button>
           </div>
+        </div>
+      );
+    }
 
-          <button
-            type="submit"
-            style={{
-              background: 'linear-gradient(135deg, #667eea, #764ba2)',
-              color: 'white',
-              border: 'none',
-              padding: '16px 24px',
-              borderRadius: '12px',
-              fontSize: '16px',
-              fontWeight: '700',
-              cursor: 'pointer',
-              transition: 'all 0.3s ease',
-              boxShadow: '0 8px 32px rgba(102, 126, 234, 0.4)'
-            }}
-          >
-            Dodaj ogłoszenie
-          </button>
-        </form>
+    return (
+      <div style={{ maxWidth: '800px', margin: '0 auto', padding: '40px 20px' }}>
+        <h1 style={{ fontSize: '36px', fontWeight: '800', marginBottom: '32px', color: '#1f2937' }}>
+          Dodaj swój pojazd elektryczny
+        </h1>
+        
+        <div style={{
+          background: 'rgba(255, 255, 255, 0.95)',
+          borderRadius: '20px',
+          padding: '32px'
+        }}>
+          <form style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+              <div>
+                <label style={{ display: 'block', fontSize: '14px', fontWeight: '600', color: '#374151', marginBottom: '8px' }}>
+                  Marka *
+                </label>
+                <select style={{
+                  width: '100%',
+                  padding: '12px 16px',
+                  border: '2px solid #e5e7eb',
+                  borderRadius: '12px',
+                  fontSize: '14px',
+                  outline: 'none',
+                  background: 'white'
+                }}>
+                  <option>Wybierz markę</option>
+                  <option>Tesla</option>
+                  <option>BMW</option>
+                  <option>Audi</option>
+                  <option>Volkswagen</option>
+                </select>
+              </div>
+              
+              <div>
+                <label style={{ display: 'block', fontSize: '14px', fontWeight: '600', color: '#374151', marginBottom: '8px' }}>
+                  Model *
+                </label>
+                <input
+                  type="text"
+                  placeholder="np. Model 3, iX3, e-tron"
+                  style={{
+                    width: '100%',
+                    padding: '12px 16px',
+                    border: '2px solid #e5e7eb',
+                    borderRadius: '12px',
+                    fontSize: '14px',
+                    outline: 'none',
+                    background: 'white'
+                  }}
+                />
+              </div>
+            </div>
+
+            <div>
+              <label style={{ display: 'block', fontSize: '14px', fontWeight: '600', color: '#374151', marginBottom: '8px' }}>
+                Opis pojazdu *
+              </label>
+              <textarea
+                rows={4}
+                placeholder="Opisz szczegółowo stan pojazdu..."
+                style={{
+                  width: '100%',
+                  padding: '12px 16px',
+                  border: '2px solid #e5e7eb',
+                  borderRadius: '12px',
+                  fontSize: '14px',
+                  outline: 'none',
+                  background: 'white',
+                  resize: 'vertical'
+                }}
+              />
+            </div>
+
+            <button
+              type="submit"
+              style={{
+                background: 'linear-gradient(135deg, #667eea, #764ba2)',
+                color: 'white',
+                border: 'none',
+                padding: '16px 24px',
+                borderRadius: '12px',
+                fontSize: '16px',
+                fontWeight: '700',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '8px'
+              }}
+            >
+              <Car style={{ height: '18px', width: '18px' }} />
+              Dodaj ogłoszenie
+            </button>
+          </form>
+        </div>
       </div>
-    </div>
-  );
+    );
+  };
 
   return (
     <div style={{ 
@@ -1348,6 +1447,8 @@ export default function EVMarketplace() {
       {currentView === 'browse' && <BrowsePage />}
       {currentView === 'details' && <VehicleDetails />}
       {currentView === 'sell' && <SellPage />}
+      
+      <AuthModal />
     </div>
   );
 }
