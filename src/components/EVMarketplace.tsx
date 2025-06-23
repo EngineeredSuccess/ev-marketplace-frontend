@@ -455,7 +455,7 @@ export default function EVMarketplace() {
           {phoneVerificationStep === 'phone' && (
             <div>
               <div style={{ textAlign: 'center', marginBottom: '24px' }}>
-                <Phone style={{ height: '48px', width: '48px', color: '#667eea', margin: '0 auto 16px' }} />
+                <Phone style={{ height: '48px', width: '48px', color: '#10b981', margin: '0 auto 16px' }} />
                 <p style={{ color: '#6b7280' }}>
                   {authMode === 'login' 
                     ? 'Podaj numer telefonu, aby się zalogować'
@@ -489,7 +489,7 @@ export default function EVMarketplace() {
                 disabled={loading || !authFormData.phone}
                 style={{
                   width: '100%',
-                  background: loading ? '#9ca3af' : 'linear-gradient(135deg, #667eea, #764ba2)',
+                  background: loading ? '#9ca3af' : 'linear-gradient(135deg, #10b981, #059669)',
                   color: 'white',
                   border: 'none',
                   padding: '14px',
@@ -508,7 +508,7 @@ export default function EVMarketplace() {
                   style={{
                     background: 'none',
                     border: 'none',
-                    color: '#667eea',
+                    color: '#10b981',
                     fontSize: '14px',
                     cursor: 'pointer',
                     textDecoration: 'underline'
@@ -578,7 +578,7 @@ export default function EVMarketplace() {
           {phoneVerificationStep === 'details' && authMode === 'register' && (
             <div>
               <div style={{ textAlign: 'center', marginBottom: '24px' }}>
-                <User style={{ height: '48px', width: '48px', color: '#667eea', margin: '0 auto 16px' }} />
+                <User style={{ height: '48px', width: '48px', color: '#10b981', margin: '0 auto 16px' }} />
                 <p style={{ color: '#6b7280' }}>
                   Uzupełnij swoje dane, aby zakończyć rejestrację
                 </p>
@@ -672,7 +672,7 @@ export default function EVMarketplace() {
                 disabled={loading}
                 style={{
                   width: '100%',
-                  background: loading ? '#9ca3af' : 'linear-gradient(135deg, #667eea, #764ba2)',
+                  background: loading ? '#9ca3af' : 'linear-gradient(135deg, #10b981, #059669)',
                   color: 'white',
                   border: 'none',
                   padding: '14px',
@@ -694,13 +694,13 @@ export default function EVMarketplace() {
 
   const Navigation = () => (
     <nav style={{
-      background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'
+      background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)'
     }}>
       <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '0 20px' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '16px 0' }}>
           <div style={{ display: 'flex', alignItems: 'center' }}>
             <div style={{ 
-              background: 'linear-gradient(135deg, #ff6b6b, #ffd93d)',
+              background: 'linear-gradient(135deg, #34d399, #10b981)',
               borderRadius: '12px',
               padding: '8px',
               marginRight: '12px'
@@ -712,12 +712,12 @@ export default function EVMarketplace() {
               fontWeight: 'bold', 
               color: 'white'
             }}>
-              EV Marketplace
+              IVI Market
             </span>
           </div>
           
           <div style={{ display: 'flex', gap: '32px' }}>
-            {['home', 'browse', 'sell'].map((view) => (
+            {['home', 'browse', 'blog', 'sell'].map((view) => (
               <button
                 key={view}
                 onClick={() => {
@@ -741,7 +741,9 @@ export default function EVMarketplace() {
                 }}
               >
                 {view === 'home' ? 'Strona główna' : 
-                 view === 'browse' ? 'Przeglądaj pojazdy' : 'Sprzedaj pojazd'}
+                 view === 'browse' ? 'Przeglądaj pojazdy' : 
+                 view === 'blog' ? 'Blog' :
+                 'Sprzedaj pojazd'}
               </button>
             ))}
           </div>
@@ -776,7 +778,7 @@ export default function EVMarketplace() {
                   }}
                   style={{
                     background: 'rgba(255, 255, 255, 0.9)',
-                    color: '#667eea',
+                    color: '#10b981',
                     border: 'none',
                     padding: '8px 16px',
                     borderRadius: '8px',
@@ -885,7 +887,7 @@ export default function EVMarketplace() {
       </div>
 
       <button style={{
-        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+        background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
         color: 'white',
         border: 'none',
         padding: '12px 24px',
@@ -925,7 +927,7 @@ export default function EVMarketplace() {
           position: 'absolute',
           bottom: '12px',
           left: '12px',
-          background: 'linear-gradient(135deg, #667eea, #764ba2)',
+          background: 'linear-gradient(135deg, #10b981, #059669)',
           color: 'white',
           padding: '4px 12px',
           borderRadius: '20px',
@@ -949,7 +951,7 @@ export default function EVMarketplace() {
           <span style={{ 
             fontSize: '18px', 
             fontWeight: '700', 
-            background: 'linear-gradient(135deg, #667eea, #764ba2)',
+            background: 'linear-gradient(135deg, #10b981, #059669)',
             WebkitBackgroundClip: 'text',
             WebkitTextFillColor: 'transparent'
           }}>
@@ -996,7 +998,7 @@ export default function EVMarketplace() {
             setCurrentView('details');
           }}
           style={{
-            background: 'linear-gradient(135deg, #667eea, #764ba2)',
+            background: 'linear-gradient(135deg, #10b981, #059669)',
             color: 'white',
             border: 'none',
             padding: '10px 20px',
@@ -1019,7 +1021,7 @@ export default function EVMarketplace() {
   const HomePage = () => (
     <div>
       <div style={{
-        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+        background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
         color: 'white',
         padding: '80px 0',
         textAlign: 'center'
@@ -1030,7 +1032,7 @@ export default function EVMarketplace() {
             fontWeight: '800', 
             marginBottom: '24px'
           }}>
-            Marketplace Pojazdów Elektrycznych
+            IVI Market
           </h1>
           <p style={{ 
             fontSize: '20px', 
@@ -1038,13 +1040,13 @@ export default function EVMarketplace() {
             maxWidth: '600px',
             margin: '0 auto 32px'
           }}>
-            Znajdź idealny pojazd elektryczny lub sprzedaj swój w Polsce
+            Marketplace pojazdów elektrycznych w Polsce
           </p>
           <button
             onClick={() => setCurrentView('browse')}
             style={{
               background: 'rgba(255, 255, 255, 0.9)',
-              color: '#667eea',
+              color: '#10b981',
               border: 'none',
               padding: '16px 32px',
               borderRadius: '12px',
@@ -1081,7 +1083,7 @@ export default function EVMarketplace() {
               <div style={{ 
                 fontSize: '36px', 
                 fontWeight: '800', 
-                background: 'linear-gradient(135deg, #667eea, #764ba2)',
+                background: 'linear-gradient(135deg, #10b981, #059669)',
                 WebkitBackgroundClip: 'text',
                 WebkitTextFillColor: 'transparent',
                 marginBottom: '8px'
@@ -1154,7 +1156,7 @@ export default function EVMarketplace() {
             marginBottom: '24px',
             display: 'flex',
             alignItems: 'center',
-            color: '#667eea',
+            color: '#10b981',
             background: 'transparent',
             border: 'none',
             fontSize: '16px',
@@ -1192,7 +1194,7 @@ export default function EVMarketplace() {
               <div style={{ 
                 fontSize: '32px', 
                 fontWeight: '800',
-                background: 'linear-gradient(135deg, #667eea, #764ba2)',
+                background: 'linear-gradient(135deg, #10b981, #059669)',
                 WebkitBackgroundClip: 'text',
                 WebkitTextFillColor: 'transparent'
               }}>
@@ -1239,7 +1241,7 @@ export default function EVMarketplace() {
                     
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                       <button style={{
-                        background: 'linear-gradient(135deg, #667eea, #764ba2)',
+                        background: 'linear-gradient(135deg, #10b981, #059669)',
                         color: 'white',
                         border: 'none',
                         padding: '12px 16px',
@@ -1299,7 +1301,7 @@ export default function EVMarketplace() {
             borderRadius: '20px',
             padding: '60px 32px'
           }}>
-            <Shield style={{ height: '64px', width: '64px', color: '#667eea', margin: '0 auto 24px' }} />
+            <Shield style={{ height: '64px', width: '64px', color: '#10b981', margin: '0 auto 24px' }} />
             <h1 style={{ fontSize: '28px', fontWeight: '800', marginBottom: '16px', color: '#1f2937' }}>
               Wymagana rejestracja
             </h1>
@@ -1312,7 +1314,7 @@ export default function EVMarketplace() {
                 setShowAuthModal(true);
               }}
               style={{
-                background: 'linear-gradient(135deg, #667eea, #764ba2)',
+                background: 'linear-gradient(135deg, #10b981, #059669)',
                 color: 'white',
                 border: 'none',
                 padding: '14px 24px',
@@ -1412,7 +1414,7 @@ export default function EVMarketplace() {
             <button
               type="submit"
               style={{
-                background: 'linear-gradient(135deg, #667eea, #764ba2)',
+                background: 'linear-gradient(135deg, #10b981, #059669)',
                 color: 'white',
                 border: 'none',
                 padding: '16px 24px',
@@ -1435,10 +1437,118 @@ export default function EVMarketplace() {
     );
   };
 
+  const BlogPage = () => (
+    <div style={{ maxWidth: '1000px', margin: '0 auto', padding: '40px 20px' }}>
+      <h1 style={{ fontSize: '36px', fontWeight: '800', marginBottom: '32px', color: '#1f2937' }}>
+        Blog IVI Market
+      </h1>
+      
+      <div style={{
+        background: 'rgba(255, 255, 255, 0.95)',
+        borderRadius: '20px',
+        padding: '60px 40px',
+        textAlign: 'center',
+        boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)'
+      }}>
+        <div style={{
+          background: 'linear-gradient(135deg, #10b981, #059669)',
+          borderRadius: '50%',
+          padding: '24px',
+          display: 'inline-flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          marginBottom: '24px'
+        }}>
+          <Star style={{ height: '48px', width: '48px', color: 'white' }} />
+        </div>
+        
+        <h2 style={{ fontSize: '28px', fontWeight: '700', marginBottom: '16px', color: '#1f2937' }}>
+          Blog w przygotowaniu
+        </h2>
+        
+        <p style={{ color: '#6b7280', fontSize: '18px', lineHeight: '1.6', marginBottom: '32px', maxWidth: '600px', margin: '0 auto 32px' }}>
+          Wkrótce znajdziesz tutaj najnowsze artykuły o pojazdach elektrycznych, 
+          testy samochodów, porady dotyczące ładowania oraz aktualności z branży EV.
+        </p>
+        
+        <div style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
+          gap: '24px',
+          marginTop: '40px'
+        }}>
+          {[
+            {
+              title: 'Testy pojazdów',
+              description: 'Szczegółowe recenzje najnowszych modeli elektrycznych',
+              icon: Car
+            },
+            {
+              title: 'Porady techniczne',
+              description: 'Jak dbać o baterie i optymalizować zasięg',
+              icon: Battery
+            },
+            {
+              title: 'Aktualności',
+              description: 'Najnowsze wiadomości z branży pojazdów elektrycznych',
+              icon: Zap
+            }
+          ].map(({ title, description, icon: Icon }, index) => (
+            <div key={index} style={{
+              background: '#f8fafc',
+              padding: '24px',
+              borderRadius: '16px',
+              textAlign: 'center'
+            }}>
+              <div style={{
+                background: 'linear-gradient(135deg, #34d399, #10b981)',
+                borderRadius: '50%',
+                padding: '12px',
+                display: 'inline-flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                marginBottom: '16px'
+              }}>
+                <Icon style={{ height: '24px', width: '24px', color: 'white' }} />
+              </div>
+              <h3 style={{ fontSize: '18px', fontWeight: '600', color: '#1f2937', marginBottom: '8px' }}>
+                {title}
+              </h3>
+              <p style={{ color: '#6b7280', fontSize: '14px', lineHeight: '1.5' }}>
+                {description}
+              </p>
+            </div>
+          ))}
+        </div>
+        
+        <button
+          onClick={() => setCurrentView('home')}
+          style={{
+            background: 'linear-gradient(135deg, #10b981, #059669)',
+            color: 'white',
+            border: 'none',
+            padding: '12px 24px',
+            borderRadius: '12px',
+            fontSize: '16px',
+            fontWeight: '600',
+            cursor: 'pointer',
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: '8px',
+            marginTop: '32px'
+          }}
+        >
+          <ArrowRight style={{ height: '16px', width: '16px', transform: 'rotate(180deg)' }} />
+          Powrót do strony głównej
+        </button>
+      </div>
+    </div>
+  );
+
   return (
     <div style={{ 
       minHeight: '100vh', 
-      background: 'linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%)',
+      background: 'linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%)',
       fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
     }}>
       <Navigation />
@@ -1446,6 +1556,7 @@ export default function EVMarketplace() {
       {currentView === 'home' && <HomePage />}
       {currentView === 'browse' && <BrowsePage />}
       {currentView === 'details' && <VehicleDetails />}
+      {currentView === 'blog' && <BlogPage />}
       {currentView === 'sell' && <SellPage />}
       
       <AuthModal />
