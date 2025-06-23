@@ -700,19 +700,30 @@ export default function EVMarketplace() {
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '16px 0' }}>
           <div style={{ display: 'flex', alignItems: 'center' }}>
             <div style={{ 
-              background: 'linear-gradient(135deg, #34d399, #10b981)',
+              background: 'rgba(255, 255, 255, 0.1)',
               borderRadius: '12px',
               padding: '8px',
-              marginRight: '12px'
+              marginRight: '12px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center'
             }}>
-              <Car style={{ height: '24px', width: '24px', color: 'white' }} />
+              <img 
+                src="/logo.png" 
+                alt="iVi Market Logo" 
+                style={{ 
+                  width: '24px', 
+                  height: '24px',
+                  objectFit: 'contain'
+                }} 
+              />
             </div>
             <span style={{ 
               fontSize: '24px', 
               fontWeight: 'bold', 
               color: 'white'
             }}>
-              IVI Market
+              iVi Market
             </span>
           </div>
           
@@ -1032,7 +1043,7 @@ export default function EVMarketplace() {
             fontWeight: '800', 
             marginBottom: '24px'
           }}>
-            IVI Market
+            iVi Market
           </h1>
           <p style={{ 
             fontSize: '20px', 
@@ -1440,7 +1451,7 @@ export default function EVMarketplace() {
   const BlogPage = () => (
     <div style={{ maxWidth: '1000px', margin: '0 auto', padding: '40px 20px' }}>
       <h1 style={{ fontSize: '36px', fontWeight: '800', marginBottom: '32px', color: '#1f2937' }}>
-        Blog IVI Market
+        Blog iVi Market
       </h1>
       
       <div style={{
