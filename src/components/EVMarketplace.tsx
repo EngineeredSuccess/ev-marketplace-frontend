@@ -1,6 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { Search, Filter, Car, Battery, Zap, MapPin, Phone, Mail, Heart, Star, ChevronDown, Menu, X, ArrowRight, Sparkles, User, Shield, Building, CheckCircle, AlertCircle } from 'lucide-react';
 
+// Extend Window interface for GTM
+declare global {
+  interface Window {
+    dataLayer: any[];
+  }
+}
+
 interface User {
   id: number;
   phone: string;
@@ -302,6 +309,79 @@ export default function EVMarketplace() {
     country: 'Polska'
   });
 
+  // Google Tag Manager Setup
+  useEffect(() => {
+    // GTM Head Script
+    const gtmScript = document.createElement('script');
+    gtmScript.innerHTML = `
+      (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+      new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+      j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+      'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+      })(window,document,'script','dataLayer','GTM-TNN4TN96');
+    `;
+    
+    // Add script to head
+    document.head.appendChild(gtmScript);
+    
+    // Initialize dataLayer if it doesn't exist
+    if (typeof window !== 'undefined') {
+      window.dataLayer = window.dataLayer || [];
+    }
+
+    // Cleanup function
+    return () => {
+      // Remove the script when component unmounts
+      const scripts = document.querySelectorAll('script');
+      scripts.forEach(script => {
+        if (script.innerHTML.includes('gtm.start')) {
+          document.head.removeChild(script);
+        }
+      });
+    };
+  }, []);
+
+  // Track page views when currentView changes
+  useEffect(() => {
+    if (typeof window !== 'undefined' && window.dataLayer) {
+      window.dataLayer.push({
+        event: 'page_view',
+        page_title: currentView === 'home' ? 'Strona główna' : 
+                   currentView === 'browse' ? 'Przeglądaj pojazdy' :
+                   currentView === 'blog' ? 'Blog' :
+                   currentView === 'sell' ? 'Sprzedaj pojazd' :
+                   currentView === 'details' ? 'Szczegóły pojazdu' : currentView,
+        page_location: window.location.href,
+        page_path: `/${currentView}`
+      });
+    }
+  }, [currentView]);
+
+  // Track authentication events
+  const trackAuthEvent = (action: string, method?: string) => {
+    if (typeof window !== 'undefined' && window.dataLayer) {
+      window.dataLayer.push({
+        event: 'auth_action',
+        auth_action: action,
+        auth_method: method || 'phone'
+      });
+    }
+  };
+
+  // Track vehicle interactions
+  const trackVehicleEvent = (action: string, vehicleData?: any) => {
+    if (typeof window !== 'undefined' && window.dataLayer) {
+      window.dataLayer.push({
+        event: 'vehicle_interaction',
+        vehicle_action: action,
+        vehicle_make: vehicleData?.make,
+        vehicle_model: vehicleData?.model,
+        vehicle_price: vehicleData?.price,
+        vehicle_year: vehicleData?.year
+      });
+    }
+  };
+
   const filterVehicles = () => {
     let filtered = vehicles.filter(vehicle => {
       const matchesSearch = vehicle.make.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -337,6 +417,7 @@ export default function EVMarketplace() {
   // Authentication functions
   const sendVerificationCode = () => {
     setLoading(true);
+    trackAuthEvent('verification_code_sent');
     setTimeout(() => {
       setLoading(false);
       setPhoneVerificationStep('code');
@@ -354,11 +435,14 @@ export default function EVMarketplace() {
           setIsAuthenticated(true);
           setShowAuthModal(false);
           setPhoneVerificationStep('phone');
+          trackAuthEvent('login_success');
         } else if (authMode === 'register') {
           setPhoneVerificationStep('details');
+          trackAuthEvent('verification_success');
         }
       } else {
         alert('Nieprawidłowy kod weryfikacyjny');
+        trackAuthEvent('verification_failed');
       }
     }, 1000);
   };
@@ -388,6 +472,7 @@ export default function EVMarketplace() {
       setShowAuthModal(false);
       setPhoneVerificationStep('phone');
       setLoading(false);
+      trackAuthEvent('registration_complete', authFormData.isCompany ? 'company' : 'individual');
     }, 2000);
   };
 
@@ -395,14 +480,28 @@ export default function EVMarketplace() {
     setCurrentUser(null);
     setIsAuthenticated(false);
     setCurrentView('home');
+    trackAuthEvent('logout');
   };
 
   const handleSellClick = () => {
+    trackVehicleEvent('sell_intent');
     if (!isAuthenticated) {
       setAuthMode('register');
       setShowAuthModal(true);
     } else {
       setCurrentView('sell');
+    }
+  };
+
+  // Track search events
+  const handleSearch = () => {
+    if (typeof window !== 'undefined' && window.dataLayer) {
+      window.dataLayer.push({
+        event: 'search',
+        search_term: searchTerm,
+        search_filters: Object.entries(filters).filter(([key, value]) => value !== 'Wszystkie'),
+        search_results_count: filteredVehicles.length
+      });
     }
   };
 
@@ -897,18 +996,20 @@ export default function EVMarketplace() {
         ))}
       </div>
 
-      <button style={{
-        background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
-        color: 'white',
-        border: 'none',
-        padding: '12px 24px',
-        borderRadius: '12px',
-        fontWeight: '600',
-        cursor: 'pointer',
-        display: 'flex',
-        alignItems: 'center',
-        gap: '8px'
-      }}>
+      <button 
+        onClick={handleSearch}
+        style={{
+          background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
+          color: 'white',
+          border: 'none',
+          padding: '12px 24px',
+          borderRadius: '12px',
+          fontWeight: '600',
+          cursor: 'pointer',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '8px'
+        }}>
         <Search style={{ height: '16px', width: '16px' }} />
         Szukaj ({filteredVehicles.length})
       </button>
@@ -1005,6 +1106,7 @@ export default function EVMarketplace() {
 
         <button
           onClick={() => {
+            trackVehicleEvent('view_details', vehicle);
             setSelectedVehicle(vehicle);
             setCurrentView('details');
           }}
@@ -1251,35 +1353,39 @@ export default function EVMarketplace() {
                     </div>
                     
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                      <button style={{
-                        background: 'linear-gradient(135deg, #10b981, #059669)',
-                        color: 'white',
-                        border: 'none',
-                        padding: '12px 16px',
-                        borderRadius: '12px',
-                        fontWeight: '600',
-                        cursor: 'pointer',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        gap: '8px'
-                      }}>
+                      <button 
+                        onClick={() => trackVehicleEvent('contact_seller_phone', selectedVehicle)}
+                        style={{
+                          background: 'linear-gradient(135deg, #10b981, #059669)',
+                          color: 'white',
+                          border: 'none',
+                          padding: '12px 16px',
+                          borderRadius: '12px',
+                          fontWeight: '600',
+                          cursor: 'pointer',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          gap: '8px'
+                        }}>
                         <Phone style={{ height: '16px', width: '16px' }} />
                         Zadzwoń: {selectedVehicle.seller.phone}
                       </button>
-                      <button style={{
-                        background: '#6b7280',
-                        color: 'white',
-                        border: 'none',
-                        padding: '12px 16px',
-                        borderRadius: '12px',
-                        fontWeight: '600',
-                        cursor: 'pointer',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        gap: '8px'
-                      }}>
+                      <button 
+                        onClick={() => trackVehicleEvent('contact_seller_email', selectedVehicle)}
+                        style={{
+                          background: '#6b7280',
+                          color: 'white',
+                          border: 'none',
+                          padding: '12px 16px',
+                          borderRadius: '12px',
+                          fontWeight: '600',
+                          cursor: 'pointer',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          gap: '8px'
+                        }}>
                         <Mail style={{ height: '16px', width: '16px' }} />
                         Wyślij wiadomość
                       </button>
@@ -1958,6 +2064,17 @@ export default function EVMarketplace() {
       background: 'linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%)',
       fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
     }}>
+      {/* Google Tag Manager (noscript) */}
+      <noscript>
+        <iframe 
+          src="https://www.googletagmanager.com/ns.html?id=GTM-TNN4TN96"
+          height="0" 
+          width="0" 
+          style={{display: 'none', visibility: 'hidden'}}
+        />
+      </noscript>
+      {/* End Google Tag Manager (noscript) */}
+      
       <Navigation />
       
       {currentView === 'home' && <HomePage />}
