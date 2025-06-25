@@ -309,7 +309,7 @@ export default function EVMarketplace() {
     country: 'Polska'
   });
 
-  // Google Tag Manager Setup
+  // Google Tag Manager & Hotjar Setup
   useEffect(() => {
     // GTM Head Script
     const gtmScript = document.createElement('script');
@@ -321,8 +321,22 @@ export default function EVMarketplace() {
       })(window,document,'script','dataLayer','GTM-TNN4TN96');
     `;
     
-    // Add script to head
+    // Hotjar Tracking Script
+    const hotjarScript = document.createElement('script');
+    hotjarScript.innerHTML = `
+      (function(h,o,t,j,a,r){
+        h.hj=h.hj||function(){(h.hj.q=h.hj.q||[]).push(arguments)};
+        h._hjSettings={hjid:6446107,hjsv:6};
+        a=o.getElementsByTagName('head')[0];
+        r=o.createElement('script');r.async=1;
+        r.src=t+h._hjSettings.hjid+j+h._hjSettings.hjsv;
+        a.appendChild(r);
+      })(window,document,'https://static.hotjar.com/c/hotjar-','.js?sv=');
+    `;
+    
+    // Add scripts to head
     document.head.appendChild(gtmScript);
+    document.head.appendChild(hotjarScript);
     
     // Initialize dataLayer if it doesn't exist
     if (typeof window !== 'undefined') {
@@ -331,10 +345,10 @@ export default function EVMarketplace() {
 
     // Cleanup function
     return () => {
-      // Remove the script when component unmounts
+      // Remove the scripts when component unmounts
       const scripts = document.querySelectorAll('script');
       scripts.forEach(script => {
-        if (script.innerHTML.includes('gtm.start')) {
+        if (script.innerHTML.includes('gtm.start') || script.innerHTML.includes('hjid:6446107')) {
           document.head.removeChild(script);
         }
       });
