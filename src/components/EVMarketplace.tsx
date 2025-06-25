@@ -280,6 +280,7 @@ export default function EVMarketplace() {
   const [currentView, setCurrentView] = useState('home');
   const [selectedVehicle, setSelectedVehicle] = useState<Vehicle | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
+  const [showCookieBanner, setShowCookieBanner] = useState(true);
   const [filters, setFilters] = useState({
     make: 'Wszystkie',
     priceRange: 'Wszystkie',
@@ -306,7 +307,9 @@ export default function EVMarketplace() {
     street: '',
     city: '',
     postalCode: '',
-    country: 'Polska'
+    country: 'Polska',
+    gdprConsent: false,
+    marketingConsent: false
   });
 
   // Google Tag Manager & Hotjar Setup
@@ -761,6 +764,105 @@ export default function EVMarketplace() {
 
                 <div>
                   <label style={{ display: 'block', fontSize: '14px', fontWeight: '600', color: '#374151', marginBottom: '8px' }}>
+                    Typ konta *
+                  </label>
+                  <div style={{ 
+                    display: 'grid', 
+                    gridTemplateColumns: '1fr 1fr', 
+                    gap: '12px',
+                    padding: '12px',
+                    border: '2px solid #e5e7eb',
+                    borderRadius: '12px',
+                    background: '#f9fafb'
+                  }}>
+                    <label style={{ 
+                      display: 'flex', 
+                      alignItems: 'center', 
+                      cursor: 'pointer',
+                      padding: '8px 12px',
+                      borderRadius: '8px',
+                      background: !authFormData.isCompany ? '#10b981' : 'transparent',
+                      color: !authFormData.isCompany ? 'white' : '#374151',
+                      transition: 'all 0.2s'
+                    }}>
+                      <input
+                        type="radio"
+                        name="accountType"
+                        checked={!authFormData.isCompany}
+                        onChange={() => setAuthFormData({...authFormData, isCompany: false, companyName: '', nip: ''})}
+                        style={{ marginRight: '8px' }}
+                      />
+                      <User size={16} style={{ marginRight: '6px' }} />
+                      Konto osobiste
+                    </label>
+                    <label style={{ 
+                      display: 'flex', 
+                      alignItems: 'center', 
+                      cursor: 'pointer',
+                      padding: '8px 12px',
+                      borderRadius: '8px',
+                      background: authFormData.isCompany ? '#10b981' : 'transparent',
+                      color: authFormData.isCompany ? 'white' : '#374151',
+                      transition: 'all 0.2s'
+                    }}>
+                      <input
+                        type="radio"
+                        name="accountType"
+                        checked={authFormData.isCompany}
+                        onChange={() => setAuthFormData({...authFormData, isCompany: true})}
+                        style={{ marginRight: '8px' }}
+                      />
+                      <Building size={16} style={{ marginRight: '6px' }} />
+                      Konto firmowe
+                    </label>
+                  </div>
+                </div>
+
+                {authFormData.isCompany && (
+                  <>
+                    <div>
+                      <label style={{ display: 'block', fontSize: '14px', fontWeight: '600', color: '#374151', marginBottom: '8px' }}>
+                        Nazwa firmy *
+                      </label>
+                      <input
+                        type="text"
+                        placeholder="Nazwa Sp. z o.o."
+                        value={authFormData.companyName}
+                        onChange={(e) => setAuthFormData({...authFormData, companyName: e.target.value})}
+                        style={{
+                          width: '100%',
+                          padding: '12px 16px',
+                          border: '2px solid #e5e7eb',
+                          borderRadius: '12px',
+                          fontSize: '14px',
+                          outline: 'none'
+                        }}
+                      />
+                    </div>
+                    <div>
+                      <label style={{ display: 'block', fontSize: '14px', fontWeight: '600', color: '#374151', marginBottom: '8px' }}>
+                        NIP *
+                      </label>
+                      <input
+                        type="text"
+                        placeholder="1234567890"
+                        value={authFormData.nip}
+                        onChange={(e) => setAuthFormData({...authFormData, nip: e.target.value})}
+                        style={{
+                          width: '100%',
+                          padding: '12px 16px',
+                          border: '2px solid #e5e7eb',
+                          borderRadius: '12px',
+                          fontSize: '14px',
+                          outline: 'none'
+                        }}
+                      />
+                    </div>
+                  </>
+                )}
+
+                <div>
+                  <label style={{ display: 'block', fontSize: '14px', fontWeight: '600', color: '#374151', marginBottom: '8px' }}>
                     Miasto *
                   </label>
                   <input
@@ -778,21 +880,101 @@ export default function EVMarketplace() {
                     }}
                   />
                 </div>
+
+                {/* GDPR Compliance Section */}
+                <div style={{
+                  padding: '16px',
+                  background: '#f8fafc',
+                  borderRadius: '12px',
+                  border: '2px solid #e5e7eb'
+                }}>
+                  <h4 style={{ 
+                    fontSize: '14px', 
+                    fontWeight: '600', 
+                    color: '#374151', 
+                    marginBottom: '12px',
+                    margin: '0 0 12px 0'
+                  }}>
+                    Zgody na przetwarzanie danych osobowych (RODO)
+                  </h4>
+                  
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                    <label style={{ 
+                      display: 'flex', 
+                      alignItems: 'flex-start', 
+                      cursor: 'pointer',
+                      fontSize: '13px',
+                      lineHeight: '1.4'
+                    }}>
+                      <input
+                        type="checkbox"
+                        checked={authFormData.gdprConsent}
+                        onChange={(e) => setAuthFormData({...authFormData, gdprConsent: e.target.checked})}
+                        style={{ 
+                          marginRight: '8px', 
+                          marginTop: '2px',
+                          minWidth: '16px'
+                        }}
+                      />
+                      <span style={{ color: '#374151' }}>
+                        <strong>Wymagane:</strong> Wyrażam zgodę na przetwarzanie moich danych osobowych przez iVi Market w celu realizacji usług marketplace pojazdów elektrycznych zgodnie z{' '}
+                        <button
+                          type="button"
+                          onClick={() => setCurrentView('privacy')}
+                          style={{
+                            background: 'none',
+                            border: 'none',
+                            color: '#10b981',
+                            textDecoration: 'underline',
+                            cursor: 'pointer',
+                            fontSize: '13px',
+                            padding: '0'
+                          }}
+                        >
+                          Polityką Prywatności
+                        </button>
+                        .
+                      </span>
+                    </label>
+                    
+                    <label style={{ 
+                      display: 'flex', 
+                      alignItems: 'flex-start', 
+                      cursor: 'pointer',
+                      fontSize: '13px',
+                      lineHeight: '1.4'
+                    }}>
+                      <input
+                        type="checkbox"
+                        checked={authFormData.marketingConsent}
+                        onChange={(e) => setAuthFormData({...authFormData, marketingConsent: e.target.checked})}
+                        style={{ 
+                          marginRight: '8px', 
+                          marginTop: '2px',
+                          minWidth: '16px'
+                        }}
+                      />
+                      <span style={{ color: '#6b7280' }}>
+                        Opcjonalne: Wyrażam zgodę na otrzymywanie informacji marketingowych o nowych ofertach i promocjach.
+                      </span>
+                    </label>
+                  </div>
+                </div>
               </div>
 
               <button
                 onClick={completeRegistration}
-                disabled={loading}
+                disabled={loading || !authFormData.email || !authFormData.firstName || !authFormData.lastName || !authFormData.city || !authFormData.gdprConsent || (authFormData.isCompany && (!authFormData.companyName || !authFormData.nip))}
                 style={{
                   width: '100%',
-                  background: loading ? '#9ca3af' : 'linear-gradient(135deg, #10b981, #059669)',
+                  background: loading || !authFormData.email || !authFormData.firstName || !authFormData.lastName || !authFormData.city || !authFormData.gdprConsent || (authFormData.isCompany && (!authFormData.companyName || !authFormData.nip)) ? '#9ca3af' : 'linear-gradient(135deg, #10b981, #059669)',
                   color: 'white',
                   border: 'none',
                   padding: '14px',
                   borderRadius: '12px',
                   fontSize: '16px',
                   fontWeight: '600',
-                  cursor: loading ? 'not-allowed' : 'pointer',
+                  cursor: loading || !authFormData.email || !authFormData.firstName || !authFormData.lastName || !authFormData.city || !authFormData.gdprConsent || (authFormData.isCompany && (!authFormData.companyName || !authFormData.nip)) ? 'not-allowed' : 'pointer',
                   marginTop: '24px'
                 }}
               >
@@ -1147,6 +1329,36 @@ export default function EVMarketplace() {
 
   const HomePage = () => (
     <div>
+      {/* Under Construction Banner */}
+      <div style={{
+        background: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)',
+        color: 'white',
+        padding: '16px 0',
+        textAlign: 'center',
+        borderBottom: '3px solid #92400e'
+      }}>
+        <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '0 20px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '12px' }}>
+            <AlertCircle style={{ height: '24px', width: '24px' }} />
+            <span style={{ 
+              fontSize: '18px', 
+              fontWeight: '700'
+            }}>
+              🚧 W BUDOWIE 🚧
+            </span>
+            <AlertCircle style={{ height: '24px', width: '24px' }} />
+          </div>
+          <p style={{ 
+            fontSize: '14px', 
+            marginTop: '8px',
+            opacity: '0.9',
+            margin: '8px 0 0 0'
+          }}>
+            Strona jest obecnie w fazie rozwoju. Wkrótce pojawią się prawdziwe oferty pojazdów elektrycznych!
+          </p>
+        </div>
+      </div>
+
       <div style={{
         background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
         color: 'white',
@@ -2072,6 +2284,528 @@ export default function EVMarketplace() {
     );
   };
 
+  const CookieBanner = () => {
+    if (!showCookieBanner) return null;
+
+    return (
+      <div style={{
+        position: 'fixed',
+        bottom: '0',
+        left: '0',
+        right: '0',
+        background: 'rgba(31, 41, 55, 0.95)',
+        color: 'white',
+        padding: '20px',
+        zIndex: 1000,
+        backdropFilter: 'blur(10px)'
+      }}>
+        <div style={{ maxWidth: '1200px', margin: '0 auto', display: 'flex', alignItems: 'center', gap: '20px', flexWrap: 'wrap' }}>
+          <div style={{ flex: '1', minWidth: '300px' }}>
+            <p style={{ margin: '0', fontSize: '14px', lineHeight: '1.5' }}>
+              Ta strona używa plików cookies w celu świadczenia usług na najwyższym poziomie. 
+              Dalsze korzystanie ze strony oznacza, że zgadzasz się na ich użycie zgodnie z{' '}
+              <button
+                onClick={() => setCurrentView('privacy')}
+                style={{
+                  background: 'none',
+                  border: 'none',
+                  color: '#10b981',
+                  textDecoration: 'underline',
+                  cursor: 'pointer',
+                  fontSize: '14px',
+                  padding: '0'
+                }}
+              >
+                Polityką Prywatności
+              </button>
+              .
+            </p>
+          </div>
+          <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
+            <button
+              onClick={() => setShowCookieBanner(false)}
+              style={{
+                background: '#10b981',
+                color: 'white',
+                border: 'none',
+                padding: '10px 20px',
+                borderRadius: '8px',
+                fontSize: '14px',
+                fontWeight: '600',
+                cursor: 'pointer',
+                whiteSpace: 'nowrap'
+              }}
+            >
+              Akceptuję
+            </button>
+            <button
+              onClick={() => {
+                setCurrentView('privacy');
+                setShowCookieBanner(false);
+              }}
+              style={{
+                background: 'transparent',
+                color: 'white',
+                border: '2px solid rgba(255, 255, 255, 0.3)',
+                padding: '8px 16px',
+                borderRadius: '8px',
+                fontSize: '14px',
+                fontWeight: '600',
+                cursor: 'pointer',
+                whiteSpace: 'nowrap'
+              }}
+            >
+              Więcej informacji
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
+  const PrivacyPage = () => (
+    <div style={{ maxWidth: '800px', margin: '0 auto', padding: '40px 20px' }}>
+      <button
+        onClick={() => setCurrentView('home')}
+        style={{
+          marginBottom: '24px',
+          display: 'flex',
+          alignItems: 'center',
+          color: '#10b981',
+          background: 'transparent',
+          border: 'none',
+          fontSize: '16px',
+          cursor: 'pointer',
+          fontWeight: '600'
+        }}
+      >
+        ← Powrót do strony głównej
+      </button>
+
+      <div style={{
+        background: 'rgba(255, 255, 255, 0.95)',
+        borderRadius: '20px',
+        padding: '40px'
+      }}>
+        <h1 style={{ 
+          fontSize: '32px', 
+          fontWeight: '800', 
+          marginBottom: '32px', 
+          color: '#1f2937'
+        }}>
+          Polityka Prywatności
+        </h1>
+
+        <div style={{ lineHeight: '1.6', color: '#4b5563' }}>
+          <h2 style={{ fontSize: '24px', fontWeight: '700', marginBottom: '16px', color: '#1f2937' }}>
+            1. Administrator danych
+          </h2>
+          <p style={{ marginBottom: '24px' }}>
+            Administratorem Państwa danych osobowych jest iVi Market Sp. z o.o. z siedzibą w Warszawie, 
+            ul. Marszałkowska 1, 00-001 Warszawa, NIP: 1234567890, wpisana do Krajowego Rejestru Sądowego 
+            pod numerem KRS 0000123456.
+          </p>
+
+          <h2 style={{ fontSize: '24px', fontWeight: '700', marginBottom: '16px', color: '#1f2937' }}>
+            2. Cele i podstawy prawne przetwarzania danych
+          </h2>
+          <p style={{ marginBottom: '16px' }}>Przetwarzamy Państwa dane osobowe w następujących celach:</p>
+          <ul style={{ marginBottom: '24px', paddingLeft: '20px' }}>
+            <li style={{ marginBottom: '8px' }}>
+              <strong>Świadczenie usług marketplace</strong> - na podstawie art. 6 ust. 1 lit. b RODO (wykonanie umowy)
+            </li>
+            <li style={{ marginBottom: '8px' }}>
+              <strong>Weryfikacja tożsamości użytkowników</strong> - na podstawie art. 6 ust. 1 lit. f RODO (prawnie uzasadniony interes)
+            </li>
+            <li style={{ marginBottom: '8px' }}>
+              <strong>Marketing bezpośredni</strong> - na podstawie art. 6 ust. 1 lit. a RODO (zgoda) - tylko za zgodą
+            </li>
+            <li style={{ marginBottom: '8px' }}>
+              <strong>Wypełnienie obowiązków prawnych</strong> - na podstawie art. 6 ust. 1 lit. c RODO
+            </li>
+          </ul>
+
+          <h2 style={{ fontSize: '24px', fontWeight: '700', marginBottom: '16px', color: '#1f2937' }}>
+            3. Kategorie przetwarzanych danych
+          </h2>
+          <p style={{ marginBottom: '16px' }}>Przetwarzamy następujące kategorie danych osobowych:</p>
+          <ul style={{ marginBottom: '24px', paddingLeft: '20px' }}>
+            <li style={{ marginBottom: '8px' }}>Dane identyfikacyjne (imię, nazwisko, numer telefonu, adres e-mail)</li>
+            <li style={{ marginBottom: '8px' }}>Dane adresowe (adres zamieszkania/siedziby)</li>
+            <li style={{ marginBottom: '8px' }}>Dane firmowe (nazwa firmy, NIP) - w przypadku kont firmowych</li>
+            <li style={{ marginBottom: '8px' }}>Dane techniczne (adres IP, informacje o urządzeniu, cookies)</li>
+          </ul>
+
+          <h2 style={{ fontSize: '24px', fontWeight: '700', marginBottom: '16px', color: '#1f2937' }}>
+            4. Okres przechowywania danych
+          </h2>
+          <p style={{ marginBottom: '24px' }}>
+            Dane osobowe przechowujemy przez okres niezbędny do realizacji celów, dla których zostały zebrane, 
+            nie dłużej niż przez 5 lat od zakończenia współpracy, z zastrzeżeniem przepisów prawa nakazujących 
+            dłuższe przechowywanie danych.
+          </p>
+
+          <h2 style={{ fontSize: '24px', fontWeight: '700', marginBottom: '16px', color: '#1f2937' }}>
+            5. Prawa osób, których dane dotyczą
+          </h2>
+          <p style={{ marginBottom: '16px' }}>Przysługują Państwu następujące prawa:</p>
+          <ul style={{ marginBottom: '24px', paddingLeft: '20px' }}>
+            <li style={{ marginBottom: '8px' }}>Prawo dostępu do danych (art. 15 RODO)</li>
+            <li style={{ marginBottom: '8px' }}>Prawo do sprostowania danych (art. 16 RODO)</li>
+            <li style={{ marginBottom: '8px' }}>Prawo do usunięcia danych (art. 17 RODO)</li>
+            <li style={{ marginBottom: '8px' }}>Prawo do ograniczenia przetwarzania (art. 18 RODO)</li>
+            <li style={{ marginBottom: '8px' }}>Prawo do przenoszenia danych (art. 20 RODO)</li>
+            <li style={{ marginBottom: '8px' }}>Prawo sprzeciwu (art. 21 RODO)</li>
+            <li style={{ marginBottom: '8px' }}>Prawo do cofnięcia zgody (art. 7 ust. 3 RODO)</li>
+          </ul>
+
+          <h2 style={{ fontSize: '24px', fontWeight: '700', marginBottom: '16px', color: '#1f2937' }}>
+            6. Kontakt w sprawach ochrony danych
+          </h2>
+          <p style={{ marginBottom: '24px' }}>
+            W sprawach dotyczących ochrony danych osobowych można się kontaktować pod adresem e-mail: 
+            <strong> rodo@ivimarket.pl</strong> lub pisemnie na adres siedziby spółki.
+          </p>
+
+          <h2 style={{ fontSize: '24px', fontWeight: '700', marginBottom: '16px', color: '#1f2937' }}>
+            7. Prawo do wniesienia skargi
+          </h2>
+          <p style={{ marginBottom: '24px' }}>
+            W przypadku naruszenia przepisów o ochronie danych osobowych przysługuje Państwu prawo wniesienia 
+            skargi do Prezesa Urzędu Ochrony Danych Osobowych.
+          </p>
+
+          <div style={{ 
+            background: '#f0fdf4', 
+            padding: '16px', 
+            borderRadius: '12px', 
+            marginTop: '32px',
+            border: '1px solid #bbf7d0'
+          }}>
+            <p style={{ margin: '0', fontSize: '14px', color: '#166534' }}>
+              <strong>Ostatnia aktualizacja:</strong> {new Date().toLocaleDateString('pl-PL')}
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+
+  const TermsPage = () => (
+    <div style={{ maxWidth: '800px', margin: '0 auto', padding: '40px 20px' }}>
+      <button
+        onClick={() => setCurrentView('home')}
+        style={{
+          marginBottom: '24px',
+          display: 'flex',
+          alignItems: 'center',
+          color: '#10b981',
+          background: 'transparent',
+          border: 'none',
+          fontSize: '16px',
+          cursor: 'pointer',
+          fontWeight: '600'
+        }}
+      >
+        ← Powrót do strony głównej
+      </button>
+
+      <div style={{
+        background: 'rgba(255, 255, 255, 0.95)',
+        borderRadius: '20px',
+        padding: '40px'
+      }}>
+        <h1 style={{ 
+          fontSize: '32px', 
+          fontWeight: '800', 
+          marginBottom: '32px', 
+          color: '#1f2937'
+        }}>
+          Regulamin Serwisu
+        </h1>
+
+        <div style={{ lineHeight: '1.6', color: '#4b5563' }}>
+          <h2 style={{ fontSize: '24px', fontWeight: '700', marginBottom: '16px', color: '#1f2937' }}>
+            1. Postanowienia ogólne
+          </h2>
+          <p style={{ marginBottom: '16px' }}>
+            Niniejszy Regulamin określa zasady korzystania z serwisu internetowego iVi Market dostępnego 
+            pod adresem www.ivimarket.pl, prowadzonego przez iVi Market Sp. z o.o.
+          </p>
+          <p style={{ marginBottom: '24px' }}>
+            Korzystanie z Serwisu oznacza akceptację postanowień niniejszego Regulaminu.
+          </p>
+
+          <h2 style={{ fontSize: '24px', fontWeight: '700', marginBottom: '16px', color: '#1f2937' }}>
+            2. Definicje
+          </h2>
+          <ul style={{ marginBottom: '24px', paddingLeft: '20px' }}>
+            <li style={{ marginBottom: '8px' }}>
+              <strong>Serwis</strong> - serwis internetowy iVi Market dostępny pod adresem www.ivimarket.pl
+            </li>
+            <li style={{ marginBottom: '8px' }}>
+              <strong>Użytkownik</strong> - osoba fizyczna, prawna lub jednostka organizacyjna nieposiadająca osobowości prawnej korzystająca z Serwisu
+            </li>
+            <li style={{ marginBottom: '8px' }}>
+              <strong>Konto</strong> - zbiór zasobów i ustawień utworzony dla Użytkownika w Serwisie
+            </li>
+            <li style={{ marginBottom: '8px' }}>
+              <strong>Ogłoszenie</strong> - treść zamieszczona przez Użytkownika w Serwisie dotycząca sprzedaży pojazdu elektrycznego
+            </li>
+          </ul>
+
+          <h2 style={{ fontSize: '24px', fontWeight: '700', marginBottom: '16px', color: '#1f2937' }}>
+            3. Zasady korzystania z Serwisu
+          </h2>
+          <p style={{ marginBottom: '16px' }}>Użytkownik zobowiązuje się do:</p>
+          <ul style={{ marginBottom: '24px', paddingLeft: '20px' }}>
+            <li style={{ marginBottom: '8px' }}>Korzystania z Serwisu zgodnie z prawem i dobrymi obyczajami</li>
+            <li style={{ marginBottom: '8px' }}>Podawania prawdziwych i aktualnych danych</li>
+            <li style={{ marginBottom: '8px' }}>Nienaruszania praw osób trzecich</li>
+            <li style={{ marginBottom: '8px' }}>Nieutrudniania funkcjonowania Serwisu</li>
+          </ul>
+
+          <h2 style={{ fontSize: '24px', fontWeight: '700', marginBottom: '16px', color: '#1f2937' }}>
+            4. Rejestracja i Konto Użytkownika
+          </h2>
+          <p style={{ marginBottom: '16px' }}>
+            Rejestracja w Serwisie jest dobrowolna, ale niezbędna do korzystania z pełnej funkcjonalności.
+          </p>
+          <p style={{ marginBottom: '24px' }}>
+            Użytkownik może założyć konto osobiste lub firmowe, podając wymagane dane zgodnie z formularzem rejestracyjnym.
+          </p>
+
+          <h2 style={{ fontSize: '24px', fontWeight: '700', marginBottom: '16px', color: '#1f2937' }}>
+            5. Ogłoszenia
+          </h2>
+          <p style={{ marginBottom: '16px' }}>Użytkownik może zamieszczać ogłoszenia dotyczące sprzedaży pojazdów elektrycznych pod warunkiem:</p>
+          <ul style={{ marginBottom: '24px', paddingLeft: '20px' }}>
+            <li style={{ marginBottom: '8px' }}>Posiadania uprawnień do dysponowania pojazdem</li>
+            <li style={{ marginBottom: '8px' }}>Podania prawdziwych informacji o pojeździe</li>
+            <li style={{ marginBottom: '8px' }}>Przestrzegania przepisów prawa dotyczących sprzedaży pojazdów</li>
+          </ul>
+
+          <h2 style={{ fontSize: '24px', fontWeight: '700', marginBottom: '16px', color: '#1f2937' }}>
+            6. Prawo odstąpienia (dla konsumentów)
+          </h2>
+          <p style={{ marginBottom: '16px' }}>
+            Konsument ma prawo odstąpić od umowy zawartej na odległość w terminie 14 dni bez podania przyczyny.
+          </p>
+          <p style={{ marginBottom: '24px' }}>
+            Termin biegnie od dnia zawarcia umowy. Oświadczenie o odstąpieniu można złożyć na adres: odstapienie@ivimarket.pl
+          </p>
+
+          <h2 style={{ fontSize: '24px', fontWeight: '700', marginBottom: '16px', color: '#1f2937' }}>
+            7. Odpowiedzialność
+          </h2>
+          <p style={{ marginBottom: '16px' }}>
+            Serwis pełni rolę pośrednika w kontaktach między użytkownikami. Nie ponosi odpowiedzialności za:
+          </p>
+          <ul style={{ marginBottom: '24px', paddingLeft: '20px' }}>
+            <li style={{ marginBottom: '8px' }}>Prawdziwość informacji podanych przez użytkowników</li>
+            <li style={{ marginBottom: '8px' }}>Jakość oferowanych pojazdów</li>
+            <li style={{ marginBottom: '8px' }}>Realizację transakcji między użytkownikami</li>
+          </ul>
+
+          <h2 style={{ fontSize: '24px', fontWeight: '700', marginBottom: '16px', color: '#1f2937' }}>
+            8. Postanowienia końcowe
+          </h2>
+          <p style={{ marginBottom: '16px' }}>
+            W sprawach nieuregulowanych niniejszym Regulaminem zastosowanie mają przepisy prawa polskiego.
+          </p>
+          <p style={{ marginBottom: '24px' }}>
+            Wszelkie spory będą rozstrzygane przez sąd właściwy dla siedziby iVi Market Sp. z o.o.
+          </p>
+
+          <div style={{ 
+            background: '#fef3c7', 
+            padding: '16px', 
+            borderRadius: '12px', 
+            marginTop: '32px',
+            border: '1px solid #fbbf24'
+          }}>
+            <h3 style={{ fontSize: '16px', fontWeight: '700', marginBottom: '8px', color: '#92400e', margin: '0 0 8px 0' }}>
+              Informacja dla konsumentów
+            </h3>
+            <p style={{ margin: '0', fontSize: '14px', color: '#92400e' }}>
+              W przypadku sporów konsument może skorzystać z pozasądowych sposobów rozpatrywania reklamacji i dochodzenia roszczeń. 
+              Szczegółowe informacje dostępne na stronie: <strong>www.uokik.gov.pl</strong>
+            </p>
+          </div>
+
+          <div style={{ 
+            background: '#f0fdf4', 
+            padding: '16px', 
+            borderRadius: '12px', 
+            marginTop: '16px',
+            border: '1px solid #bbf7d0'
+          }}>
+            <p style={{ margin: '0', fontSize: '14px', color: '#166534' }}>
+              <strong>Ostatnia aktualizacja:</strong> {new Date().toLocaleDateString('pl-PL')}
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+
+  const Footer = () => (
+    <footer style={{
+      background: '#1f2937',
+      color: 'white',
+      padding: '40px 0 20px',
+      marginTop: '60px'
+    }}>
+      <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '0 20px' }}>
+        <div style={{ 
+          display: 'grid', 
+          gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', 
+          gap: '40px',
+          marginBottom: '32px'
+        }}>
+          <div>
+            <h3 style={{ fontSize: '18px', fontWeight: '700', marginBottom: '16px', color: '#10b981' }}>
+              iVi Market
+            </h3>
+            <p style={{ fontSize: '14px', lineHeight: '1.6', color: '#9ca3af', marginBottom: '16px' }}>
+              Marketplace pojazdów elektrycznych w Polsce. Znajdź swój wymarzony pojazd elektryczny 
+              lub sprzedaj swój obecny w bezpieczny sposób.
+            </p>
+            <div style={{ display: 'flex', gap: '12px' }}>
+              <div style={{ 
+                background: '#374151', 
+                padding: '8px', 
+                borderRadius: '8px',
+                fontSize: '12px'
+              }}>
+                🔋 Tylko pojazdy elektryczne
+              </div>
+              <div style={{ 
+                background: '#374151', 
+                padding: '8px', 
+                borderRadius: '8px',
+                fontSize: '12px'
+              }}>
+                ✅ Zweryfikowani sprzedawcy
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <h4 style={{ fontSize: '16px', fontWeight: '600', marginBottom: '16px', color: 'white' }}>
+              Informacje prawne
+            </h4>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+              <button
+                onClick={() => setCurrentView('terms')}
+                style={{
+                  background: 'none',
+                  border: 'none',
+                  color: '#9ca3af',
+                  fontSize: '14px',
+                  cursor: 'pointer',
+                  textAlign: 'left',
+                  padding: '4px 0'
+                }}
+              >
+                Regulamin serwisu
+              </button>
+              <button
+                onClick={() => setCurrentView('privacy')}
+                style={{
+                  background: 'none',
+                  border: 'none',
+                  color: '#9ca3af',
+                  fontSize: '14px',
+                  cursor: 'pointer',
+                  textAlign: 'left',
+                  padding: '4px 0'
+                }}
+              >
+                Polityka prywatności
+              </button>
+              <a 
+                href="mailto:rodo@ivimarket.pl"
+                style={{
+                  color: '#9ca3af',
+                  fontSize: '14px',
+                  textDecoration: 'none',
+                  padding: '4px 0'
+                }}
+              >
+                Kontakt RODO
+              </a>
+            </div>
+          </div>
+
+          <div>
+            <h4 style={{ fontSize: '16px', fontWeight: '600', marginBottom: '16px', color: 'white' }}>
+              Kontakt
+            </h4>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', fontSize: '14px', color: '#9ca3af' }}>
+              <div>iVi Market Sp. z o.o.</div>
+              <div>ul. Marszałkowska 1</div>
+              <div>00-001 Warszawa</div>
+              <div>NIP: 1234567890</div>
+              <div>KRS: 0000123456</div>
+              <a 
+                href="mailto:kontakt@ivimarket.pl"
+                style={{ color: '#10b981', textDecoration: 'none' }}
+              >
+                kontakt@ivimarket.pl
+              </a>
+            </div>
+          </div>
+
+          <div>
+            <h4 style={{ fontSize: '16px', fontWeight: '600', marginBottom: '16px', color: 'white' }}>
+              Dla konsumentów
+            </h4>
+            <div style={{ fontSize: '14px', color: '#9ca3af', lineHeight: '1.6' }}>
+              <p style={{ marginBottom: '12px' }}>
+                Platforma ODR (Online Dispute Resolution):
+              </p>
+              <a 
+                href="https://ec.europa.eu/consumers/odr"
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{ color: '#10b981', textDecoration: 'none', fontSize: '13px' }}
+              >
+                ec.europa.eu/consumers/odr
+              </a>
+              <p style={{ marginTop: '12px', fontSize: '13px' }}>
+                Urząd Ochrony Konkurencji i Konsumentów: 
+                <a 
+                  href="https://www.uokik.gov.pl"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  style={{ color: '#10b981', textDecoration: 'none', marginLeft: '4px' }}
+                >
+                  www.uokik.gov.pl
+                </a>
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div style={{ 
+          borderTop: '1px solid #374151', 
+          paddingTop: '20px', 
+          textAlign: 'center',
+          fontSize: '14px',
+          color: '#6b7280'
+        }}>
+          <p style={{ margin: '0' }}>
+            © {new Date().getFullYear()} iVi Market Sp. z o.o. Wszelkie prawa zastrzeżone.
+          </p>
+          <p style={{ margin: '8px 0 0 0', fontSize: '12px' }}>
+            Serwis jest obecnie w fazie rozwoju. Wszystkie dane mają charakter demonstracyjny.
+          </p>
+        </div>
+      </div>
+    </footer>
+  );
+
   return (
     <div style={{ 
       minHeight: '100vh', 
@@ -2096,8 +2830,12 @@ export default function EVMarketplace() {
       {currentView === 'details' && <VehicleDetails />}
       {currentView === 'blog' && <BlogPage />}
       {currentView === 'sell' && <SellPage />}
+      {currentView === 'privacy' && <PrivacyPage />}
+      {currentView === 'terms' && <TermsPage />}
       
+      <Footer />
       <AuthModal />
+      <CookieBanner />
     </div>
   );
 }
