@@ -7,7 +7,7 @@ marked.setOptions({
   gfm: true
 });
 
-export function parseMarkdown(markdownContent) {
+export function parseMarkdown(markdownContent: string) {
   const { data, content } = matter(markdownContent);
   const htmlContent = marked(content);
   
@@ -17,7 +17,7 @@ export function parseMarkdown(markdownContent) {
   };
 }
 
-export function processMarkdownFile(fileContent) {
+export function processMarkdownFile(fileContent: string) {
   const { metadata, content } = parseMarkdown(fileContent);
   
   return {
@@ -33,16 +33,16 @@ export function processMarkdownFile(fileContent) {
   };
 }
 
-function generateId(slug) {
-  return slug ? slug.hashCode() : Math.random();
+function generateId(slug: string): number {
+  return slug ? hashCode(slug) : Math.random();
 }
 
-String.prototype.hashCode = function() {
+function hashCode(str: string): number {
   let hash = 0;
-  for (let i = 0; i < this.length; i++) {
-    const char = this.charCodeAt(i);
+  for (let i = 0; i < str.length; i++) {
+    const char = str.charCodeAt(i);
     hash = ((hash << 5) - hash) + char;
     hash = hash & hash; // Convert to 32bit integer
   }
   return Math.abs(hash);
-};
+}

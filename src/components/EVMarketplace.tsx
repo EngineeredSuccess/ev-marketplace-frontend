@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
+import Script from 'next/script';
 import { Search, Filter, Car, Battery, Zap, MapPin, Phone, Mail, Heart, Star, ChevronDown, Menu, X, ArrowRight, Sparkles, User, Shield, Building, CheckCircle, AlertCircle } from 'lucide-react';
 
 // Extend Window interface for GTM
 declare global {
   interface Window {
     dataLayer: any[];
+    hj?: any;
   }
 }
 
@@ -281,7 +283,7 @@ export default function EVMarketplace() {
   const [selectedVehicle, setSelectedVehicle] = useState<Vehicle | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [showCookieBanner, setShowCookieBanner] = useState(true);
-  const [filters, setFilters] = useState({
+  const [filters, setFilters] = useState<{[key: string]: string}>({
     make: 'Wszystkie',
     priceRange: 'Wszystkie',
     year: 'Wszystkie',
@@ -312,50 +314,11 @@ export default function EVMarketplace() {
     marketingConsent: false
   });
 
-  // Google Tag Manager & Hotjar Setup
+  // Initialize dataLayer for GTM
   useEffect(() => {
-    // GTM Head Script
-    const gtmScript = document.createElement('script');
-    gtmScript.innerHTML = `
-      (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
-      new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
-      j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
-      'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
-      })(window,document,'script','dataLayer','GTM-TNN4TN96');
-    `;
-    
-    // Hotjar Tracking Script
-    const hotjarScript = document.createElement('script');
-    hotjarScript.innerHTML = `
-      (function(h,o,t,j,a,r){
-        h.hj=h.hj||function(){(h.hj.q=h.hj.q||[]).push(arguments)};
-        h._hjSettings={hjid:6446107,hjsv:6};
-        a=o.getElementsByTagName('head')[0];
-        r=o.createElement('script');r.async=1;
-        r.src=t+h._hjSettings.hjid+j+h._hjSettings.hjsv;
-        a.appendChild(r);
-      })(window,document,'https://static.hotjar.com/c/hotjar-','.js?sv=');
-    `;
-    
-    // Add scripts to head
-    document.head.appendChild(gtmScript);
-    document.head.appendChild(hotjarScript);
-    
-    // Initialize dataLayer if it doesn't exist
     if (typeof window !== 'undefined') {
       window.dataLayer = window.dataLayer || [];
     }
-
-    // Cleanup function
-    return () => {
-      // Remove the scripts when component unmounts
-      const scripts = document.querySelectorAll('script');
-      scripts.forEach(script => {
-        if (script.innerHTML.includes('gtm.start') || script.innerHTML.includes('hjid:6446107')) {
-          document.head.removeChild(script);
-        }
-      });
-    };
   }, []);
 
   // Track page views when currentView changes
@@ -1003,14 +966,14 @@ export default function EVMarketplace() {
               alignItems: 'center',
               justifyContent: 'center'
             }}>
-              <img 
-                src="/logo.png" 
-                alt="iVi Market Logo" 
-                style={{ 
-                  width: '24px', 
+              <img
+                src="/logo.svg"
+                alt="iVi Market Logo"
+                style={{
+                  width: '24px',
                   height: '24px',
                   objectFit: 'contain'
-                }} 
+                }}
               />
             </div>
             <span style={{ 
@@ -2070,7 +2033,7 @@ export default function EVMarketplace() {
                 <span>{new Date(selectedPost.date).toLocaleDateString('pl-PL')}</span>
                 <span>•</span>
                 <div style={{ display: 'flex', gap: '8px' }}>
-                  {selectedPost.tags?.map((tag, index) => (
+                  {selectedPost.tags?.map((tag: string, index: number) => (
                     <span 
                       key={index}
                       style={{
@@ -2807,35 +2770,78 @@ export default function EVMarketplace() {
   );
 
   return (
-    <div style={{ 
-      minHeight: '100vh', 
-      background: 'linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%)',
-      fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
-    }}>
-      {/* Google Tag Manager (noscript) */}
-      <noscript>
-        <iframe 
-          src="https://www.googletagmanager.com/ns.html?id=GTM-TNN4TN96"
-          height="0" 
-          width="0" 
-          style={{display: 'none', visibility: 'hidden'}}
+    <>
+      {/* Google Tag Manager - Only load if GTM ID is available */}
+      {process.env.NEXT_PUBLIC_GTM_ID && (
+        <Script
+          id="gtm-script"
+          strategy="afterInteractive"
+          dangerouslySetInnerHTML={{
+            __html: `
+              (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+              new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+              j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+              'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+              })(window,document,'script','dataLayer','${process.env.NEXT_PUBLIC_GTM_ID}');
+            `,
+          }}
         />
-      </noscript>
-      {/* End Google Tag Manager (noscript) */}
+      )}
       
-      <Navigation />
-      
-      {currentView === 'home' && <HomePage />}
-      {currentView === 'browse' && <BrowsePage />}
-      {currentView === 'details' && <VehicleDetails />}
-      {currentView === 'blog' && <BlogPage />}
-      {currentView === 'sell' && <SellPage />}
-      {currentView === 'privacy' && <PrivacyPage />}
-      {currentView === 'terms' && <TermsPage />}
-      
-      <Footer />
-      <AuthModal />
-      <CookieBanner />
-    </div>
+      {/* Hotjar Tracking Code - Only load in production, over HTTPS, and if ID is available */}
+      {process.env.NODE_ENV === 'production' &&
+       process.env.NEXT_PUBLIC_HOTJAR_ID &&
+       typeof window !== 'undefined' &&
+       window.location.protocol === 'https:' && (
+        <Script
+          id="hotjar-script"
+          strategy="afterInteractive"
+          dangerouslySetInnerHTML={{
+            __html: `
+              (function(h,o,t,j,a,r){
+                h.hj=h.hj||function(){(h.hj.q=h.hj.q||[]).push(arguments)};
+                h._hjSettings={hjid:${process.env.NEXT_PUBLIC_HOTJAR_ID},hjsv:6};
+                a=o.getElementsByTagName('head')[0];
+                r=o.createElement('script');r.async=1;
+                r.src=t+h._hjSettings.hjid+j+h._hjSettings.hjsv;
+                a.appendChild(r);
+              })(window,document,'https://static.hotjar.com/c/hotjar-','.js?sv=');
+            `,
+          }}
+        />
+      )}
+
+      <div style={{
+        minHeight: '100vh',
+        background: 'linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%)',
+        fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
+      }}>
+        {/* Google Tag Manager (noscript) */}
+        {process.env.NEXT_PUBLIC_GTM_ID && (
+          <noscript>
+            <iframe
+              src={`https://www.googletagmanager.com/ns.html?id=${process.env.NEXT_PUBLIC_GTM_ID}`}
+              height="0"
+              width="0"
+              style={{display: 'none', visibility: 'hidden'}}
+            />
+          </noscript>
+        )}
+        
+        <Navigation />
+        
+        {currentView === 'home' && <HomePage />}
+        {currentView === 'browse' && <BrowsePage />}
+        {currentView === 'details' && <VehicleDetails />}
+        {currentView === 'blog' && <BlogPage />}
+        {currentView === 'sell' && <SellPage />}
+        {currentView === 'privacy' && <PrivacyPage />}
+        {currentView === 'terms' && <TermsPage />}
+        
+        <Footer />
+        <AuthModal />
+        <CookieBanner />
+      </div>
+    </>
   );
 }
