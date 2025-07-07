@@ -1,123 +1,111 @@
-import { User } from '../types/User';
-import { AuthFormData } from '../types/Auth';
+import { supabase } from '@/lib/supabase'
+import { User } from '@supabase/supabase-js'
 
-// Mock users data - in a real app, this would come from an API
-const mockUsers: User[] = [
-  {
-    id: 1,
-    phone: "+48123456789",
-    email: "jan.kowalski@email.com",
-    firstName: "Jan",
-    lastName: "Kowalski",
-    isCompany: false,
-    street: "ul. Marszałkowska 1",
-    city: "Warszawa",
-    postalCode: "00-001",
-    country: "Polska",
-    isVerified: true,
-    registrationDate: new Date('2023-01-15')
-  },
-  {
-    id: 2,
-    phone: "+48987654321", 
-    email: "anna.nowak@email.com",
-    firstName: "Anna",
-    lastName: "Nowak",
-    isCompany: false,
-    street: "ul. Floriańska 10",
-    city: "Kraków",
-    postalCode: "31-019",
-    country: "Polska",
-    isVerified: true,
-    registrationDate: new Date('2023-02-20')
-  },
-  {
-    id: 3,
-    phone: "+48777888999",
-    email: "biuro@autosalonzielinski.pl",
-    firstName: "Katarzyna",
-    lastName: "Zielińska",
-    isCompany: true,
-    companyName: "Auto Salon Zieliński Sp. z o.o.",
-    nip: "1234567890",
-    street: "ul. Przemysłowa 15",
-    city: "Wrocław", 
-    postalCode: "50-001",
-    country: "Polska",
-    isVerified: true,
-    registrationDate: new Date('2022-11-10')
-  }
-];
+export interface AuthUser {
+  id: string
+  phone?: string
+  email?: string
+  user_metadata?: any
+}
+
+export interface UserProfile {
+  id: number
+  phone: string
+  email: string
+  first_name: string
+  last_name: string
+  is_company: boolean
+  city: string
+  company_name?: string
+  nip?: string
+  is_verified: boolean
+}
 
 export const authService = {
-  // Send verification code to phone number
-  sendVerificationCode: async (phone: string): Promise<{ success: boolean; message?: string }> => {
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        // In a real app, this would call an SMS service
-        resolve({ success: true, message: 'Kod weryfikacyjny został wysłany' });
-      }, 2000);
-    });
+  // Get current user
+  getCurrentUser: async (): Promise<AuthUser | null> => {
+    const { data: { user } } = await supabase.auth.getUser()
+    return user
   },
 
-  // Verify the SMS code
-  verifyCode: async (phone: string, code: string): Promise<{ success: boolean; user?: User; message?: string }> => {
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        if (code === '123456') {
-          const existingUser = mockUsers.find(u => u.phone === phone);
-          resolve({ 
-            success: true, 
-            user: existingUser,
-            message: existingUser ? 'Zalogowano pomyślnie' : 'Kod zweryfikowany' 
-          });
-        } else {
-          resolve({ success: false, message: 'Nieprawidłowy kod weryfikacyjny' });
-        }
-      }, 1000);
-    });
+  // Get user profile from database
+  getUserProfile: async (): Promise<UserProfile | null> => {
+    const { data: { user } } = await supabase.auth.getUser()
+    
+    if (!user) return null
+
+    const { data, error } = await supabase
+      .from('users')
+      .select('*')
+      .eq('id', user.id)
+      .single()
+
+    if (error) {
+      console.error('Error fetching user profile:', error)
+      return null
+    }
+
+    return data
   },
 
-  // Complete user registration
-  registerUser: async (formData: AuthFormData): Promise<{ success: boolean; user?: User; message?: string }> => {
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        const newUser: User = {
-          id: mockUsers.length + 1,
-          phone: formData.phone,
-          email: formData.email,
-          firstName: formData.firstName,
-          lastName: formData.lastName,
-          isCompany: formData.isCompany,
-          companyName: formData.companyName,
-          nip: formData.nip,
-          street: formData.street,
-          city: formData.city,
-          postalCode: formData.postalCode,
-          country: formData.country,
-          isVerified: true,
-          registrationDate: new Date()
-        };
-        
-        // In a real app, this would save to database
-        mockUsers.push(newUser);
-        
-        resolve({ 
-          success: true, 
-          user: newUser,
-          message: 'Rejestracja zakończona pomyślnie' 
-        });
-      }, 2000);
-    });
+  // Create user profile
+  createUserProfile: async (profileData: Omit<UserProfile, 'id' | 'is_verified'>): Promise<UserProfile | null> => {
+    const { data: { user } } = await supabase.auth.getUser()
+    
+    if (!user) throw new Error('No authenticated user')
+
+    const { data, error } = await supabase
+      .from('users')
+      .insert({
+        id: parseInt(user.id),
+        ...profileData,
+        is_verified: true // Phone is already verified through auth
+      })
+      .select()
+      .single()
+
+    if (error) {
+      console.error('Error creating user profile:', error)
+      throw error
+    }
+
+    return data
   },
 
-  // Find user by phone number
-  findUserByPhone: (phone: string): User | undefined => {
-    return mockUsers.find(u => u.phone === phone);
+  // Update user profile
+  updateUserProfile: async (updates: Partial<UserProfile>): Promise<UserProfile | null> => {
+    const { data: { user } } = await supabase.auth.getUser()
+    
+    if (!user) throw new Error('No authenticated user')
+
+    const { data, error } = await supabase
+      .from('users')
+      .update(updates)
+      .eq('id', user.id)
+      .select()
+      .single()
+
+    if (error) {
+      console.error('Error updating user profile:', error)
+      throw error
+    }
+
+    return data
   },
 
-  // Get all users (for development/testing)
-  getAllUsers: (): User[] => {
-    return mockUsers;
+  // Sign out
+  signOut: async (): Promise<void> => {
+    const { error } = await supabase.auth.signOut()
+    if (error) {
+      console.error('Error signing out:', error)
+      throw error
+    }
+  },
+
+  // Listen to auth changes
+  onAuthStateChange: (callback: (user: AuthUser | null) => void) => {
+    return supabase.auth.onAuthStateChange((event, session) => {
+      callback(session?.user || null)
+    })
   }
-};
+}

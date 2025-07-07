@@ -1,12 +1,4 @@
-import { Inter } from 'next/font/google'
-import './globals.css'
-
-const inter = Inter({ subsets: ['latin'] })
-
-export const metadata = {
-  title: 'Polish EV Marketplace | Marketplace Pojazdów Elektrycznych',
-  description: 'Find and sell electric vehicles in Poland. The best platform for EVs in Polska.',
-}
+import { AuthProvider } from '@/contexts/AuthContext'
 
 export default function RootLayout({
   children,
@@ -15,8 +7,10 @@ export default function RootLayout({
 }) {
   return (
     <html lang="pl">
-      <body className={inter.className}>
-        {children}
+      <body>
+        <AuthProvider>
+          {children}
+        </AuthProvider>
       </body>
     </html>
   )
