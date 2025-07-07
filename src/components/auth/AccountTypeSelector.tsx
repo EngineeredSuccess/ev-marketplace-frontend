@@ -1,100 +1,69 @@
-import React from ‘react’;
-import { User, Building } from ‘lucide-react’;
+import React from 'react';
+import { User, Building } from 'lucide-react';
+import { useAuth } from '../../hooks/useAuth';
 
-interface AccountTypeSelectorProps {
-isCompany: boolean;
-onTypeChange: (isCompany: boolean) => void;
-}
+export const AccountTypeSelector: React.FC = () => {
+  const { authFormData, updateAuthFormData } = useAuth();
 
-export const AccountTypeSelector: React.FC<AccountTypeSelectorProps> = ({
-isCompany,
-onTypeChange
-}) => {
-return (
-<div>
-<label style={{
-display: ‘block’,
-fontSize: ‘14px’,
-fontWeight: ‘600’,
-color: ‘#374151’,
-marginBottom: ‘12px’
-}}>
-Typ konta *
-</label>
-<div style={{
-display: ‘grid’,
-gridTemplateColumns: ‘1fr 1fr’,
-gap: ‘12px’
-}}>
-<button
-type=“button”
-onClick={() => onTypeChange(false)}
-style={{
-padding: ‘16px 12px’,
-border: `2px solid ${!isCompany ? '#10b981' : '#e5e7eb'}`,
-borderRadius: ‘12px’,
-background: !isCompany ? ‘#f0fdf4’ : ‘white’,
-cursor: ‘pointer’,
-display: ‘flex’,
-flexDirection: ‘column’,
-alignItems: ‘center’,
-gap: ‘8px’,
-transition: ‘all 0.2s’
-}}
->
-<User size={24} style={{ color: !isCompany ? ‘#10b981’ : ‘#6b7280’ }} />
-<span style={{
-fontSize: ‘14px’,
-fontWeight: ‘600’,
-color: !isCompany ? ‘#10b981’ : ‘#6b7280’
-}}>
-Konto osobiste
-</span>
-<span style={{
-fontSize: ‘12px’,
-color: ‘#6b7280’,
-textAlign: ‘center’
-}}>
-Dla osób prywatnych
-</span>
-</button>
-
-```
-    <button
-      type="button"
-      onClick={() => onTypeChange(true)}
-      style={{
-        padding: '16px 12px',
-        border: `2px solid ${isCompany ? '#10b981' : '#e5e7eb'}`,
+  return (
+    <div>
+      <label style={{ display: 'block', fontSize: '14px', fontWeight: '600', color: '#374151', marginBottom: '8px' }}>
+        Typ konta *
+      </label>
+      <div style={{ 
+        display: 'grid', 
+        gridTemplateColumns: '1fr 1fr', 
+        gap: '12px',
+        padding: '12px',
+        border: '2px solid #e5e7eb',
         borderRadius: '12px',
-        background: isCompany ? '#f0fdf4' : 'white',
-        cursor: 'pointer',
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        gap: '8px',
-        transition: 'all 0.2s'
-      }}
-    >
-      <Building size={24} style={{ color: isCompany ? '#10b981' : '#6b7280' }} />
-      <span style={{ 
-        fontSize: '14px', 
-        fontWeight: '600', 
-        color: isCompany ? '#10b981' : '#6b7280' 
+        background: '#f9fafb'
       }}>
-        Konto firmowe
-      </span>
-      <span style={{ 
-        fontSize: '12px', 
-        color: '#6b7280',
-        textAlign: 'center'
-      }}>
-        Dla firm i dealerów
-      </span>
-    </button>
-  </div>
-</div>
-```
-
-);
+        <label style={{ 
+          display: 'flex', 
+          alignItems: 'center', 
+          cursor: 'pointer',
+          padding: '8px 12px',
+          borderRadius: '8px',
+          background: !authFormData.isCompany ? '#10b981' : 'transparent',
+          color: !authFormData.isCompany ? 'white' : '#374151',
+          transition: 'all 0.2s'
+        }}>
+          <input
+            type="radio"
+            name="accountType"
+            checked={!authFormData.isCompany}
+            onChange={() => updateAuthFormData({ 
+              isCompany: false, 
+              companyName: '', 
+              nip: '' 
+            })}
+            style={{ marginRight: '8px' }}
+          />
+          <User size={16} style={{ marginRight: '6px' }} />
+          Konto osobiste
+        </label>
+        <label style={{ 
+          display: 'flex', 
+          alignItems: 'center', 
+          cursor: 'pointer',
+          padding: '8px 12px',
+          borderRadius: '8px',
+          background: authFormData.isCompany ? '#10b981' : 'transparent',
+          color: authFormData.isCompany ? 'white' : '#374151',
+          transition: 'all 0.2s'
+        }}>
+          <input
+            type="radio"
+            name="accountType"
+            checked={authFormData.isCompany}
+            onChange={() => updateAuthFormData({ isCompany: true })}
+            style={{ marginRight: '8px' }}
+          />
+          <Building size={16} style={{ marginRight: '6px' }} />
+          Konto firmowe
+        </label>
+      </div>
+    </div>
+  );
 };

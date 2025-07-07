@@ -1,51 +1,52 @@
-import { AuthFormData, FormErrors } from ‘../types/User’;
-
-export const validatePhoneNumber = (phone: string): boolean => {
-const phoneRegex = /^+48[0-9]{9}$/;
-return phoneRegex.test(phone.replace(/\s/g, ‘’));
+export const validateEmail = (email: string): boolean => {
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  return emailRegex.test(email);
 };
 
-export const validateEmail = (email: string): boolean => {
-return /\S+@\S+.\S+/.test(email);
+export const validatePhone = (phone: string): boolean => {
+  const phoneRegex = /^\+48\d{9}$/;
+  return phoneRegex.test(phone.replace(/\s/g, ''));
 };
 
 export const validateNIP = (nip: string): boolean => {
-return /^\d{10}$/.test(nip.replace(/\D/g, ‘’));
+  const nipRegex = /^\d{10}$/;
+  return nipRegex.test(nip);
 };
 
-export const validateForm = (formData: AuthFormData): FormErrors => {
-const errors: FormErrors = {};
+export const validatePostalCode = (postalCode: string): boolean => {
+  const postalCodeRegex = /^\d{2}-\d{3}$/;
+  return postalCodeRegex.test(postalCode);
+};
 
-if (!formData.email || !validateEmail(formData.email)) {
-errors.email = ‘Podaj prawidłowy adres email’;
-}
+export const validateRequired = (value: string): boolean => {
+  return value.trim().length > 0;
+};
 
-if (!formData.firstName.trim()) {
-errors.firstName = ‘Imię jest wymagane’;
-}
+export const validateRegistrationForm = (formData: {
+  email: string;
+  firstName: string;
+  lastName: string;
+  city: string;
+  gdprConsent: boolean;
+  isCompany: boolean;
+  companyName?: string;
+  nip?: string;
+}): boolean => {
+  const basicValidation = 
+    validateRequired(formData.email) &&
+    validateEmail(formData.email) &&
+    validateRequired(formData.firstName) &&
+    validateRequired(formData.lastName) &&
+    validateRequired(formData.city) &&
+    formData.gdprConsent;
 
-if (!formData.lastName.trim()) {
-errors.lastName = ‘Nazwisko jest wymagane’;
-}
+  if (!basicValidation) return false;
 
-if (!formData.city.trim()) {
-errors.city = ‘Miasto jest wymagane’;
-}
+  if (formData.isCompany) {
+    return validateRequired(formData.companyName || '') &&
+           validateRequired(formData.nip || '') &&
+           validateNIP(formData.nip || '');
+  }
 
-if (formData.isCompany) {
-if (!formData.companyName.trim()) {
-errors.companyName = ‘Nazwa firmy jest wymagana’;
-}
-if (!formData.nip.trim()) {
-errors.nip = ‘NIP jest wymagany’;
-} else if (!validateNIP(formData.nip)) {
-errors.nip = ‘NIP musi składać się z 10 cyfr’;
-}
-}
-
-if (!formData.gdprConsent) {
-errors.gdprConsent = ‘Zgoda na przetwarzanie danych jest wymagana’;
-}
-
-return errors;
+  return true;
 };

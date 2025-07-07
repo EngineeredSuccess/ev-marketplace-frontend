@@ -1,117 +1,201 @@
-import { useState, useEffect, useCallback } from ‘react’;
-import { SMSService } from ‘../services/smsService’;
+import { useState, useCallback, useRef } from 'react';
+import { smsService } from '../services/smsService';
+
+export interface SMSVerificationState {
+  isCodeSent: boolean;
+  isVerifying: boolean;
+  isSending: boolean;
+  error: string | null;
+  canResend: boolean;
+  timeUntilResend: number;
+}
 
 export const useSMSVerification = () => {
-const [generatedCode, setGeneratedCode] = useState(’’);
-const [codeExpiresAt, setCodeExpiresAt] = useState<Date | null>(null);
-const [canResendCode, setCanResendCode] = useState(false);
-const [resendCountdown, setResendCountdown] = useState(0);
-const [loading, setLoading] = useState(false);
+  const [state, setState] = useState<SMSVerificationState>({
+    isCodeSent: false,
+    isVerifying: false,
+    isSending: false,
+    error: null,
+    canResend: false,
+    timeUntilResend: 0
+  });
 
-// Countdown timer for code resend
-useEffect(() => {
-if (resendCountdown > 0) {
-const timer = setTimeout(() => {
-setResendCountdown(resendCountdown - 1);
-}, 1000);
-return () => clearTimeout(timer);
-} else if (resendCountdown === 0 && generatedCode) {
-setCanResendCode(true);
-}
-}, [resendCountdown, generatedCode]);
+  const resendTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const resendCountdownRef = useRef<NodeJS.Timeout | null>(null);
 
-const sendCode = useCallback(async (phoneNumber: string) => {
-setLoading(true);
-try {
-const response = await SMSService.sendVerificationCode(phoneNumber);
+  const clearTimers = useCallback(() => {
+    if (resendTimerRef.current) {
+      clearTimeout(resendTimerRef.current);
+      resendTimerRef.current = null;
+    }
+    if (resendCountdownRef.current) {
+      clearInterval(resendCountdownRef.current);
+      resendCountdownRef.current = null;
+    }
+  }, []);
 
-```
-  if (response.success && response.code && response.expiresAt) {
-    setGeneratedCode(response.code);
-    setCodeExpiresAt(response.expiresAt);
-    setCanResendCode(false);
-    setResendCountdown(60);
+  const startResendTimer = useCallback(() => {
+    const RESEND_DELAY = 60; // 60 seconds
     
-    // Show demo alert in development
-    alert(`Demo: Kod weryfikacyjny to ${response.code}`);
-    
-    return { success: true };
-  } else {
-    return { success: false, error: response.error };
-  }
-} catch (error) {
-  return { success: false, error: 'Błąd wysyłania SMS' };
-} finally {
-  setLoading(false);
-}
-```
+    setState(prev => ({ 
+      ...prev, 
+      canResend: false, 
+      timeUntilResend: RESEND_DELAY 
+    }));
 
-}, []);
+    // Countdown timer
+    resendCountdownRef.current = setInterval(() => {
+      setState(prev => {
+        const newTime = prev.timeUntilResend - 1;
+        if (newTime <= 0) {
+          if (resendCountdownRef.current) {
+            clearInterval(resendCountdownRef.current);
+            resendCountdownRef.current = null;
+          }
+          return { ...prev, canResend: true, timeUntilResend: 0 };
+        }
+        return { ...prev, timeUntilResend: newTime };
+      });
+    }, 1000);
+  }, []);
 
-const resendCode = useCallback(async (phoneNumber: string) => {
-if (!canResendCode) return { success: false, error: ‘Poczekaj przed ponownym wysłaniem’ };
+  const sendCode = useCallback(async (phoneNumber: string): Promise<boolean> => {
+    setState(prev => ({ 
+      ...prev, 
+      isSending: true, 
+      error: null 
+    }));
 
-```
-setLoading(true);
-try {
-  const response = await SMSService.sendVerificationCode(phoneNumber);
-  
-  if (response.success && response.code && response.expiresAt) {
-    setGeneratedCode(response.code);
-    setCodeExpiresAt(response.expiresAt);
-    setCanResendCode(false);
-    setResendCountdown(60);
-    
-    // Show demo alert in development
-    alert(`Demo: Nowy kod weryfikacyjny to ${response.code}`);
-    
-    return { success: true };
-  } else {
-    return { success: false, error: response.error };
-  }
-} catch (error) {
-  return { success: false, error: 'Błąd wysyłania SMS' };
-} finally {
-  setLoading(false);
-}
-```
+    try {
+      const result = await smsService.sendVerificationCode(phoneNumber);
+      
+      if (result.success) {
+        setState(prev => ({ 
+          ...prev, 
+          isCodeSent: true, 
+          isSending: false 
+        }));
+        startResendTimer();
+        return true;
+      } else {
+        setState(prev => ({ 
+          ...prev, 
+          error: result.message, 
+          isSending: false 
+        }));
+        return false;
+      }
+    } catch (error) {
+      setState(prev => ({ 
+        ...prev, 
+        error: 'Błąd podczas wysyłania kodu SMS', 
+        isSending: false 
+      }));
+      return false;
+    }
+  }, [startResendTimer]);
 
-}, [canResendCode]);
+  const verifyCode = useCallback(async (phoneNumber: string, code: string): Promise<boolean> => {
+    setState(prev => ({ 
+      ...prev, 
+      isVerifying: true, 
+      error: null 
+    }));
 
-const verifyCode = useCallback((inputCode: string): { success: boolean; error?: string } => {
-if (!inputCode.trim()) {
-return { success: false, error: ‘Podaj kod weryfikacyjny’ };
-}
+    try {
+      const result = await smsService.verifyCode(phoneNumber, code);
+      
+      setState(prev => ({ 
+        ...prev, 
+        isVerifying: false 
+      }));
 
-```
-if (codeExpiresAt && SMSService.isCodeExpired(codeExpiresAt)) {
-  return { success: false, error: 'Kod weryfikacyjny wygasł. Poproś o nowy kod.' };
-}
+      if (result.success && result.isValid) {
+        return true;
+      } else {
+        setState(prev => ({ 
+          ...prev, 
+          error: result.message 
+        }));
+        return false;
+      }
+    } catch (error) {
+      setState(prev => ({ 
+        ...prev, 
+        error: 'Błąd podczas weryfikacji kodu', 
+        isVerifying: false 
+      }));
+      return false;
+    }
+  }, []);
 
-if (inputCode !== generatedCode) {
-  return { success: false, error: 'Nieprawidłowy kod weryfikacyjny' };
-}
+  const resendCode = useCallback(async (phoneNumber: string): Promise<boolean> => {
+    if (!state.canResend) {
+      return false;
+    }
 
-return { success: true };
-```
+    setState(prev => ({ 
+      ...prev, 
+      isSending: true, 
+      error: null 
+    }));
 
-}, [generatedCode, codeExpiresAt]);
+    try {
+      const result = await smsService.resendVerificationCode(phoneNumber);
+      
+      if (result.success) {
+        setState(prev => ({ 
+          ...prev, 
+          isSending: false 
+        }));
+        startResendTimer();
+        return true;
+      } else {
+        setState(prev => ({ 
+          ...prev, 
+          error: result.message, 
+          isSending: false 
+        }));
+        return false;
+      }
+    } catch (error) {
+      setState(prev => ({ 
+        ...prev, 
+        error: 'Błąd podczas ponownego wysyłania kodu', 
+        isSending: false 
+      }));
+      return false;
+    }
+  }, [state.canResend, startResendTimer]);
 
-const reset = useCallback(() => {
-setGeneratedCode(’’);
-setCodeExpiresAt(null);
-setCanResendCode(false);
-setResendCountdown(0);
-setLoading(false);
-}, []);
+  const reset = useCallback(() => {
+    clearTimers();
+    setState({
+      isCodeSent: false,
+      isVerifying: false,
+      isSending: false,
+      error: null,
+      canResend: false,
+      timeUntilResend: 0
+    });
+  }, [clearTimers]);
 
-return {
-loading,
-canResendCode,
-resendCountdown,
-sendCode,
-resendCode,
-verifyCode,
-reset
-};
+  const clearError = useCallback(() => {
+    setState(prev => ({ ...prev, error: null }));
+  }, []);
+
+  // Cleanup on unmount
+  const cleanup = useCallback(() => {
+    clearTimers();
+  }, [clearTimers]);
+
+  return {
+    ...state,
+    sendCode,
+    verifyCode,
+    resendCode,
+    reset,
+    clearError,
+    cleanup
+  };
 };
