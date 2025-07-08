@@ -10,6 +10,7 @@ export interface SMSVerificationResponse {
   success: boolean
   message: string
   isValid?: boolean
+  user?: any  // Add user property for login flow
 }
 
 export const smsService = {
@@ -42,7 +43,7 @@ export const smsService = {
   // Verify SMS code using Supabase Auth
   verifyCode: async (phoneNumber: string, code: string): Promise<SMSVerificationResponse> => {
     try {
-      const { error } = await supabase.auth.verifyOtp({
+      const { data, error } = await supabase.auth.verifyOtp({
         phone: phoneNumber,
         token: code,
         type: 'sms',
@@ -59,7 +60,8 @@ export const smsService = {
       return {
         success: true,
         message: 'Kod został zweryfikowany pomyślnie',
-        isValid: true
+        isValid: true,
+        user: data.user  // Include user data for login flow
       }
     } catch (error: any) {
       return {
@@ -68,5 +70,10 @@ export const smsService = {
         isValid: false
       }
     }
+  },
+
+  // Resend verification code (alias for sendVerificationCode)
+  resendVerificationCode: async (phoneNumber: string): Promise<SMSResponse> => {
+    return await smsService.sendVerificationCode(phoneNumber)
   }
 }

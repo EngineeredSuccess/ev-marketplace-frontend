@@ -1,5 +1,6 @@
 import { supabase } from '@/lib/supabase'
 import { User } from '@supabase/supabase-js'
+import { smsService } from './smsService'
 
 export interface AuthUser {
   id: string
@@ -15,10 +16,10 @@ export interface UserProfile {
   first_name: string
   last_name: string
   is_company: boolean
-  street: string           // ← Added
+  street: string
   city: string
-  postal_code: string      // ← Added
-  country: string          // ← Added
+  postal_code: string
+  country: string
   company_name?: string
   nip?: string
   is_verified: boolean
@@ -94,6 +95,70 @@ export const authService = {
     }
 
     return data
+  },
+
+  // Phone verification methods (delegate to smsService)
+  sendVerificationCode: async (phone: string) => {
+    return await smsService.sendVerificationCode(phone)
+  },
+
+  verifyCode: async (phone: string, code: string) => {
+    return await smsService.verifyCode(phone, code)
+  },
+
+  // Register user (create profile after phone verification)
+  registerUser: async (userData: any) => {
+    try {
+      const profile = await authService.createUserProfile({
+        phone: userData.phone,
+        email: userData.email,
+        first_name: userData.firstName,
+        last_name: userData.lastName,
+        is_company: userData.isCompany,
+        street: userData.street || '',
+        city: userData.city,
+        postal_code: userData.postalCode || '',
+        country: userData.country || 'Poland',
+        company_name: userData.isCompany ? userData.companyName : undefined,
+        nip: userData.isCompany ? userData.nip : undefined
+      })
+
+      if (profile) {
+        // Convert UserProfile to User format expected by useAuth
+        const user = {
+          id: profile.id,
+          phone: profile.phone,
+          email: profile.email,
+          firstName: profile.first_name,
+          lastName: profile.last_name,
+          isCompany: profile.is_company,
+          street: profile.street,
+          city: profile.city,
+          postalCode: profile.postal_code,
+          country: profile.country,
+          companyName: profile.company_name,
+          nip: profile.nip,
+          isVerified: profile.is_verified,
+          registrationDate: new Date()
+        }
+        
+        return {
+          success: true,
+          user: user,
+          profile: profile
+        }
+      } else {
+        return {
+          success: false,
+          message: 'Failed to create user profile'
+        }
+      }
+    } catch (error: any) {
+      return {
+        success: false,
+        message: error.message || 'Registration failed'
+      }
+    }
   },
 
   // Sign out
