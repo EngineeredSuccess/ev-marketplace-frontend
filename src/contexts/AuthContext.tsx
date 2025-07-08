@@ -2,6 +2,7 @@
 
 import React, { createContext, useContext, useEffect, useState } from 'react'
 import { User } from '@supabase/supabase-js'
+import { supabase } from '@/lib/supabase'
 import { authService, UserProfile } from '@/services/authService'
 
 interface AuthContextType {
@@ -21,13 +22,25 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     // Get initial user
-    authService.getCurrentUser().then(setUser)
-
-    // Listen for auth changes
-    const { data: { subscription } } = authService.onAuthStateChange(async (user) => {
+    const getInitialUser = async () => {
+      const { data: { user } } = await supabase.auth.getUser()
       setUser(user)
       
       if (user) {
+        const profile = await authService.getUserProfile()
+        setProfile(profile)
+      }
+      
+      setLoading(false)
+    }
+
+    getInitialUser()
+
+    // Listen for auth changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+      setUser(session?.user || null)
+      
+      if (session?.user) {
         const profile = await authService.getUserProfile()
         setProfile(profile)
       } else {
