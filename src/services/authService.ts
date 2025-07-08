@@ -15,7 +15,10 @@ export interface UserProfile {
   first_name: string
   last_name: string
   is_company: boolean
+  street: string           // ← Added
   city: string
+  postal_code: string      // ← Added
+  country: string          // ← Added
   company_name?: string
   nip?: string
   is_verified: boolean

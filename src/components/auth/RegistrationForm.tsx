@@ -1,4 +1,4 @@
-use client'
+'use client'
 
 import React, { useState } from 'react'
 import { User, Building } from 'lucide-react'
@@ -77,8 +77,8 @@ export const RegistrationForm: React.FC<RegistrationFormProps> = ({
         city: formData.city,
         postal_code: formData.postalCode || '',
         country: 'Poland',
-        company_name: formData.isCompany ? formData.companyName : null,
-        nip: formData.isCompany ? formData.nip : null
+        company_name: formData.isCompany ? formData.companyName : undefined,
+        nip: formData.isCompany ? formData.nip : undefined
       })
 
       // Refresh the user profile in context
