@@ -64,91 +64,260 @@ export default function BlogPostPage({ params }: BlogPostPageProps) {
   const relatedPosts = getRelatedPosts(post.slug, 3)
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div style={{ minHeight: '100vh', background: 'linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%)' }}>
       {/* Navigation */}
-      <div className="bg-white border-b">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-          <Link 
-            href="/blog" 
-            className="inline-flex items-center text-green-600 hover:text-green-700 transition-colors"
+      <div style={{
+        background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
+        borderBottom: '1px solid rgba(255,255,255,0.1)'
+      }}>
+        <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '16px 24px' }}>
+          <Link
+            href="/blog"
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              color: 'white',
+              textDecoration: 'none',
+              fontSize: '16px',
+              fontWeight: '500',
+              transition: 'opacity 0.2s'
+            }}
           >
-            <ArrowLeft className="w-4 h-4 mr-2" />
+            <ArrowLeft style={{ width: '16px', height: '16px', marginRight: '8px' }} />
             Powrót do bloga
           </Link>
         </div>
       </div>
 
       {/* Article Header */}
-      <article className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <header className="mb-12">
+      <article style={{ maxWidth: '1200px', margin: '0 auto', padding: '48px 24px' }}>
+        <header style={{ marginBottom: '48px' }}>
           {/* Category */}
-          <div className="mb-4">
-            <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800">
-              <Tag className="w-4 h-4 mr-1" />
+          <div style={{ marginBottom: '16px' }}>
+            <span style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              padding: '8px 16px',
+              borderRadius: '20px',
+              fontSize: '14px',
+              fontWeight: '600',
+              background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
+              color: 'white',
+              boxShadow: '0 2px 4px rgba(16, 185, 129, 0.2)'
+            }}>
+              <Tag style={{ width: '16px', height: '16px', marginRight: '4px' }} />
               {post.category}
             </span>
           </div>
 
           {/* Title */}
-          <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-6 leading-tight">
+          <h1 style={{
+            fontSize: '48px',
+            fontWeight: '700',
+            color: '#1f2937',
+            marginBottom: '24px',
+            lineHeight: '1.1',
+            textShadow: '0 1px 2px rgba(0,0,0,0.1)'
+          }}>
             {post.title}
           </h1>
 
           {/* Meta Information */}
-          <div className="flex flex-wrap items-center gap-6 text-gray-600 mb-6">
-            <div className="flex items-center">
-              <User className="w-5 h-5 mr-2" />
-              <span>{post.author}</span>
+          <div style={{
+            display: 'flex',
+            flexWrap: 'wrap',
+            alignItems: 'center',
+            gap: '24px',
+            color: '#6b7280',
+            marginBottom: '24px',
+            fontSize: '15px'
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center' }}>
+              <User style={{ width: '20px', height: '20px', marginRight: '8px', color: '#10b981' }} />
+              <span style={{ fontWeight: '500' }}>{post.author}</span>
             </div>
-            <div className="flex items-center">
-              <Calendar className="w-5 h-5 mr-2" />
+            <div style={{ display: 'flex', alignItems: 'center' }}>
+              <Calendar style={{ width: '20px', height: '20px', marginRight: '8px', color: '#10b981' }} />
               <time dateTime={post.publishedAt.toISOString()}>
                 {formatDate(post.publishedAt)}
               </time>
             </div>
-            <div className="flex items-center">
-              <Clock className="w-5 h-5 mr-2" />
-              <span>{post.readingTime} min czytania</span>
+            <div style={{ display: 'flex', alignItems: 'center' }}>
+              <Clock style={{ width: '20px', height: '20px', marginRight: '8px', color: '#10b981' }} />
+              <span style={{ fontWeight: '600', color: '#10b981' }}>{post.readingTime} min czytania</span>
             </div>
           </div>
 
           {/* Share Button */}
-          <div className="flex items-center gap-4">
-            <button className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 transition-colors">
-              <Share2 className="w-4 h-4 mr-2" />
+          <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+            <button style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              padding: '12px 24px',
+              border: '2px solid #10b981',
+              borderRadius: '8px',
+              fontSize: '14px',
+              fontWeight: '600',
+              color: '#10b981',
+              background: 'white',
+              cursor: 'pointer',
+              transition: 'all 0.2s',
+              boxShadow: '0 2px 4px rgba(16, 185, 129, 0.1)'
+            }}
+            className="share-button">
+              <Share2 style={{ width: '16px', height: '16px', marginRight: '8px' }} />
               Udostępnij
             </button>
           </div>
         </header>
 
         {/* Article Content */}
-        <div className="prose prose-lg prose-green max-w-none">
-          <div 
+        <div style={{
+          maxWidth: 'none',
+          fontSize: '18px',
+          lineHeight: '1.7',
+          color: '#374151'
+        }}>
+          <div
             dangerouslySetInnerHTML={{ __html: post.content }}
-            className="
-              [&>h1]:text-3xl [&>h1]:font-bold [&>h1]:mt-12 [&>h1]:mb-6
-              [&>h2]:text-2xl [&>h2]:font-bold [&>h2]:mt-10 [&>h2]:mb-4
-              [&>h3]:text-xl [&>h3]:font-semibold [&>h3]:mt-8 [&>h3]:mb-3
-              [&>p]:mb-6 [&>p]:leading-relaxed
-              [&>ul]:mb-6 [&>ul]:pl-6
-              [&>ol]:mb-6 [&>ol]:pl-6
-              [&>li]:mb-2
-              [&>blockquote]:border-l-4 [&>blockquote]:border-green-500 [&>blockquote]:pl-6 [&>blockquote]:italic [&>blockquote]:my-6
-              [&>code]:bg-gray-100 [&>code]:px-2 [&>code]:py-1 [&>code]:rounded [&>code]:text-sm
-              [&>pre]:bg-gray-900 [&>pre]:text-white [&>pre]:p-4 [&>pre]:rounded-lg [&>pre]:overflow-x-auto [&>pre]:my-6
-            "
+            className="blog-content"
           />
+          <style dangerouslySetInnerHTML={{
+            __html: `
+              .blog-content h1 {
+                font-size: 36px;
+                font-weight: 700;
+                margin-top: 48px;
+                margin-bottom: 24px;
+                color: #1f2937;
+              }
+              .blog-content h2 {
+                font-size: 28px;
+                font-weight: 700;
+                margin-top: 40px;
+                margin-bottom: 16px;
+                color: #1f2937;
+              }
+              .blog-content h3 {
+                font-size: 22px;
+                font-weight: 600;
+                margin-top: 32px;
+                margin-bottom: 12px;
+                color: #1f2937;
+              }
+              .blog-content p {
+                margin-bottom: 24px;
+                line-height: 1.7;
+                font-size: 18px;
+                color: #374151;
+              }
+              .blog-content ul {
+                margin-bottom: 24px;
+                padding-left: 24px;
+              }
+              .blog-content ol {
+                margin-bottom: 24px;
+                padding-left: 24px;
+              }
+              .blog-content li {
+                margin-bottom: 8px;
+                font-size: 18px;
+                color: #374151;
+              }
+              .blog-content blockquote {
+                border-left: 4px solid #10b981;
+                padding: 16px 24px;
+                font-style: italic;
+                margin: 24px 0;
+                background: #f0f9ff;
+                border-radius: 8px;
+                font-size: 18px;
+                color: #374151;
+              }
+              .blog-content code {
+                background: #f3f4f6;
+                padding: 4px 8px;
+                border-radius: 4px;
+                font-size: 14px;
+                color: #1f2937;
+                font-family: 'Courier New', monospace;
+              }
+              .blog-content pre {
+                background: #1f2937;
+                color: white;
+                padding: 16px;
+                border-radius: 8px;
+                overflow-x: auto;
+                margin: 24px 0;
+                font-family: 'Courier New', monospace;
+              }
+              .blog-content pre code {
+                background: transparent;
+                padding: 0;
+                color: white;
+              }
+              .blog-content strong {
+                font-weight: 600;
+                color: #1f2937;
+              }
+              .blog-content em {
+                font-style: italic;
+              }
+              .blog-content a {
+                color: #10b981;
+                text-decoration: underline;
+              }
+              .blog-content a:hover {
+                color: #059669;
+              }
+            `
+          }} />
+          <style dangerouslySetInnerHTML={{
+            __html: `
+              .share-button:hover {
+                background: #10b981 !important;
+                color: white !important;
+              }
+              .tag-hover:hover {
+                background: linear-gradient(135deg, #10b981 0%, #059669 100%) !important;
+                color: white !important;
+              }
+              .read-more-button:hover {
+                transform: translateY(-2px) !important;
+                box-shadow: 0 6px 16px rgba(16, 185, 129, 0.4) !important;
+              }
+            `
+          }} />
         </div>
 
         {/* Tags */}
         {post.tags.length > 0 && (
-          <div className="mt-12 pt-8 border-t border-gray-200">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">Tagi:</h3>
-            <div className="flex flex-wrap gap-2">
+          <div style={{ marginTop: '48px', paddingTop: '32px', borderTop: '2px solid #e5e7eb' }}>
+            <h3 style={{ fontSize: '20px', fontWeight: '600', color: '#1f2937', marginBottom: '16px' }}>Tagi:</h3>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
               {post.tags.map(tag => (
                 <span
                   key={tag}
-                  className="inline-block px-3 py-1 text-sm bg-gray-100 text-gray-700 rounded-full hover:bg-gray-200 transition-colors cursor-pointer"
+                  style={{
+                    display: 'inline-block',
+                    padding: '8px 16px',
+                    fontSize: '14px',
+                    background: 'linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%)',
+                    color: '#10b981',
+                    borderRadius: '20px',
+                    cursor: 'pointer',
+                    border: '1px solid #10b981',
+                    fontWeight: '500',
+                    transition: 'all 0.2s'
+                  }}
+                  onMouseEnter={(e) => {
+                    (e.target as HTMLElement).style.background = 'linear-gradient(135deg, #10b981 0%, #059669 100%)';
+                    (e.target as HTMLElement).style.color = 'white';
+                  }}
+                  onMouseLeave={(e) => {
+                    (e.target as HTMLElement).style.background = 'linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%)';
+                    (e.target as HTMLElement).style.color = '#10b981';
+                  }}
                 >
                   {tag}
                 </span>
@@ -158,14 +327,23 @@ export default function BlogPostPage({ params }: BlogPostPageProps) {
         )}
 
         {/* Author Bio */}
-        <div className="mt-12 pt-8 border-t border-gray-200">
-          <div className="flex items-center">
-            <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center">
-              <User className="w-8 h-8 text-green-600" />
+        <div style={{ marginTop: '48px', paddingTop: '32px', borderTop: '2px solid #e5e7eb' }}>
+          <div style={{ display: 'flex', alignItems: 'center' }}>
+            <div style={{
+              width: '64px',
+              height: '64px',
+              background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
+              borderRadius: '50%',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              boxShadow: '0 4px 8px rgba(16, 185, 129, 0.2)'
+            }}>
+              <User style={{ width: '32px', height: '32px', color: 'white' }} />
             </div>
-            <div className="ml-4">
-              <h3 className="text-lg font-semibold text-gray-900">{post.author}</h3>
-              <p className="text-gray-600">
+            <div style={{ marginLeft: '16px' }}>
+              <h3 style={{ fontSize: '20px', fontWeight: '600', color: '#1f2937', marginBottom: '4px' }}>{post.author}</h3>
+              <p style={{ color: '#6b7280', fontSize: '16px', lineHeight: '1.5' }}>
                 Ekspert w dziedzinie pojazdów elektrycznych i zrównoważonej mobilności.
               </p>
             </div>
@@ -175,12 +353,27 @@ export default function BlogPostPage({ params }: BlogPostPageProps) {
 
       {/* Related Posts */}
       {relatedPosts.length > 0 && (
-        <section className="bg-white py-16">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <h2 className="text-2xl font-bold text-gray-900 mb-8 text-center">
+        <section style={{
+          background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
+          padding: '64px 0',
+          marginTop: '48px'
+        }}>
+          <div style={{ maxWidth: '1400px', margin: '0 auto', padding: '0 24px' }}>
+            <h2 style={{
+              fontSize: '32px',
+              fontWeight: '700',
+              color: 'white',
+              marginBottom: '32px',
+              textAlign: 'center',
+              textShadow: '0 2px 4px rgba(0,0,0,0.1)'
+            }}>
               Powiązane artykuły
             </h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <div style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(auto-fit, minmax(350px, 1fr))',
+              gap: '32px'
+            }}>
               {relatedPosts.map(relatedPost => (
                 <BlogCard key={relatedPost.slug} post={relatedPost} />
               ))}

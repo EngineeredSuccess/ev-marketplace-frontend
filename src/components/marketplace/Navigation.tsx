@@ -1,4 +1,5 @@
 import React from 'react';
+import { useRouter } from 'next/navigation';
 import { User } from '../../types/User';
 
 interface NavigationProps {
@@ -22,6 +23,7 @@ export const Navigation: React.FC<NavigationProps> = ({
   onRegister,
   onLogout
 }) => {
+  const router = useRouter();
   return (
     <nav style={{
       background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)'
@@ -64,6 +66,8 @@ export const Navigation: React.FC<NavigationProps> = ({
                 onClick={() => {
                   if (view === 'sell') {
                     onSellClick();
+                  } else if (view === 'blog') {
+                    router.push('/blog');
                   } else {
                     onViewChange(view);
                   }
