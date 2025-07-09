@@ -1,7 +1,8 @@
 import { BlogPost } from '@/types/Blog'
 
 // Mock blog posts data (replace with your actual posts)
-const mockBlogPosts: BlogPost[] = [
+// Raw blog data with string dates to avoid serialization issues
+const mockBlogPostsData = [
   {
     slug: 'charging-stations-poland',
     title: 'Stacje ładowania w Polsce - kompletny przewodnik 2024',
@@ -46,8 +47,8 @@ Ceny wahają się od 1,20 zł do 3,50 zł za kWh w zależności od:
 - Sprawdź dostępność przed wyjazdem
 - Zaplanuj postoje na ładowanie w trasie`,
     author: 'IVI Market',
-    publishedAt: new Date('2024-06-15'),
-    updatedAt: new Date('2024-06-20'),
+    publishedAt: '2024-06-15',
+    updatedAt: '2024-06-20',
     category: 'Ładowanie',
     tags: ['stacje ładowania', 'infrastruktura', 'Polska', 'przewodnik'],
     readingTime: 8,
@@ -110,7 +111,7 @@ Ceny wahają się od 1,20 zł do 3,50 zł za kWh w zależności od:
 - 100 km zasięgu za ~6-8 zł
 - Roczne oszczędności vs. benzyna: 3000-5000 zł`,
     author: 'IVI Market',
-    publishedAt: new Date('2024-06-10'),
+    publishedAt: '2024-06-10',
     category: 'Ładowanie',
     tags: ['ładowanie domowe', 'wallbox', 'instalacja', 'oszczędności'],
     readingTime: 6,
@@ -192,7 +193,7 @@ Tesla Model 3 to nadal benchmark w segmencie premium EV. Mimo drobnych wad, cał
 
 **Ocena**: 8.5/10`,
     author: 'IVI Market',
-    publishedAt: new Date('2024-06-05'),
+    publishedAt: '2024-06-05',
     category: 'Testy',
     tags: ['Tesla', 'Model 3', 'test', 'długodystansowy', 'zasięg'],
     readingTime: 10,
@@ -204,6 +205,13 @@ Tesla Model 3 to nadal benchmark w segmencie premium EV. Mimo drobnych wad, cał
     }
   }
 ]
+
+// Convert string dates to Date objects and create BlogPost array
+const mockBlogPosts: BlogPost[] = mockBlogPostsData.map(post => ({
+  ...post,
+  publishedAt: new Date(post.publishedAt),
+  updatedAt: post.updatedAt ? new Date(post.updatedAt) : undefined
+}))
 
 // Client-side functions that don't use Node.js fs
 export function getAllPosts(): BlogPost[] {

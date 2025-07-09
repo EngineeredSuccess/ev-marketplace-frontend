@@ -5,9 +5,6 @@ import { Search } from 'lucide-react'
 import { getAllPosts, getFeaturedPosts, searchPosts, getAllCategories } from '@/lib/blog'
 import BlogCard from '@/components/blog/BlogCard'
 
-// Force dynamic rendering to avoid serialization issues
-export const dynamic = 'force-dynamic'
-
 export default function BlogPage() {
   const [searchQuery, setSearchQuery] = useState('')
   const [selectedCategory, setSelectedCategory] = useState('Wszystkie')
