@@ -310,14 +310,7 @@ export default function BlogPostPage({ params }: BlogPostPageProps) {
                     fontWeight: '500',
                     transition: 'all 0.2s'
                   }}
-                  onMouseEnter={(e) => {
-                    (e.target as HTMLElement).style.background = 'linear-gradient(135deg, #10b981 0%, #059669 100%)';
-                    (e.target as HTMLElement).style.color = 'white';
-                  }}
-                  onMouseLeave={(e) => {
-                    (e.target as HTMLElement).style.background = 'linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%)';
-                    (e.target as HTMLElement).style.color = '#10b981';
-                  }}
+                  className="tag-hover"
                 >
                   {tag}
                 </span>
