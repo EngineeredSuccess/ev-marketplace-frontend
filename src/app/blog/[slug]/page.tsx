@@ -6,6 +6,9 @@ import { Calendar, Clock, User, ArrowLeft, Share2, Tag } from 'lucide-react'
 import { getPostBySlug, getAllPosts, getRelatedPosts, formatDate } from '@/lib/blog'
 import BlogCard from '@/components/blog/BlogCard'
 
+// Force dynamic rendering to avoid serialization issues
+export const dynamic = 'force-dynamic'
+
 interface BlogPostPageProps {
   params: {
     slug: string
@@ -58,7 +61,7 @@ export default function BlogPostPage({ params }: BlogPostPageProps) {
     notFound()
   }
 
-  const relatedPosts = getRelatedPosts(post, 3)
+  const relatedPosts = getRelatedPosts(post.slug, 3)
 
   return (
     <div className="min-h-screen bg-gray-50">
