@@ -3,6 +3,8 @@ import Link from 'next/link'
 import { Calendar, Clock, User, Tag } from 'lucide-react'
 import { BlogPost } from '@/types/Blog'
 import { formatDate } from '@/lib/blog'
+import { colors, typography, spacing, borderRadius, shadows } from '@/styles/design-system'
+import { Card } from '@/components/ui'
 
 interface BlogCardProps {
   post: BlogPost
@@ -10,31 +12,28 @@ interface BlogCardProps {
 
 const BlogCard: React.FC<BlogCardProps> = ({ post }) => {
   return (
-    <article className="blog-card" style={{
-      background: 'white',
-      borderRadius: '16px',
-      padding: '24px',
-      boxShadow: '0 4px 12px rgba(0, 0, 0, 0.08)',
-      border: '1px solid #e5e7eb',
-      transition: 'all 0.3s ease',
+    <Card className="blog-card" padding="lg" style={{
       position: 'relative',
-      overflow: 'hidden'
+      overflow: 'hidden',
+      height: '100%',
+      display: 'flex',
+      flexDirection: 'column'
     }}>
       
       {/* Featured Badge */}
       {post.featured && (
         <div style={{
           position: 'absolute',
-          top: '16px',
-          left: '16px',
-          background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
-          color: 'white',
-          fontSize: '11px',
-          fontWeight: '700',
-          padding: '6px 12px',
-          borderRadius: '16px',
+          top: spacing[4],
+          left: spacing[4],
+          background: `linear-gradient(135deg, ${colors.primary[500]} 0%, ${colors.primary[600]} 100%)`,
+          color: colors.text.inverse,
+          fontSize: typography.fontSize.xs,
+          fontWeight: typography.fontWeight.bold,
+          padding: `${spacing[2]} ${spacing[3]}`,
+          borderRadius: borderRadius.full,
           zIndex: 10,
-          boxShadow: '0 2px 8px rgba(16, 185, 129, 0.3)',
+          boxShadow: `0 2px 8px ${colors.primary[500]}30`,
           display: 'flex',
           alignItems: 'center'
         }}>
@@ -43,39 +42,40 @@ const BlogCard: React.FC<BlogCardProps> = ({ post }) => {
       )}
 
       {/* Category */}
-      <div style={{ marginBottom: '16px', marginTop: post.featured ? '32px' : '0' }}>
+      <div style={{ marginBottom: spacing[4], marginTop: post.featured ? spacing[8] : '0' }}>
         <span style={{
           display: 'inline-flex',
           alignItems: 'center',
-          padding: '6px 12px',
-          borderRadius: '16px',
-          fontSize: '12px',
-          fontWeight: '600',
-          background: '#f0f9ff',
-          color: '#10b981',
-          border: '1px solid #10b981'
+          padding: `${spacing[2]} ${spacing[3]}`,
+          borderRadius: borderRadius.full,
+          fontSize: typography.fontSize.xs,
+          fontWeight: typography.fontWeight.semibold,
+          background: colors.primary[50],
+          color: colors.primary[600],
+          border: `1px solid ${colors.primary[300]}`
         }}>
-          <Tag style={{ width: '12px', height: '12px', marginRight: '4px' }} />
+          <Tag style={{ width: '12px', height: '12px', marginRight: spacing[1] }} />
           📚 {post.category}
         </span>
       </div>
 
       {/* Title */}
       <h2 style={{
-        fontSize: '20px',
-        fontWeight: '700',
-        color: '#1f2937',
-        marginBottom: '12px',
-        lineHeight: '1.3',
+        fontSize: typography.fontSize.xl,
+        fontWeight: typography.fontWeight.bold,
+        color: colors.text.primary,
+        marginBottom: spacing[3],
+        lineHeight: typography.lineHeight.tight,
         display: '-webkit-box',
         WebkitLineClamp: 2,
         WebkitBoxOrient: 'vertical',
-        overflow: 'hidden'
+        overflow: 'hidden',
+        flex: '0 0 auto'
       }}>
         <Link
           href={`/blog/${post.slug}`}
           style={{
-            color: '#1f2937',
+            color: colors.text.primary,
             textDecoration: 'none',
             transition: 'color 0.2s'
           }}
@@ -87,14 +87,15 @@ const BlogCard: React.FC<BlogCardProps> = ({ post }) => {
 
       {/* Excerpt */}
       <p style={{
-        color: '#6b7280',
-        marginBottom: '16px',
-        lineHeight: '1.5',
-        fontSize: '14px',
+        color: colors.text.secondary,
+        marginBottom: spacing[4],
+        lineHeight: typography.lineHeight.normal,
+        fontSize: typography.fontSize.sm,
         display: '-webkit-box',
         WebkitLineClamp: 3,
         WebkitBoxOrient: 'vertical',
-        overflow: 'hidden'
+        overflow: 'hidden',
+        flex: '1 1 auto'
       }}>
         {post.excerpt}
       </p>
@@ -104,23 +105,24 @@ const BlogCard: React.FC<BlogCardProps> = ({ post }) => {
         display: 'flex',
         flexWrap: 'wrap',
         alignItems: 'center',
-        gap: '16px',
-        fontSize: '12px',
-        color: '#6b7280',
-        marginBottom: '16px'
+        gap: spacing[4],
+        fontSize: typography.fontSize.xs,
+        color: colors.text.secondary,
+        marginBottom: spacing[4],
+        flex: '0 0 auto'
       }}>
-        <div style={{ display: 'flex', alignItems: 'center', fontWeight: '500' }}>
-          <User style={{ width: '14px', height: '14px', marginRight: '4px', color: '#10b981' }} />
+        <div style={{ display: 'flex', alignItems: 'center', fontWeight: typography.fontWeight.medium }}>
+          <User style={{ width: '14px', height: '14px', marginRight: spacing[1], color: colors.primary[500] }} />
           {post.author}
         </div>
         <div style={{ display: 'flex', alignItems: 'center' }}>
-          <Calendar style={{ width: '14px', height: '14px', marginRight: '4px', color: '#10b981' }} />
+          <Calendar style={{ width: '14px', height: '14px', marginRight: spacing[1], color: colors.primary[500] }} />
           <time dateTime={post.publishedAt.toISOString()}>
             {formatDate(post.publishedAt)}
           </time>
         </div>
-        <div style={{ display: 'flex', alignItems: 'center', fontWeight: '600', color: '#10b981' }}>
-          <Clock style={{ width: '14px', height: '14px', marginRight: '4px' }} />
+        <div style={{ display: 'flex', alignItems: 'center', fontWeight: typography.fontWeight.semibold, color: colors.primary[500] }}>
+          <Clock style={{ width: '14px', height: '14px', marginRight: spacing[1] }} />
           {post.readingTime} min
         </div>
       </div>
@@ -130,8 +132,9 @@ const BlogCard: React.FC<BlogCardProps> = ({ post }) => {
         <div style={{
           display: 'flex',
           flexWrap: 'wrap',
-          gap: '6px',
-          marginBottom: '20px'
+          gap: spacing[2],
+          marginBottom: spacing[5],
+          flex: '0 0 auto'
         }}>
           {post.tags.slice(0, 3).map(tag => (
             <span
@@ -139,13 +142,13 @@ const BlogCard: React.FC<BlogCardProps> = ({ post }) => {
               style={{
                 display: 'inline-flex',
                 alignItems: 'center',
-                padding: '4px 8px',
+                padding: `${spacing[1]} ${spacing[2]}`,
                 fontSize: '10px',
-                fontWeight: '500',
-                background: '#f0f9ff',
-                color: '#10b981',
-                borderRadius: '12px',
-                border: '1px solid #10b981'
+                fontWeight: typography.fontWeight.medium,
+                background: colors.primary[50],
+                color: colors.primary[600],
+                borderRadius: borderRadius.lg,
+                border: `1px solid ${colors.primary[300]}`
               }}
             >
               #{tag}
@@ -154,9 +157,9 @@ const BlogCard: React.FC<BlogCardProps> = ({ post }) => {
           {post.tags.length > 3 && (
             <span style={{
               fontSize: '10px',
-              color: '#6b7280',
-              fontWeight: '500',
-              padding: '4px 8px'
+              color: colors.text.secondary,
+              fontWeight: typography.fontWeight.medium,
+              padding: `${spacing[1]} ${spacing[2]}`
             }}>
               +{post.tags.length - 3} więcej
             </span>
@@ -171,40 +174,44 @@ const BlogCard: React.FC<BlogCardProps> = ({ post }) => {
         style={{
           display: 'inline-flex',
           alignItems: 'center',
-          padding: '10px 20px',
-          background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
-          color: 'white',
+          padding: `${spacing[3]} ${spacing[5]}`,
+          background: `linear-gradient(135deg, ${colors.primary[500]} 0%, ${colors.primary[600]} 100%)`,
+          color: colors.text.inverse,
           textDecoration: 'none',
-          fontSize: '14px',
-          fontWeight: '600',
-          borderRadius: '8px',
+          fontSize: typography.fontSize.sm,
+          fontWeight: typography.fontWeight.semibold,
+          borderRadius: borderRadius.lg,
           transition: 'all 0.2s',
-          boxShadow: '0 2px 8px rgba(16, 185, 129, 0.2)'
+          boxShadow: `0 2px 8px ${colors.primary[500]}33`,
+          flex: '0 0 auto',
+          alignSelf: 'flex-start'
         }}
       >
         Czytaj artykuł
-        <svg style={{ width: '14px', height: '14px', marginLeft: '6px' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <svg style={{ width: '14px', height: '14px', marginLeft: spacing[2] }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
         </svg>
       </Link>
       
       <style dangerouslySetInnerHTML={{
         __html: `
-          .blog-card:hover {
-            transform: translateY(-4px) !important;
-            box-shadow: 0 12px 28px rgba(16, 185, 129, 0.15) !important;
-            border-color: #10b981 !important;
-          }
           .blog-title-link:hover {
-            color: #10b981 !important;
+            color: ${colors.primary[500]} !important;
           }
           .blog-read-more:hover {
             transform: translateY(-1px) !important;
-            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3) !important;
+            box-shadow: 0 4px 12px ${colors.primary[500]}4D !important;
+            background: linear-gradient(135deg, ${colors.primary[600]} 0%, ${colors.primary[700]} 100%) !important;
+          }
+          
+          @media (max-width: 768px) {
+            .blog-card {
+              padding: ${spacing[4]} !important;
+            }
           }
         `
       }} />
-    </article>
+    </Card>
   )
 }
 

@@ -1,3 +1,5 @@
+'use client';
+
 import React, { useState, useEffect } from 'react';
 import Script from 'next/script';
 import { Vehicle } from '../types/Vehicle';

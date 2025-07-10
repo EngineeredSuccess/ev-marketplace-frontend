@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { Calendar, Clock, User, ArrowLeft, Share2, Tag } from 'lucide-react'
 import { getPostBySlug, getAllPosts, getRelatedPosts, formatDate } from '@/lib/blog'
 import BlogCard from '@/components/blog/BlogCard'
+import { BlogPostStructuredData, BreadcrumbStructuredData } from '@/components/seo/StructuredData'
 
 // Force dynamic rendering to avoid serialization issues
 export const dynamic = 'force-dynamic'
@@ -63,8 +64,26 @@ export default function BlogPostPage({ params }: BlogPostPageProps) {
 
   const relatedPosts = getRelatedPosts(post.slug, 3)
 
+  const breadcrumbItems = [
+    { name: 'Strona główna', url: 'https://ivimarket.pl' },
+    { name: 'Blog', url: 'https://ivimarket.pl/blog' },
+    { name: post.title, url: `https://ivimarket.pl/blog/${post.slug}` }
+  ]
+
   return (
     <div style={{ minHeight: '100vh', background: 'linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%)' }}>
+      <BlogPostStructuredData
+        title={post.title}
+        description={post.excerpt}
+        author={post.author}
+        publishedAt={post.publishedAt.toISOString()}
+        modifiedAt={post.updatedAt?.toISOString()}
+        image={post.seo.ogImage}
+        url={`https://ivimarket.pl/blog/${post.slug}`}
+        readingTime={post.readingTime}
+        tags={post.tags}
+      />
+      <BreadcrumbStructuredData items={breadcrumbItems} />
       {/* Navigation */}
       <div style={{
         background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
