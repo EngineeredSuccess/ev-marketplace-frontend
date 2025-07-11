@@ -2,9 +2,10 @@ import React from 'react'
 import { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
-import { Calendar, Clock, User, ArrowLeft, Share2, Tag } from 'lucide-react'
+import { Calendar, Clock, User, Share2, Tag } from 'lucide-react'
 import { getPostBySlug, getAllPosts, getRelatedPosts, formatDate } from '@/lib/blog'
 import BlogCard from '@/components/blog/BlogCard'
+import BlogNavigation from '@/components/blog/BlogNavigation'
 import { BlogPostStructuredData, BreadcrumbStructuredData } from '@/components/seo/StructuredData'
 
 // Force dynamic rendering to avoid serialization issues
@@ -84,33 +85,33 @@ export default function BlogPostPage({ params }: BlogPostPageProps) {
         tags={post.tags}
       />
       <BreadcrumbStructuredData items={breadcrumbItems} />
+      
       {/* Navigation */}
-      <div style={{
-        background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
-        borderBottom: '1px solid rgba(255,255,255,0.1)'
-      }}>
-        <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '16px 24px' }}>
-          <Link
-            href="/blog"
-            style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              color: 'white',
-              textDecoration: 'none',
-              fontSize: '16px',
-              fontWeight: '500',
-              transition: 'opacity 0.2s'
-            }}
-          >
-            <ArrowLeft style={{ width: '16px', height: '16px', marginRight: '8px' }} />
-            Powrót do bloga
-          </Link>
-        </div>
-      </div>
+      <BlogNavigation 
+        showBackButton={true}
+        showSearchIcon={true}
+        showShareIcon={true}
+        title="Blog"
+        onShareClick={() => {
+          if (navigator.share) {
+            navigator.share({
+              title: post.title,
+              text: post.excerpt,
+              url: window.location.href
+            })
+          } else {
+            navigator.clipboard.writeText(window.location.href)
+          }
+        }}
+      />
 
       {/* Article Header */}
-      <article style={{ maxWidth: '1200px', margin: '0 auto', padding: '48px 24px' }}>
-        <header style={{ marginBottom: '48px' }}>
+      <article style={{ 
+        maxWidth: '1200px', 
+        margin: '0 auto', 
+        padding: 'clamp(24px, 5vw, 48px) clamp(16px, 4vw, 24px)'
+      }}>
+        <header style={{ marginBottom: 'clamp(32px, 6vw, 48px)' }}>
           {/* Category */}
           <div style={{ marginBottom: '16px' }}>
             <span style={{
@@ -131,10 +132,10 @@ export default function BlogPostPage({ params }: BlogPostPageProps) {
 
           {/* Title */}
           <h1 style={{
-            fontSize: '48px',
+            fontSize: 'clamp(28px, 6vw, 48px)',
             fontWeight: '700',
             color: '#1f2937',
-            marginBottom: '24px',
+            marginBottom: 'clamp(16px, 4vw, 24px)',
             lineHeight: '1.1',
             textShadow: '0 1px 2px rgba(0,0,0,0.1)'
           }}>
@@ -146,10 +147,10 @@ export default function BlogPostPage({ params }: BlogPostPageProps) {
             display: 'flex',
             flexWrap: 'wrap',
             alignItems: 'center',
-            gap: '24px',
+            gap: 'clamp(16px, 3vw, 24px)',
             color: '#6b7280',
-            marginBottom: '24px',
-            fontSize: '15px'
+            marginBottom: 'clamp(16px, 4vw, 24px)',
+            fontSize: 'clamp(14px, 2.5vw, 15px)'
           }}>
             <div style={{ display: 'flex', alignItems: 'center' }}>
               <User style={{ width: '20px', height: '20px', marginRight: '8px', color: '#10b981' }} />
@@ -168,25 +169,135 @@ export default function BlogPostPage({ params }: BlogPostPageProps) {
           </div>
 
           {/* Share Button */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-            <button style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              padding: '12px 24px',
-              border: '2px solid #10b981',
-              borderRadius: '8px',
-              fontSize: '14px',
-              fontWeight: '600',
-              color: '#10b981',
-              background: 'white',
-              cursor: 'pointer',
-              transition: 'all 0.2s',
-              boxShadow: '0 2px 4px rgba(16, 185, 129, 0.1)'
-            }}
-            className="share-button">
+          <div style={{ display: 'flex', alignItems: 'center', gap: '16px', flexWrap: 'wrap' }}>
+            <button 
+              onClick={() => {
+                if (navigator.share) {
+                  navigator.share({
+                    title: post.title,
+                    text: post.excerpt,
+                    url: window.location.href
+                  }).catch(console.error);
+                } else {
+                  navigator.clipboard.writeText(window.location.href).then(() => {
+                    // Show temporary notification
+                    const notification = document.createElement('div');
+                    notification.textContent = 'Link skopiowany do schowka!';
+                    notification.style.cssText = `
+                      position: fixed;
+                      top: 20px;
+                      right: 20px;
+                      background: #10b981;
+                      color: white;
+                      padding: 12px 24px;
+                      border-radius: 8px;
+                      font-size: 14px;
+                      font-weight: 600;
+                      z-index: 1000;
+                      box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+                      animation: slideIn 0.3s ease-out;
+                    `;
+                    document.body.appendChild(notification);
+                    setTimeout(() => {
+                      notification.remove();
+                    }, 3000);
+                  });
+                }
+              }}
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                padding: '12px 24px',
+                border: '2px solid #10b981',
+                borderRadius: '8px',
+                fontSize: '14px',
+                fontWeight: '600',
+                color: '#10b981',
+                background: 'white',
+                cursor: 'pointer',
+                transition: 'all 0.2s',
+                boxShadow: '0 2px 4px rgba(16, 185, 129, 0.1)'
+              }}
+              className="share-button">
               <Share2 style={{ width: '16px', height: '16px', marginRight: '8px' }} />
               Udostępnij
             </button>
+            
+            <div style={{ 
+              display: 'flex', 
+              alignItems: 'center', 
+              gap: '8px',
+              fontSize: '12px',
+              color: '#6b7280'
+            }}>
+              <span>Podziel się:</span>
+              <a 
+                href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(post.title)}&url=${encodeURIComponent(window.location?.href || '')}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  width: '32px',
+                  height: '32px',
+                  background: '#1DA1F2',
+                  color: 'white',
+                  borderRadius: '6px',
+                  textDecoration: 'none',
+                  transition: 'all 0.2s'
+                }}
+                className="social-share-button"
+              >
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M23.953 4.57a10 10 0 01-2.825.775 4.958 4.958 0 002.163-2.723c-.951.555-2.005.959-3.127 1.184a4.92 4.92 0 00-8.384 4.482C7.69 8.095 4.067 6.13 1.64 3.162a4.822 4.822 0 00-.666 2.475c0 1.71.87 3.213 2.188 4.096a4.904 4.904 0 01-2.228-.616v.06a4.923 4.923 0 003.946 4.827 4.996 4.996 0 01-2.212.085 4.936 4.936 0 004.604 3.417 9.867 9.867 0 01-6.102 2.105c-.39 0-.779-.023-1.17-.067a13.995 13.995 0 007.557 2.209c9.053 0 13.998-7.496 13.998-13.985 0-.21 0-.42-.015-.63A9.935 9.935 0 0024 4.59z"/>
+                </svg>
+              </a>
+              <a 
+                href={`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(window.location?.href || '')}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  width: '32px',
+                  height: '32px',
+                  background: '#1877F2',
+                  color: 'white',
+                  borderRadius: '6px',
+                  textDecoration: 'none',
+                  transition: 'all 0.2s'
+                }}
+                className="social-share-button"
+              >
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+                </svg>
+              </a>
+              <a 
+                href={`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(window.location?.href || '')}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  width: '32px',
+                  height: '32px',
+                  background: '#0077B5',
+                  color: 'white',
+                  borderRadius: '6px',
+                  textDecoration: 'none',
+                  transition: 'all 0.2s'
+                }}
+                className="social-share-button"
+              >
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/>
+                </svg>
+              </a>
+            </div>
           </div>
         </header>
 

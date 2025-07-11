@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { Search, ArrowLeft } from 'lucide-react'
 import { getAllPosts, getFeaturedPosts, searchPosts, getAllCategories } from '@/lib/blog'
 import BlogCard from '@/components/blog/BlogCard'
+import BlogNavigation from '@/components/blog/BlogNavigation'
 
 export default function BlogPage() {
   const [searchQuery, setSearchQuery] = useState('')
@@ -32,59 +33,19 @@ export default function BlogPage() {
       fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
     }}>
       {/* Navigation */}
-      <nav style={{
-        background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)'
-      }}>
-        <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '0 20px' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '16px 0' }}>
-            <Link
-              href="/"
-              style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                color: 'white',
-                textDecoration: 'none',
-                fontSize: '16px',
-                fontWeight: '600',
-                transition: 'color 0.2s'
-              }}
-              onMouseEnter={(e) => (e.target as HTMLElement).style.color = 'rgba(255, 255, 255, 0.8)'}
-              onMouseLeave={(e) => (e.target as HTMLElement).style.color = 'white'}
-            >
-              <ArrowLeft style={{ width: '16px', height: '16px', marginRight: '8px' }} />
-              Powrót do IVI Market
-            </Link>
-            <div style={{ display: 'flex', alignItems: 'center' }}>
-              <div style={{
-                background: 'rgba(255, 255, 255, 0.1)',
-                borderRadius: '12px',
-                padding: '8px',
-                marginRight: '12px',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center'
-              }}>
-                <img
-                  src="/logo.svg"
-                  alt="iVi Market Logo"
-                  style={{
-                    width: '24px',
-                    height: '24px',
-                    objectFit: 'contain'
-                  }}
-                />
-              </div>
-              <span style={{
-                fontSize: '24px',
-                fontWeight: 'bold',
-                color: 'white'
-              }}>
-                iVi Market Blog
-              </span>
-            </div>
-          </div>
-        </div>
-      </nav>
+      <BlogNavigation 
+        showBackButton={false}
+        showSearchIcon={true}
+        showShareIcon={false}
+        title="Blog"
+        onSearchClick={() => {
+          // Focus on search input
+          const searchInput = document.querySelector('input[type="text"]') as HTMLInputElement;
+          if (searchInput) {
+            searchInput.focus();
+          }
+        }}
+      />
 
       {/* Hero Header */}
       <div style={{
