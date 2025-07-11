@@ -206,11 +206,11 @@ Tesla Model 3 to nadal benchmark w segmencie premium EV. Mimo drobnych wad, cał
   },
   {
     slug: 'geely-ex5-elektryczny-suv-polska-premiera-2025',
-    title: 'Geely EX5 – Nowy Elektryczny SUV z Chin Wjeżdża do Polski!',
-    excerpt: 'Geely EX5 oficjalnie debiutuje w Polsce za 169 900 zł. Elektryczny SUV z bogatym wyposażeniem, 430 km zasięgu i dopłatą do 40 000 zł.',
-    content: `# Geely EX5 – Nowy Elektryczny SUV z Chin Wjeżdża do Polski!
+    title: 'Geely EX5 – Rewolucyjny Elektryczny SUV Podbija Polskę w 2025!',
+    excerpt: '🚗⚡ Elektryczna rewolucja na polskich drogach! Geely EX5 jako gra-zmieniacz premium EV – od 169 900 zł z dopłatą do 40 000 zł.',
+    content: `# Geely EX5 – Rewolucyjny Elektryczny SUV Podbija Polskę w 2025!
 
-Na polski rynek oficjalnie wjeżdża nowy elektryczny SUV – **Geely EX5**. To efekt współpracy międzynarodowego dealera **Jameel Motors** z chińskim gigantem motoryzacyjnym Geely. Model EX5 ma szansę namieszać w segmencie aut elektrycznych, oferując atrakcyjną cenę, bogate wyposażenie i nowoczesne technologie.
+🚗⚡ **Elektryczna rewolucja na polskich drogach!** Geely EX5 oficjalnie wjeżdża na nasz rynek jako gra-zmieniacz w segmencie premium EV. Dzięki partnerstwa z **Jameel Motors** – globalnym liderem w dystrybucji motoryzacyjnej – ten innowacyjny SUV oferuje niesamowitą kombinację: zaawansowaną technologię, luksusowe wyposażenie i przystępną cenę.
 
 ## Cena Geely EX5 w Polsce
 
@@ -329,7 +329,7 @@ Geely EX5 konkuruje z takimi modelami jak:
 - **Profesjonalna obsługa Jameel Motors**
 
 To kolejny krok w kierunku elektromobilności i zwiększenia dostępności aut elektrycznych na polskim rynku.`,
-    author: 'Terragon Labs',
+    author: 'iViMarket',
     publishedAt: '2025-01-11',
     category: 'Testy',
     tags: ['Geely', 'EX5', 'SUV', 'elektryczny', 'nowość', 'Jameel Motors', 'chińskie samochody'],

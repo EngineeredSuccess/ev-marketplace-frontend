@@ -90,24 +90,26 @@ export default function BlogPage() {
       <div style={{
         background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
         color: 'white',
-        padding: '60px 0',
+        padding: 'clamp(30px, 8vw, 60px) 0',
         textAlign: 'center'
       }}>
         <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '0 20px' }}>
           <h1 style={{
-            fontSize: '48px',
+            fontSize: 'clamp(28px, 6vw, 48px)',
             fontWeight: '800',
             marginBottom: '24px',
-            margin: '0 0 24px 0'
+            margin: '0 0 24px 0',
+            lineHeight: '1.2'
           }}>
             Blog IVI Market
           </h1>
           <p style={{
-            fontSize: '20px',
+            fontSize: 'clamp(16px, 3vw, 20px)',
             marginBottom: '0',
             maxWidth: '600px',
             margin: '0 auto',
-            opacity: '0.9'
+            opacity: '0.9',
+            lineHeight: '1.5'
           }}>
             Najnowsze informacje o pojazdach elektrycznych, technologiach i rynku EV w Polsce
           </p>
@@ -160,7 +162,8 @@ export default function BlogPage() {
               value={selectedCategory}
               onChange={(e) => setSelectedCategory(e.target.value)}
               style={{
-                width: '200px',
+                width: '100%',
+                maxWidth: '200px',
                 padding: '12px 16px',
                 border: '2px solid #e5e7eb',
                 borderRadius: '12px',
@@ -196,28 +199,33 @@ export default function BlogPage() {
             {featuredPosts.length >= 3 ? (
               <div style={{
                 display: 'grid',
-                gridTemplateColumns: '2fr 1fr',
-                gap: '32px',
+                gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
+                gap: '24px',
                 marginBottom: '32px'
               }}>
-                {/* Main Featured Article */}
-                <div style={{ gridRow: 'span 2' }}>
+                {/* Main Featured Article - takes full width on mobile */}
+                <div style={{ 
+                  gridColumn: 'span 2',
+                  minHeight: '300px'
+                }}>
                   <BlogCard post={featuredPosts[0]} />
                 </div>
 
-                {/* Secondary Featured Articles */}
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-                  {featuredPosts.slice(1, 3).map(post => (
-                    <div key={post.slug} style={{ height: 'fit-content' }}>
-                      <BlogCard post={post} />
-                    </div>
-                  ))}
-                </div>
+                {/* Secondary Featured Articles - stack on mobile */}
+                {featuredPosts.slice(1, 3).map(post => (
+                  <div key={post.slug} style={{ 
+                    minHeight: '200px',
+                    display: 'flex',
+                    flexDirection: 'column'
+                  }}>
+                    <BlogCard post={post} />
+                  </div>
+                ))}
               </div>
             ) : (
               <div style={{
                 display: 'grid',
-                gridTemplateColumns: 'repeat(auto-fit, minmax(350px, 1fr))',
+                gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
                 gap: '24px'
               }}>
                 {featuredPosts.map(post => (
@@ -230,21 +238,30 @@ export default function BlogPage() {
 
         {/* All Posts */}
         <section>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '32px' }}>
+          <div style={{ 
+            display: 'flex', 
+            justifyContent: 'space-between', 
+            alignItems: 'center', 
+            marginBottom: '32px',
+            flexWrap: 'wrap',
+            gap: '16px'
+          }}>
             <h2 style={{
-              fontSize: '28px',
+              fontSize: 'clamp(20px, 4vw, 28px)',
               fontWeight: '800',
-              color: '#1f2937'
+              color: '#1f2937',
+              margin: 0
             }}>
               {searchQuery ? `Wyniki wyszukiwania dla "${searchQuery}"` : 'Wszystkie artykuły'}
             </h2>
             <span style={{
               color: '#6b7280',
-              fontSize: '16px',
+              fontSize: '14px',
               background: 'rgba(16, 185, 129, 0.1)',
-              padding: '8px 16px',
+              padding: '6px 12px',
               borderRadius: '20px',
-              fontWeight: '600'
+              fontWeight: '600',
+              whiteSpace: 'nowrap'
             }}>
               {filteredPosts.length} {filteredPosts.length === 1 ? 'artykuł' : 'artykułów'}
             </span>
@@ -253,8 +270,8 @@ export default function BlogPage() {
           {filteredPosts.length > 0 ? (
             <div style={{
               display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))',
-              gap: '24px'
+              gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
+              gap: '20px'
             }}>
               {filteredPosts.map(post => (
                 <BlogCard key={post.slug} post={post} />
