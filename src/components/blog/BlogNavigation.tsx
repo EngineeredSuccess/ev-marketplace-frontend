@@ -62,7 +62,7 @@ const BlogNavigation: React.FC<BlogNavigationProps> = ({
                 className="nav-back-button"
               >
                 <ArrowLeft style={{ width: '16px', height: '16px', marginRight: '6px' }} />
-                <span className="nav-back-text">Powr�t</span>
+                <span className="nav-back-text">Powrót</span>
               </Link>
             ) : (
               <Link
@@ -165,7 +165,7 @@ const BlogNavigation: React.FC<BlogNavigationProps> = ({
                   transition: 'all 0.2s'
                 }}
                 className="nav-share-button"
-                aria-label="Udostpnij"
+                aria-label="Udostępnij"
               >
                 <Share2 style={{ width: '18px', height: '18px' }} />
               </button>
