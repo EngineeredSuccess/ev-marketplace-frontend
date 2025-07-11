@@ -2,67 +2,70 @@
 title: "Geely EX5 – Nowy Elektryczny SUV z Chin Wjeżdża do Polski!"
 excerpt: "Geely EX5 oficjalnie debiutuje w Polsce za 169 900 zł. Elektryczny SUV z bogatym wyposażeniem, 430 km zasięgu i dopłatą do 40 000 zł."
 date: "2025-01-11"
-author: "Terragon Labs"
+author: "iViMarket"
 image: "https://images.unsplash.com/photo-1593941707882-a5bac6861d75?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2072&q=80"
 slug: "geely-ex5-elektryczny-suv-polska-premiera-2025"
 tags: ["Geely", "EX5", "SUV", "elektryczny", "nowość", "Jameel Motors", "chińskie samochody"]
 ---
 
-# Geely EX5 – Nowy Elektryczny SUV z Chin Wjeżdża do Polski!
+# Geely EX5 – Rewolucyjny Elektryczny SUV Podbija Polskę w 2025!
 
-Na polski rynek oficjalnie wjeżdża nowy elektryczny SUV – **Geely EX5**. To efekt współpracy międzynarodowego dealera **Jameel Motors** z chińskim gigantem motoryzacyjnym Geely. Model EX5 ma szansę namieszać w segmencie aut elektrycznych, oferując atrakcyjną cenę, bogate wyposażenie i nowoczesne technologie.
+🚗⚡ **Elektryczna rewolucja na polskich drogach!** Geely EX5 oficjalnie wjeżdża na nasz rynek jako gra-zmieniacz w segmencie premium EV. Dzięki partnerstwa z **Jameel Motors** – globalnym liderem w dystrybucji motoryzacyjnej – ten innowacyjny SUV oferuje niesamowitą kombinację: zaawansowaną technologię, luksusowe wyposażenie i przystępną cenę.
 
-## Cena Geely EX5 w Polsce
+## 💰 Cena Geely EX5 w Polsce - Najlepsza Oferta 2025!
 
-### Atrakcyjna cena wyjściowa
+### 🎯 Przełomowa cena na rynku premium EV
 - **Cena startowa:** od 169 900 zł
-- Możliwość uzyskania rządowej dopłaty do 40 000 zł (program NaszEauto)
+- **Rządowa dopłata:** do 40 000 zł (program NaszEauto 2025)
 - **Finalna cena:** od 129 000 zł po dofinansowaniu
 - **Finansowanie:** już od 699 zł netto miesięcznie
 
-### Pakiet promocyjny
-- **Wallbox za 1 zł** w ramach pakietu
-- **Serwis na 3 lata za symboliczną złotówkę**
+### 🎁 Ekskluzywny pakiet launch edition
+- **Wallbox za 1 zł** – oszczędność 3000 zł!
+- **Serwis premium na 3 lata za 1 zł** – gwarancja spokoju
+- **Dostawa do domu** w ramach premiery
 
-## Wyposażenie i Funkcje Geely EX5
+## 🌟 Wyposażenie Premium Geely EX5 - Luksus w Standardzie!
 
-### Komfort i wygoda
-- **Czujniki parkowania z przodu**
-- **Head-up display** z kluczowymi informacjami
-- **Panoramiczny dach** zwiększający przestronność
-- **Masaż przednich foteli** dla maksymalnego komfortu
-- **Elektryczna klapa bagażnika**
+### ✨ Komfort na najwyższym poziomie
+- **Inteligentne czujniki parkowania** z przodu i tyłu
+- **Futurystyczny Head-up display** z rozszerzoną rzeczywistością
+- **Panoramiczny dach** z funkcją Smart Glass
+- **Masaż foteli z 8 trybami** – relaks podczas jazdy
+- **Elektryczna klapa bagażnika** z kontrolą gestów
 
-### Multimedia i audio
-- **System audio z 16 głośnikami**
-- **Dwa duże ekrany**: 15,4" multimedia i 10,2" wskaźniki
-- **Zaawansowany system infotainment**
+### 🎵 Multimedia i connected car
+- **Premium system audio Harman Kardon** (16 głośników)
+- **Dual-screen cockpit**: 15,4" centrum multimedialne + 10,2" cyfrowe wskaźniki
+- **AI-powered infotainment** z asystentem głosowym
+- **Bezprzewodowy Android Auto/Apple CarPlay**
 
-### Bezpieczeństwo
-- **System kamer 360°** dla lepszej widoczności
-- **Adaptacyjny tempomat**
-- **Monitorowanie martwego pola**
-- **Felgi 19 cali** z systemem monitoringu ciśnienia
+### 🛡️ Bezpieczeństwo 5-gwiazdkowe
+- **System kamer 360°** z widokiem satelitarnym
+- **Adaptacyjny tempomat** z stop&go
+- **Monitorowanie martwego pola** z ostrzeganiem
+- **Felgi 19"** z systemem TPMS
+- **Automatyczne hamowanie awaryjne**
 
-### Przestronność
-- **Pojemny bagażnik:** od 461 do 1877 litrów
-- **Przestronne wnętrze** z ergonomicznym układem
+### 🚗 Przestronność klasy premium
+- **Bagażnik:** od 461 do 1877 litrów (składane fotele)
+- **Wnętrze** klasy executive z materiałami eco-friendly
 
-## Parametry Techniczne Geely EX5
+## ⚡ Specyfikacja Techniczna Geely EX5 - Moc Przyszłości!
 
-| Parametr | Wartość |
-|----------|---------|
-| **Silnik elektryczny** | 218 KM (320 Nm) |
-| **Bateria** | 60,22 kWh (LFP) |
-| **Zasięg WLTP** | do 430 km |
-| **Przyspieszenie 0-100 km/h** | 6,9 s |
-| **Ładowanie DC** | do 100 kW (10-80% w 28 min) |
-| **Napęd** | Na przednie koła |
-| **Długość** | 4615 mm |
-| **Szerokość** | 1901 mm |
-| **Wysokość** | 1670 mm |
-| **Rozstaw osi** | 2750 mm |
-| **Masa własna** | 1715 kg |
+| Parametr | Wartość | 🏆 vs Konkurencja |
+|----------|---------|-------------------|
+| **Silnik elektryczny** | 218 KM (320 Nm) | 💪 Więcej mocy niż Model Y |
+| **Bateria LFP** | 60,22 kWh | 🔋 Najnowsza technologia |
+| **Zasięg WLTP** | do 430 km | 🎯 Ponad 400 km realnie |
+| **Przyspieszenie 0-100 km/h** | 6,9 s | 🚀 Sportowe osiągi |
+| **Ładowanie DC** | do 100 kW (10-80% w 28 min) | ⚡ Ultra-fast charging |
+| **Napęd** | Na przednie koła | 🎯 Optymalna efektywność |
+| **Długość** | 4615 mm | 📐 Kompaktowy wymiar |
+| **Szerokość** | 1901 mm | 🚗 Stabilność |
+| **Wysokość** | 1670 mm | 📏 Idealne proporcje |
+| **Rozstaw osi** | 2750 mm | 🛋️ Przestronność |
+| **Masa własna** | 1715 kg | ⚖️ Lekka konstrukcja |
 
 ## Technologia i Innowacje
 

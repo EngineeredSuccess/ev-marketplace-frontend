@@ -29,7 +29,14 @@ export const Navigation: React.FC<NavigationProps> = ({
       background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)'
     }}>
       <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '0 20px' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '16px 0' }}>
+        <div style={{ 
+          display: 'flex', 
+          justifyContent: 'space-between', 
+          alignItems: 'center', 
+          padding: '16px 0',
+          flexWrap: 'wrap',
+          gap: '16px'
+        }}>
           <div style={{ display: 'flex', alignItems: 'center' }}>
             <div style={{ 
               background: 'rgba(255, 255, 255, 0.1)',
@@ -59,7 +66,11 @@ export const Navigation: React.FC<NavigationProps> = ({
             </span>
           </div>
           
-          <div style={{ display: 'flex', gap: '32px' }}>
+          <div style={{ 
+            display: 'flex', 
+            gap: '32px',
+            flexWrap: 'wrap'
+          }}>
             {['home', 'browse', 'blog', 'sell'].map((view) => (
               <button
                 key={view}
@@ -82,7 +93,9 @@ export const Navigation: React.FC<NavigationProps> = ({
                   background: currentView === view 
                     ? 'rgba(255, 255, 255, 0.2)' 
                     : 'transparent',
-                  color: 'white'
+                  color: 'white',
+                  whiteSpace: 'nowrap',
+                  minWidth: 'fit-content'
                 }}
               >
                 {view === 'home' ? 'Strona główna' : 
