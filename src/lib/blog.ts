@@ -1,211 +1,359 @@
 import { BlogPost } from '@/types/Blog'
 import { processHTMLFile } from '@/utils/markdown'
 
-// Mock blog posts data (replace with your actual posts)
-// Raw blog data with string dates to avoid serialization issues
+// Mock blog posts data with updated content from markdown files
 const mockBlogPostsData: Array<Omit<BlogPost, 'publishedAt' | 'updatedAt'> & {
   publishedAt: string;
   updatedAt?: string;
 }> = [
   {
-    slug: 'charging-stations-poland',
-    title: 'Stacje ładowania w Polsce - kompletny przewodnik 2024',
-    excerpt: 'Wszystko co musisz wiedzieć o stacjach ładowania pojazdów elektrycznych w Polsce. Mapa, ceny, typy złączy i praktyczne porady.',
-    content: `# Stacje ładowania w Polsce - kompletny przewodnik 2024
+    slug: 'stacje-ladowania-w-polsce-2025',
+    title: 'Stacje ładowania w Polsce 2025 – Kompletny przewodnik',
+    excerpt: 'Mapa stacji ładowania w Polsce, koszty, aplikacje i praktyczne porady. Ponad 3000 punktów ładowania, sieci Ionity, Orlen, GreenWay. Planowanie tras EV.',
+    content: `# Stacje ładowania w Polsce 2025 – Kompletny przewodnik
 
-## Wprowadzenie
+**Infrastruktura ładowania w Polsce rozwija się w ekspresowym tempie!** W 2025 roku mamy już ponad 3000 punktów ładowania w całym kraju. W naszym kompletnym przewodniku znajdziesz wszystko o stacjach ładowania, kosztach, aplikacjach i planowaniu tras dla pojazdów elektrycznych.
 
-Polska dynamicznie rozwija infrastrukturę ładowania pojazdów elektrycznych. W 2024 roku mamy już ponad 3000 publicznych punktów ładowania w całym kraju.
+**Kluczowe informacje o stacjach ładowania:**
+- 🗺️ **Ponad 3000 punktów** ładowania w Polsce
+- ⚡ **Moc do 350 kW** - najszybsze ładowarki w Europie
+- 💰 **Koszty 0,40-2,50 zł/kWh** w zależności od operatora
+- 📱 **10+ aplikacji** do znajdowania i płacenia
+- 🛣️ **Pełne pokrycie autostrad** - stacja co 50 km
 
-## Typy stacji ładowania
+---
 
-### Ładowanie AC (prąd przemienny)
-- Moc: 3.7 kW - 22 kW
-- Czas ładowania: 4-8 godzin
-- Najlepsze do ładowania nocnego
+## Najważniejsze informacje o infrastrukturze
 
-### Ładowanie DC (prąd stały)
-- Moc: 50 kW - 350 kW
-- Czas ładowania: 20-60 minut
-- Idealne do podróży długodystansowych
+**Polska staje się liderem w rozwoju infrastruktury ładowania w Europie Środkowej!**
 
-## Główni operatorzy w Polsce
+**📊 Stan infrastruktury 2025:**
+- **Łączna liczba punktów:** 3247 (stan na styczeń 2025)
+- **Stacje szybkie DC (>50 kW):** 1456 punktów
+- **Stacje AC (3,7-22 kW):** 1791 punktów
+- **Wzrost rok do roku:** +89% (2024 vs 2023)
 
-1. **Orlen Charge** - największa sieć w Polsce
-2. **Ionity** - szybkie ładowarki na autostradach
-3. **GreenWay** - rozwijająca się sieć
-4. **Tauron** - silna pozycja w południowej Polsce
+**🏆 Największe sieci w Polsce:**
+1. **Orlen Charge** - 847 punktów
+2. **GreenWay** - 523 punkty
+3. **Ionity** - 156 punktów
+4. **Tauron** - 234 punkty
+5. **Energa** - 189 punktów
 
-## Koszty ładowania
+## Największe sieci stacji ładowania
 
-Ceny wahają się od 1,20 zł do 3,50 zł za kWh w zależności od:
-- Mocy ładowarki
-- Operatora
-- Lokalizacji
-- Typu abonamentu
+### 1. Orlen Charge - Lider rynku
 
-## Praktyczne porady
+**⛽ Orlen Charge - największa sieć w Polsce:**
+- **Liczba stacji:** 847 punktów
+- **Moc:** 50-150 kW (DC), 22 kW (AC)
+- **Lokalizacje:** Stacje Orlen, centra handlowe, miasta
+- **Koszty:** 1,69-1,89 zł/kWh (DC), 1,29 zł/kWh (AC)
+- **Aplikacja:** Orlen Charge (iOS/Android)
 
-- Zawsze miej plan B - alternatywną stację
-- Pobierz aplikacje głównych operatorów
-- Sprawdź dostępność przed wyjazdem
-- Zaplanuj postoje na ładowanie w trasie`,
-    author: 'IVI Market',
-    publishedAt: '2024-06-15',
-    updatedAt: '2024-06-20',
+### 2. GreenWay - Szybkie ładowanie
+
+**🟢 GreenWay - specjalista od szybkiego ładowania:**
+- **Liczba stacji:** 523 punkty
+- **Moc:** 50-350 kW (DC)
+- **Lokalizacje:** Autostrady, drogi ekspresowe, miasta
+- **Koszty:** 1,89-2,49 zł/kWh
+- **Aplikacja:** GreenWay (iOS/Android)
+
+### 3. Ionity - Premium dla długich tras
+
+**🔵 Ionity - europejska sieć premium:**
+- **Liczba stacji:** 156 punktów
+- **Moc:** 350 kW (DC)
+- **Lokalizacje:** Autostrady (co 120 km)
+- **Koszty:** 2,19 zł/kWh (bez abonamentu)
+- **Aplikacja:** Ionity (iOS/Android)
+
+## Koszty ładowania na stacjach
+
+### Porównanie cen operatorów
+
+**💰 Aktualne ceny ładowania (styczeń 2025):**
+
+| Operator | AC (22 kW) | DC (50 kW) | DC (150+ kW) | Opłata aktywacyjna |
+|----------|------------|------------|--------------|-------------------|
+| **Orlen Charge** | 1,29 zł/kWh | 1,69 zł/kWh | 1,89 zł/kWh | 0 zł |
+| **GreenWay** | 1,49 zł/kWh | 1,89 zł/kWh | 2,49 zł/kWh | 0 zł |
+| **Ionity** | - | - | 2,19 zł/kWh | 0 zł |
+| **Tauron** | 1,49 zł/kWh | 1,79 zł/kWh | - | 0 zł |
+| **Energa** | 1,39 zł/kWh | 1,69 zł/kWh | - | 0 zł |
+
+### Najlepsze aplikacje 2025
+
+**📱 Top 5 aplikacji do ładowania:**
+
+**🏆 1. PlugShare**
+- **Ocena:** ⭐⭐⭐⭐⭐
+- **Zalety:** Największa baza, opinie użytkowników
+- **Funkcje:** Mapa, filtry, planowanie tras
+- **Cena:** Darmowa + Premium (15 zł/miesiąc)
+
+**🥈 2. ChargeMap**
+- **Ocena:** ⭐⭐⭐⭐⭐
+- **Zalety:** Europejska baza, płatności
+- **Funkcje:** Mapa, rezerwacje, płatności
+- **Cena:** Darmowa + Pass (20 €/miesiąc)
+
+**🥉 3. A Better Routeplanner (ABRP)**
+- **Ocena:** ⭐⭐⭐⭐⭐
+- **Zalety:** Najlepsze planowanie tras
+- **Funkcje:** Optymalizacja tras, pogoda
+- **Cena:** Darmowa + Premium (5 €/miesiąc)`,
+    author: 'iViMarket',
+    publishedAt: '2024-01-05',
     category: 'Ładowanie',
-    tags: ['stacje ładowania', 'infrastruktura', 'Polska', 'przewodnik'],
+    tags: ['stacje ładowania', 'infrastruktura', 'Polska', 'mapa', 'koszty', '2025'],
     readingTime: 8,
     featured: true,
     seo: {
-      metaTitle: 'Stacje ładowania EV w Polsce 2024 - Kompletny przewodnik',
-      metaDescription: 'Wszystko o stacjach ładowania pojazdów elektrycznych w Polsce. Mapa, ceny, operatorzy i praktyczne porady dla kierowców EV.',
-      ogImage: '/images/blog/charging-stations-poland.jpg'
+      metaTitle: 'Stacje ładowania w Polsce 2025 – Kompletny przewodnik',
+      metaDescription: 'Mapa stacji ładowania w Polsce, koszty, aplikacje i praktyczne porady. Ponad 3000 punktów ładowania, sieci Ionity, Orlen, GreenWay.',
+      ogImage: 'https://images.unsplash.com/photo-1593941707882-a5bac6861d75?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2072&q=80'
     }
   },
   {
-    slug: 'home-charging-guide',
-    title: 'Ładowanie domowe EV - jak wybrać najlepsze rozwiązanie',
-    excerpt: 'Przewodnik po ładowaniu domowym pojazdów elektrycznych. Wallboxy, instalacja, koszty i najlepsze praktyki.',
-    content: `# Ładowanie domowe EV - jak wybrać najlepsze rozwiązanie
+    slug: 'jak-ladowac-pojazd-elektryczny-w-domu',
+    title: 'Jak ładować pojazd elektryczny w domu? – Kompletny poradnik 2025',
+    excerpt: 'Praktyczny poradnik instalacji wallboxa i optymalizacji kosztów ładowania w domu. Wallbox 11 kW, oszczędności do 4000 zł rocznie, najlepsze modele 2025.',
+    content: `# Jak ładować pojazd elektryczny w domu? – Kompletny poradnik 2025
 
-## Dlaczego ładowanie domowe?
+**Domowe ładowanie to klucz do wygodnego użytkowania pojazdu elektrycznego!** Wallbox w domu to nie tylko wygoda, ale przede wszystkim znaczące oszczędności. W naszym kompletnym poradniku dowiesz się wszystkiego o instalacji, kosztach i najlepszych rozwiązaniach na 2025 rok.
 
-Ładowanie w domu to najwygodniejszy i często najtańszy sposób na uzupełnienie energii w pojeździe elektrycznym.
+**Kluczowe zalety domowego ładowania:**
+- 💰 **Oszczędności do 4000 zł** rocznie vs stacje publiczne
+- ⚡ **Ładowanie 11-22 kW** - pełna bateria w 4-8 godzin
+- 🏠 **Wygoda** - ładowanie podczas snu
+- 📱 **Kontrola przez aplikację** - planowanie i monitoring
+- 🌱 **Ekologia** - możliwość ładowania z paneli PV
 
-## Opcje ładowania domowego
+---
 
-### 1. Gniazdko domowe (230V)
-- Moc: 2.3 kW
-- Czas ładowania: 12-20 godzin
-- Koszt: 0 zł (wykorzystanie istniejącego gniazdka)
+## Najważniejsze informacje o domowym ładowaniu
 
-### 2. Wallbox jednofazowy
-- Moc: 3.7 kW - 7.4 kW
-- Czas ładowania: 6-12 godzin
-- Koszt: 2000-4000 zł
+**Wallbox to najlepsza inwestycja dla właściciela pojazdu elektrycznego!**
 
-### 3. Wallbox trójfazowy
-- Moc: 11 kW - 22 kW
-- Czas ładowania: 3-6 godzin
-- Koszt: 3000-6000 zł
+**📊 Porównanie kosztów ładowania:**
+- **Dom (taryfa G12 - noc):** 0,40 zł/kWh
+- **Dom (taryfa G11):** 0,60 zł/kWh
+- **Stacje szybkie:** 1,80-2,50 zł/kWh
+- **Różnica:** **do 6x taniej** w domu!
 
-## Najlepsze wallboxy 2024
+**💎 Pakiet kompletny wallbox:**
+- **Wallbox 11 kW** z instalacją
+- **Aplikacja mobilna** do sterowania
+- **Gwarancja 5 lat** na urządzenie
+- **Serwis i wsparcie** techniczne
 
-1. **Tesla Wall Connector** - 11 kW, integracja z aplikacją
-2. **Easee Home** - inteligentne ładowanie, design
-3. **ABB Terra AC** - niezawodność, funkcje smart
-4. **Wallbox Pulsar Plus** - dobry stosunek ceny do jakości
+## Rodzaje ładowarek domowych
 
-## Instalacja
+### 2. Wallbox AC (7,4-22 kW) - ZALECANE
 
-### Wymagania techniczne:
-- Osobny obwód elektryczny
-- Zabezpieczenia różnicowoprądowe
-- Odpowiednia moc przyłącza
+**🏆 Najlepsze rozwiązanie dla większości użytkowników:**
+- **Moc:** 7,4 kW (1-fazowy) lub 11-22 kW (3-fazowy)
+- **Czas ładowania:** 4-8 godzin (pełna bateria)
+- **Koszt:** 3000-7000 zł (z instalacją)
+- **Zalety:** Optymalna prędkość, bezpieczeństwo, wygoda
+- **Zwrot inwestycji:** 12-24 miesiące
 
-### Koszty instalacji:
-- Wallbox: 2000-6000 zł
-- Instalacja: 1000-3000 zł
-- Modernizacja instalacji: 2000-5000 zł
+**🔋 Przykładowe czasy ładowania (bateria 60 kWh):**
+- **Wallbox 7,4 kW:** 8 godzin (0-100%)
+- **Wallbox 11 kW:** 5,5 godziny (0-100%)
+- **Wallbox 22 kW:** 3 godziny (0-100%)*
 
-## Oszczędności
+*Rzeczywisty czas zależy od możliwości ładowania pojazdu
 
-Ładowanie w domu kosztuje około 0.60-0.80 zł za kWh (taryfa nocna), co daje:
-- 100 km zasięgu za ~6-8 zł
-- Roczne oszczędności vs. benzyna: 3000-5000 zł`,
-    author: 'IVI Market',
-    publishedAt: '2024-06-10',
+## Najlepsze wallboxy 2025
+
+### Top 5 modeli wallbox
+
+**🏆 1. KEBA KeContact P30 (11 kW)**
+- **Cena:** 3500 zł
+- **Zalety:** Niezawodność, aplikacja mobilna, RFID
+- **Gwarancja:** 5 lat
+- **Ocena:** ⭐⭐⭐⭐⭐
+
+**🥈 2. ABL Sursum eMH1 (11 kW)**
+- **Cena:** 2800 zł
+- **Zalety:** Niemiecka jakość, prosty montaż
+- **Gwarancja:** 3 lata
+- **Ocena:** ⭐⭐⭐⭐⭐
+
+**🥉 3. Easee Home (22 kW)**
+- **Cena:** 4200 zł
+- **Zalety:** Inteligentne funkcje, design
+- **Gwarancja:** 3 lata
+- **Ocena:** ⭐⭐⭐⭐⭐
+
+### Koszty instalacji
+
+**💰 Szczegółowy kosztorys:**
+
+| Element | Koszt | Opis |
+|---------|-------|------|
+| **Wallbox 11 kW** | 2500-4000 zł | Urządzenie z kablem 5m |
+| **Instalacja elektryczna** | 800-1500 zł | Kable, zabezpieczenia |
+| **Robocizna** | 500-1000 zł | Montaż i uruchomienie |
+| **Dokumentacja** | 200-300 zł | Protokoły, certyfikaty |
+| **RAZEM** | **4000-6800 zł** | Kompletna instalacja |
+
+## Koszty i oszczędności
+
+### Oszczędności roczne
+
+**📊 Kalkulacja oszczędności (przebieg 15 000 km/rok):**
+
+**Pojazd zużywający 18 kWh/100 km:**
+- **Roczne zużycie energii:** 2700 kWh
+- **Koszt ładowania w domu (G12):** 1080 zł/rok
+- **Koszt na stacjach publicznych:** 4860 zł/rok
+- **Oszczędność:** **3780 zł rocznie**
+
+**🎯 Zwrot inwestycji:**
+- **Koszt wallboxa:** 5000 zł
+- **Roczne oszczędności:** 3780 zł
+- **Okres zwrotu:** **16 miesięcy**`,
+    author: 'iViMarket',
+    publishedAt: '2024-01-10',
     category: 'Ładowanie',
-    tags: ['ładowanie domowe', 'wallbox', 'instalacja', 'oszczędności'],
+    tags: ['ładowanie', 'wallbox', 'dom', 'poradnik', 'oszczędności', 'instalacja', '2025'],
     readingTime: 6,
     featured: false,
     seo: {
-      metaTitle: 'Ładowanie domowe EV - przewodnik po wallboxach 2024',
-      metaDescription: 'Jak wybrać najlepszy wallbox do ładowania domowego? Porównanie, koszty instalacji i praktyczne porady.',
-      ogImage: '/images/blog/home-charging-guide.jpg'
+      metaTitle: 'Jak ładować pojazd elektryczny w domu? – Kompletny poradnik 2025',
+      metaDescription: 'Praktyczny poradnik instalacji wallboxa i optymalizacji kosztów ładowania w domu. Wallbox 11 kW, oszczędności do 4000 zł rocznie.',
+      ogImage: 'https://images.unsplash.com/photo-1593941707882-a5bac6861d75?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2072&q=80'
     }
   },
   {
     slug: 'tesla-model-3-test-2024',
-    title: 'Tesla Model 3 2024 - test długodystansowy',
-    excerpt: 'Szczegółowy test Tesli Model 3 po 6 miesiącach użytkowania. Zasięg, ładowanie, koszty eksploatacji i wrażenia z jazdy.',
-    content: `# Tesla Model 3 2024 - test długodystansowy
+    title: 'Tesla Model 3 – Pełny test 2024',
+    excerpt: 'Sprawdziliśmy najnowszą Teslę Model 3 w polskich warunkach. Zasięg 420 km, zaawansowana technologia i doskonały komfort jazdy. Czy to najlepszy elektryczny sedan?',
+    content: `# Tesla Model 3 – Pełny test 2024
 
-## Wprowadzenie
+**Elektryczny przełom w segmencie premium!** Tesla Model 3 to rewolucyjny sedan elektryczny, który od lat wyznacza standardy w branży EV. W naszym szczegółowym teście sprawdziliśmy, jak najnowsza wersja sprawdza się w polskich warunkach drogowych i klimatycznych.
 
-Po 6 miesiącach i 25 000 km z Teslą Model 3 Long Range, czas na szczegółowe podsumowanie.
+**Kluczowe zalety Tesla Model 3:**
+- ⚡ **420 km zasięgu** w mieszanych warunkach
+- 🚀 **Przyspieszenie 0-100 km/h** w 6,1 sekundy
+- 🔋 **Szybkie ładowanie** DC do 250 kW
+- 🤖 **Autopilot** z zaawansowanymi funkcjami
+- 📱 **Over-the-air updates** - ciągłe ulepszenia
 
-## Specyfikacja testowanego auta
+---
 
-- **Model**: Tesla Model 3 Long Range
-- **Rok**: 2024
-- **Zasięg WLTP**: 602 km
-- **Moc**: 351 KM
-- **Bateria**: 75 kWh
-- **Cena**: 189 000 zł
+## Najważniejsze wiadomości o teście
 
-## Zasięg w praktyce
+**Tesla Model 3 przeszła przez nasze rygorystyczne testy w różnych warunkach!**
 
-### Warunki miejskie:
-- Lato: 480-520 km
-- Zima: 380-420 km
-- Średnie zużycie: 16-18 kWh/100km
+**📊 Wyniki testów:**
+- **Zasięg miasto:** 480 km (warunki optymalne)
+- **Zasięg trasa:** 380 km (autostrada 120 km/h)
+- **Zasięg zima:** 340 km (temperatura -5°C)
 
-### Trasa autostradowa:
-- 120 km/h: 350-400 km
-- 140 km/h: 300-350 km
-- Średnie zużycie: 20-24 kWh/100km
+**🏆 Ocena końcowa:**
+Tesla Model 3 otrzymuje od nas **9/10 punktów** za doskonałe połączenie zasięgu, technologii i komfortu jazdy.
 
-## Ładowanie
+## Specyfikacja techniczna
 
-### Supercharger:
-- 10-80%: 35-45 minut
-- Moc szczytowa: 250 kW
-- Koszt: ~2.50 zł/kWh
+### Silnik i osiągi
 
-### Ładowanie domowe:
-- 0-100%: 8 godzin (wallbox 11 kW)
-- Koszt: ~0.70 zł/kWh (taryfa nocna)
+**🚗 Napęd elektryczny:**
+- **Moc:** 283 KM (208 kW)
+- **Moment obrotowy:** 420 Nm
+- **Przyspieszenie 0-100 km/h:** 6,1 sekundy
+- **Prędkość maksymalna:** 225 km/h
+- **Napęd:** Na tylne koła (RWD)
 
-## Koszty eksploatacji (6 miesięcy)
+**📏 Zasięg i efektywność:**
+- **Zasięg WLTP:** do 491 km
+- **Zużycie energii:** 15,3 kWh/100 km
+- **Zasięg realny:** 420-450 km (warunki miejskie)
+- **Zasięg autostrada:** 350-380 km (120 km/h)
 
-- **Energia**: 2400 zł
-- **Serwis**: 0 zł
-- **Ubezpieczenie**: 3600 zł
-- **Opony**: 0 zł (brak zużycia)
-- **Razem**: 6000 zł (1000 zł/miesiąc)
+### Ładowanie i bateria
 
-## Plusy
+**🔋 Bateria LFP (Lithium Iron Phosphate):**
+- **Pojemność:** 75 kWh (użyteczna)
+- **Technologia:** LFP - bezpieczna i trwała
+- **Gwarancja:** 8 lat lub 192 000 km
+- **Żywotność:** ponad 3000 cykli ładowania
 
-✅ Doskonała dynamika i prowadzenie
-✅ Najlepsza sieć ładowania (Supercharger)
-✅ Regularne aktualizacje oprogramowania
-✅ Minimalne koszty eksploatacji
-✅ Autopilot w codziennym użytkowaniu
+**⚡ Ładowanie:**
+- **DC szybkie ładowanie:** do 250 kW (Supercharger V3)
+- **Czas ładowania 10-80%:** 27 minut (DC)
+- **AC ładowanie domowe:** 11 kW
+- **Czas pełnego ładowania AC:** 7 godzin (11 kW)
 
-## Minusy
+### Komfort i technologia
 
-❌ Jakość wykończenia mogłaby być lepsza
-❌ Brak fizycznych przycisków
-❌ Głośność na autostradzie
-❌ Serwis tylko w większych miastach
+**🎯 Minimalistyczne wnętrze:**
+- **Ekran dotykowy 15,4"** - centrum sterowania
+- **Fotele sportowe** z regulacją elektryczną
+- **Klimatyzacja automatyczna** z filtrem HEPA
+- **System audio premium** (14 głośników)
+- **Panoramiczny dach** szklany
 
-## Podsumowanie
+**🤖 Autopilot Enhanced:**
+- **Adaptacyjny tempomat** z funkcją Stop&Go
+- **Automatyczna zmiana pasa** na autostradzie
+- **Parkowanie automatyczne** (równoległe i prostopadłe)
+- **Wezwanie pojazdu** (Smart Summon)
 
-Tesla Model 3 to nadal benchmark w segmencie premium EV. Mimo drobnych wad, całość robi świetne wrażenie.
+## Porównanie z konkurencją
 
-**Ocena**: 8.5/10`,
-    author: 'IVI Market',
-    publishedAt: '2024-06-05',
+### Tabela porównawcza
+
+| Model | Cena od | Zasięg WLTP | Moc | Ładowanie DC | Bagażnik |
+|-------|---------|-------------|-----|--------------|----------|
+| **Tesla Model 3** | **199 900 zł** | **491 km** | **283 KM** | **250 kW** | **425 l** |
+| BMW i4 eDrive40 | 249 900 zł | 590 km | 340 KM | 200 kW | 470 l |
+| Genesis Electrified G80 | 329 900 zł | 427 km | 365 KM | 220 kW | 424 l |
+| Polestar 2 | 219 900 zł | 540 km | 231 KM | 205 kW | 405 l |
+
+### Analiza konkurencji
+
+**🏆 Tesla Model 3 - zalety:**
+- ✅ **Najlepsza technologia** ładowania (Supercharger)
+- ✅ **Autopilot** - najbardziej zaawansowany system
+- ✅ **Over-the-air updates** - ciągłe ulepszenia
+- ✅ **Minimalistyczne wnętrze** - futurystyczny design
+- ✅ **Sieć Supercharger** - najlepsza infrastruktura
+
+**⚠️ Tesla Model 3 - wady:**
+- ❌ **Jakość wykończenia** - czasami nierówna
+- ❌ **Brak fizycznych przycisków** - wszystko przez ekran
+- ❌ **Serwis** - ograniczona sieć w Polsce
+- ❌ **Cena części** - drogie naprawy
+
+## Podsumowanie testu
+
+### Ocena końcowa: 9/10
+
+**🏆 Tesla Model 3 to doskonały wybór dla:**
+- ✅ Osób ceniących **zaawansowaną technologię**
+- ✅ Kierowców często jeżdżących **długie trasy**
+- ✅ Użytkowników szukających **autonomii jazdy**
+- ✅ Osób mających dostęp do **ładowania domowego**
+
+**⚠️ Może nie być idealna dla:**
+- ❌ Osób preferujących **tradycyjne wnętrze**
+- ❌ Kierowców rzadko korzystających z **funkcji tech**
+- ❌ Użytkowników w obszarach bez **dobrej infrastruktury**`,
+    author: 'iViMarket',
+    publishedAt: '2024-01-15',
     category: 'Testy',
-    tags: ['Tesla', 'Model 3', 'test', 'długodystansowy', 'zasięg'],
+    tags: ['Tesla', 'Model 3', 'test', 'elektryczny', 'sedan', 'recenzja', '2024'],
     readingTime: 10,
     featured: true,
     seo: {
-      metaTitle: 'Tesla Model 3 2024 - test długodystansowy po 25000 km',
-      metaDescription: 'Szczegółowy test Tesli Model 3 2024. Rzeczywisty zasięg, koszty eksploatacji, plusy i minusy po 6 miesiącach.',
-      ogImage: '/images/blog/tesla-model-3-test.jpg'
+      metaTitle: 'Tesla Model 3 – Pełny test 2024',
+      metaDescription: 'Sprawdziliśmy najnowszą Teslę Model 3 w polskich warunkach. Zasięg 420 km, zaawansowana technologia i doskonały komfort jazdy.',
+      ogImage: 'https://images.unsplash.com/photo-1560958089-b8a1929cea89?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2072&q=80'
     }
   },
   {
@@ -219,150 +367,13 @@ Tesla Model 3 to nadal benchmark w segmencie premium EV. Mimo drobnych wad, cał
     publishedAt: '2025-01-11',
     updatedAt: '2025-01-11',
     category: 'Samochody elektryczne',
-    tags: ['Geely', 'EX5', 'SUV elektryczny', 'Polska premiera', '2025', 'Jameel Motors', 'Euro NCAP'],
+    tags: ['Geely', 'EX5', 'SUV', 'elektryczny', 'nowość', 'Jameel Motors', '2025'],
     readingTime: 12,
     featured: true,
     seo: {
       metaTitle: 'Geely EX5 – polska premiera 2025, specyfikacja i cena | IVI Market',
       metaDescription: 'Geely EX5 już w Q3 2025 w Polsce – 430 km zasięgu WLTP, od 129 900 zł z NaszEauto. Wersje Pro/Max, 5 gwiazdek Euro NCAP, specyfikacja techniczna.',
       ogImage: 'https://images.unsplash.com/photo-1593941707882-a5bac6861d75?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80'
-    }
-  },
-  {
-    slug: 'geely-ex5-elektryczny-suv-polska-premiera-2025-md',
-    title: 'Geely EX5 – Rewolucyjny Elektryczny SUV Podbija Polskę w 2025!',
-    excerpt: '🚗⚡ Elektryczna rewolucja na polskich drogach! Geely EX5 jako gra-zmieniacz premium EV – od 169 900 zł z dopłatą do 40 000 zł.',
-    content: `# Geely EX5 – Rewolucyjny Elektryczny SUV Podbija Polskę w 2025!
-
-🚗⚡ **Elektryczna rewolucja na polskich drogach!** Geely EX5 oficjalnie wjeżdża na nasz rynek jako gra-zmieniacz w segmencie premium EV. Dzięki partnerstwa z **Jameel Motors** – globalnym liderem w dystrybucji motoryzacyjnej – ten innowacyjny SUV oferuje niesamowitą kombinację: zaawansowaną technologię, luksusowe wyposażenie i przystępną cenę.
-
-## Cena Geely EX5 w Polsce
-
-### Atrakcyjna cena wyjściowa
-- **Cena startowa:** od 169 900 zł
-- Możliwość uzyskania rządowej dopłaty do 40 000 zł (program NaszEauto)
-- **Finalna cena:** od 129 000 zł po dofinansowaniu
-- **Finansowanie:** już od 699 zł netto miesięcznie
-
-### Pakiet promocyjny
-- **Wallbox za 1 zł** w ramach pakietu
-- **Serwis na 3 lata za symboliczną złotówkę**
-
-## Wyposażenie i Funkcje Geely EX5
-
-### Komfort i wygoda
-- **Czujniki parkowania z przodu**
-- **Head-up display** z kluczowymi informacjami
-- **Panoramiczny dach** zwiększający przestronność
-- **Masaż przednich foteli** dla maksymalnego komfortu
-- **Elektryczna klapa bagażnika**
-
-### Multimedia i audio
-- **System audio z 16 głośnikami**
-- **Dwa duże ekrany**: 15,4" multimedia i 10,2" wskaźniki
-- **Zaawansowany system infotainment**
-
-### Bezpieczeństwo
-- **System kamer 360°** dla lepszej widoczności
-- **Adaptacyjny tempomat**
-- **Monitorowanie martwego pola**
-- **Felgi 19 cali** z systemem monitoringu ciśnienia
-
-### Przestronność
-- **Pojemny bagażnik:** od 461 do 1877 litrów
-- **Przestronne wnętrze** z ergonomicznym układem
-
-## Parametry Techniczne Geely EX5
-
-| Parametr | Wartość |
-|----------|---------|
-| **Silnik elektryczny** | 218 KM (320 Nm) |
-| **Bateria** | 60,22 kWh (LFP) |
-| **Zasięg WLTP** | do 430 km |
-| **Przyspieszenie 0-100 km/h** | 6,9 s |
-| **Ładowanie DC** | do 100 kW (10-80% w 28 min) |
-| **Napęd** | Na przednie koła |
-| **Długość** | 4615 mm |
-| **Szerokość** | 1901 mm |
-| **Wysokość** | 1670 mm |
-| **Rozstaw osi** | 2750 mm |
-| **Masa własna** | 1715 kg |
-
-## Technologia i Innowacje
-
-### Ładowanie
-- **Szybkie ładowanie DC** do 100 kW
-- **Ładowanie 10-80% w zaledwie 28 minut**
-- **Wallbox w pakiecie** za symboliczną złotówkę
-
-### Bateria
-- **Technologia LFP** (Lithium Iron Phosphate)
-- **Pojemność 60,22 kWh** zapewniająca zasięg do 430 km
-- **Trwałość i bezpieczeństwo** technologii LFP
-
-## Jameel Motors – Gwarancja Jakości
-
-Za wprowadzenie marki Geely na polski rynek odpowiada **Jameel Motors** – międzynarodowy dealer z ponad 70-letnim doświadczeniem w branży motoryzacyjnej. To gwarancja:
-
-- **Profesjonalnej obsługi** klienta
-- **Wsparcia serwisowego** na najwyższym poziomie
-- **Dostępności części zamiennych**
-- **Szkolenia mechaników** w autoryzowanych serwisach
-
-## Konkurencja na Rynku
-
-Geely EX5 konkuruje z takimi modelami jak:
-- **Tesla Model Y** (znacznie droższy)
-- **BYD Atto 3** (podobny segment cenowy)
-- **Kia EV6** (wyższy segment)
-- **Hyundai Ioniq 5** (premium segment)
-
-## Dofinansowanie i Programy Wsparcia
-
-### Program NaszEauto
-- **Dopłata do 40 000 zł** dla kwalifikujących się klientów
-- **Warunki programu** dostępne w salonach
-- **Znaczące obniżenie kosztów** zakupu
-
-### Finansowanie
-- **Leasing** z atrakcyjnymi warunkami
-- **Kredyt** na preferencyjnych zasadach
-- **Wynajem długoterminowy** dla firm
-
-## Perspektywy Rozwoju
-
-### Plany Geely w Polsce
-- **Rozbudowa sieci dealerskiej**
-- **Wprowadzenie kolejnych modeli**
-- **Inwestycje w infrastrukturę ładowania**
-
-### Wpływ na rynek
-- **Zwiększenie konkurencji** w segmencie aut elektrycznych
-- **Obniżenie cen** przez większą dostępność
-- **Przyspieszenie elektromobilności** w Polsce
-
-## Podsumowanie
-
-**Geely EX5** to nowoczesny, w pełni elektryczny SUV klasy C/D, który dzięki atrakcyjnej cenie, bogatemu wyposażeniu i zaawansowanej technologii ma szansę podbić serca polskich kierowców. 
-
-### Kluczowe zalety:
-- **Doskonały stosunek ceny do jakości**
-- **Bogate wyposażenie w standardzie**
-- **Konkurencyjny zasięg 430 km**
-- **Szybkie ładowanie**
-- **Profesjonalna obsługa Jameel Motors**
-
-To kolejny krok w kierunku elektromobilności i zwiększenia dostępności aut elektrycznych na polskim rynku.`,
-    author: 'iViMarket',
-    publishedAt: '2025-01-11',
-    category: 'Testy',
-    tags: ['Geely', 'EX5', 'SUV', 'elektryczny', 'nowość', 'Jameel Motors', 'chińskie samochody'],
-    readingTime: 12,
-    featured: true,
-    seo: {
-      metaTitle: 'Geely EX5 – Nowy Elektryczny SUV z Chin w Polsce za 169 900 zł',
-      metaDescription: 'Geely EX5 debiutuje w Polsce! Elektryczny SUV z zasięgiem 430 km, bogatym wyposażeniem i ceną od 169 900 zł. Dopłata do 40 000 zł w programie NaszEauto.',
-      ogImage: 'https://images.unsplash.com/photo-1593941707882-a5bac6861d75?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2072&q=80'
     }
   }
 ]
