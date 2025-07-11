@@ -1,7 +1,9 @@
-import React from 'react'
-import { Metadata } from 'next'
+'use client'
+
+import React, { useState, useEffect } from 'react'
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
+import Head from 'next/head'
 import { Calendar, Clock, User, Share2, Tag } from 'lucide-react'
 import { getPostBySlug, getAllPosts, getRelatedPosts, formatDate } from '@/lib/blog'
 import BlogCard from '@/components/blog/BlogCard'
@@ -17,46 +19,17 @@ interface BlogPostPageProps {
   }
 }
 
-// Generate metadata for SEO
-export async function generateMetadata({ params }: BlogPostPageProps): Promise<Metadata> {
-  const post = getPostBySlug(params.slug)
-  
-  if (!post) {
-    return {
-      title: 'Artykuł nie znaleziony - IVI Market'
-    }
-  }
-
-  return {
-    title: post.seo.metaTitle || `${post.title} - IVI Market`,
-    description: post.seo.metaDescription || post.excerpt,
-    openGraph: {
-      title: post.title,
-      description: post.excerpt,
-      type: 'article',
-      publishedTime: post.publishedAt.toISOString(),
-      modifiedTime: post.updatedAt?.toISOString(),
-      authors: [post.author],
-      images: post.seo.ogImage ? [post.seo.ogImage] : undefined,
-    },
-    twitter: {
-      card: 'summary_large_image',
-      title: post.title,
-      description: post.excerpt,
-      images: post.seo.ogImage ? [post.seo.ogImage] : undefined,
-    }
-  }
-}
-
-// Generate static params for all blog posts
-export async function generateStaticParams() {
-  const posts = getAllPosts()
-  return posts.map(post => ({
-    slug: post.slug
-  }))
-}
+// Note: Metadata and static params generation moved to layout.tsx for client component compatibility
 
 export default function BlogPostPage({ params }: BlogPostPageProps) {
+  const [currentUrl, setCurrentUrl] = useState('')
+  
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      setCurrentUrl(window.location.href)
+    }
+  }, [])
+  
   const post = getPostBySlug(params.slug)
   
   if (!post) {
@@ -73,6 +46,19 @@ export default function BlogPostPage({ params }: BlogPostPageProps) {
 
   return (
     <div style={{ minHeight: '100vh', background: 'linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%)' }}>
+      <Head>
+        <title>{post.seo.metaTitle || `${post.title} - IVI Market`}</title>
+        <meta name="description" content={post.seo.metaDescription || post.excerpt} />
+        <meta property="og:title" content={post.title} />
+        <meta property="og:description" content={post.excerpt} />
+        <meta property="og:type" content="article" />
+        <meta property="og:url" content={currentUrl} />
+        {post.seo.ogImage && <meta property="og:image" content={post.seo.ogImage} />}
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content={post.title} />
+        <meta name="twitter:description" content={post.excerpt} />
+        {post.seo.ogImage && <meta name="twitter:image" content={post.seo.ogImage} />}
+      </Head>
       <BlogPostStructuredData
         title={post.title}
         description={post.excerpt}
@@ -93,14 +79,14 @@ export default function BlogPostPage({ params }: BlogPostPageProps) {
         showShareIcon={true}
         title="Blog"
         onShareClick={() => {
-          if (navigator.share) {
+          if (typeof window !== 'undefined' && navigator.share) {
             navigator.share({
               title: post.title,
               text: post.excerpt,
-              url: window.location.href
+              url: currentUrl
             })
-          } else {
-            navigator.clipboard.writeText(window.location.href)
+          } else if (typeof window !== 'undefined') {
+            navigator.clipboard.writeText(currentUrl)
           }
         }}
       />
@@ -172,14 +158,14 @@ export default function BlogPostPage({ params }: BlogPostPageProps) {
           <div style={{ display: 'flex', alignItems: 'center', gap: '16px', flexWrap: 'wrap' }}>
             <button 
               onClick={() => {
-                if (navigator.share) {
+                if (typeof window !== 'undefined' && navigator.share) {
                   navigator.share({
                     title: post.title,
                     text: post.excerpt,
-                    url: window.location.href
+                    url: currentUrl
                   }).catch(console.error);
-                } else {
-                  navigator.clipboard.writeText(window.location.href).then(() => {
+                } else if (typeof window !== 'undefined') {
+                  navigator.clipboard.writeText(currentUrl).then(() => {
                     // Show temporary notification
                     const notification = document.createElement('div');
                     notification.textContent = 'Link skopiowany do schowka!';
@@ -232,7 +218,7 @@ export default function BlogPostPage({ params }: BlogPostPageProps) {
             }}>
               <span>Podziel się:</span>
               <a 
-                href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(post.title)}&url=${encodeURIComponent(window.location?.href || '')}`}
+                href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(post.title)}&url=${encodeURIComponent(currentUrl)}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 style={{
@@ -254,7 +240,7 @@ export default function BlogPostPage({ params }: BlogPostPageProps) {
                 </svg>
               </a>
               <a 
-                href={`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(window.location?.href || '')}`}
+                href={`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(currentUrl)}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 style={{
@@ -276,7 +262,7 @@ export default function BlogPostPage({ params }: BlogPostPageProps) {
                 </svg>
               </a>
               <a 
-                href={`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(window.location?.href || '')}`}
+                href={`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(currentUrl)}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 style={{
