@@ -3,7 +3,10 @@ import { processHTMLFile } from '@/utils/markdown'
 
 // Mock blog posts data (replace with your actual posts)
 // Raw blog data with string dates to avoid serialization issues
-const mockBlogPostsData = [
+const mockBlogPostsData: Array<Omit<BlogPost, 'publishedAt' | 'updatedAt'> & {
+  publishedAt: string;
+  updatedAt?: string;
+}> = [
   {
     slug: 'charging-stations-poland',
     title: 'Stacje ładowania w Polsce - kompletny przewodnik 2024',
@@ -210,7 +213,7 @@ Tesla Model 3 to nadal benchmark w segmencie premium EV. Mimo drobnych wad, cał
     title: 'Geely EX5 – premiera w Polsce 2025',
     excerpt: 'Geely EX5 już w Q3 2025 w Polsce – 430 km zasięgu WLTP, od 129 900 zł z NaszEauto. Wersje Pro/Max, 5 gwiazdek Euro NCAP, specyfikacja techniczna.',
     content: '', // Will be loaded from HTML file
-    contentType: 'html', // Indicate this is HTML content
+    contentType: 'html' as const, // Indicate this is HTML content
     htmlFile: '/src/posts/geely-ex5-elektryczny-suv-polska-premiera-2025.html',
     author: 'iViMarket',
     publishedAt: '2025-01-11',
