@@ -1,6 +1,40 @@
 import { BlogPost } from '@/types/Blog'
 import { processHTMLFile } from '@/utils/markdown'
 
+// Simple markdown to HTML converter
+function markdownToHtml(markdown: string): string {
+  return markdown
+    // Headers
+    .replace(/^### (.*$)/gim, '<h3>$1</h3>')
+    .replace(/^## (.*$)/gim, '<h2>$1</h2>')
+    .replace(/^# (.*$)/gim, '<h1>$1</h1>')
+    // Bold
+    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+    // Italic
+    .replace(/\*(.*?)\*/g, '<em>$1</em>')
+    // Line breaks
+    .replace(/\n\n/g, '</p><p>')
+    .replace(/\n/g, '<br>')
+    // Wrap in paragraphs
+    .replace(/^(.+)$/gm, '<p>$1</p>')
+    // Clean up multiple paragraph tags
+    .replace(/<p><\/p>/g, '')
+    .replace(/<p><h([1-6])>/g, '<h$1>')
+    .replace(/<\/h([1-6])><\/p>/g, '</h$1>')
+    .replace(/<p><strong>/g, '<p><strong>')
+    .replace(/<\/strong><\/p>/g, '</strong></p>')
+    // Tables
+    .replace(/\|(.+)\|/g, (match, content) => {
+      const cells = content.split('|').map((cell: string) => cell.trim())
+      return '<tr>' + cells.map((cell: string) => `<td>${cell}</td>`).join('') + '</tr>'
+    })
+    // Lists
+    .replace(/^- (.+)$/gm, '<li>$1</li>')
+    .replace(/(<li>.*<\/li>)/g, '<ul>$1</ul>')
+    // Horizontal rules
+    .replace(/^---$/gm, '<hr>')
+}
+
 // Mock blog posts data with updated content from markdown files
 const mockBlogPostsData: Array<Omit<BlogPost, 'publishedAt' | 'updatedAt'> & {
   publishedAt: string;
@@ -10,7 +44,7 @@ const mockBlogPostsData: Array<Omit<BlogPost, 'publishedAt' | 'updatedAt'> & {
     slug: 'stacje-ladowania-w-polsce-2025',
     title: 'Stacje ładowania w Polsce 2025 – Kompletny przewodnik',
     excerpt: 'Mapa stacji ładowania w Polsce, koszty, aplikacje i praktyczne porady. Ponad 3000 punktów ładowania, sieci Ionity, Orlen, GreenWay. Planowanie tras EV.',
-    content: `# Stacje ładowania w Polsce 2025 – Kompletny przewodnik
+    content: markdownToHtml(`# Stacje ładowania w Polsce 2025 – Kompletny przewodnik
 
 **Infrastruktura ładowania w Polsce rozwija się w ekspresowym tempie!** W 2025 roku mamy już ponad 3000 punktów ładowania w całym kraju. W naszym kompletnym przewodniku znajdziesz wszystko o stacjach ładowania, kosztach, aplikacjach i planowaniu tras dla pojazdów elektrycznych.
 
@@ -103,7 +137,7 @@ const mockBlogPostsData: Array<Omit<BlogPost, 'publishedAt' | 'updatedAt'> & {
 - **Ocena:** ⭐⭐⭐⭐⭐
 - **Zalety:** Najlepsze planowanie tras
 - **Funkcje:** Optymalizacja tras, pogoda
-- **Cena:** Darmowa + Premium (5 €/miesiąc)`,
+- **Cena:** Darmowa + Premium (5 €/miesiąc)`),
     author: 'iViMarket',
     publishedAt: '2024-01-05',
     category: 'Ładowanie',
@@ -120,7 +154,7 @@ const mockBlogPostsData: Array<Omit<BlogPost, 'publishedAt' | 'updatedAt'> & {
     slug: 'jak-ladowac-pojazd-elektryczny-w-domu',
     title: 'Jak ładować pojazd elektryczny w domu? – Kompletny poradnik 2025',
     excerpt: 'Praktyczny poradnik instalacji wallboxa i optymalizacji kosztów ładowania w domu. Wallbox 11 kW, oszczędności do 4000 zł rocznie, najlepsze modele 2025.',
-    content: `# Jak ładować pojazd elektryczny w domu? – Kompletny poradnik 2025
+    content: markdownToHtml(`# Jak ładować pojazd elektryczny w domu? – Kompletny poradnik 2025
 
 **Domowe ładowanie to klucz do wygodnego użytkowania pojazdu elektrycznego!** Wallbox w domu to nie tylko wygoda, ale przede wszystkim znaczące oszczędności. W naszym kompletnym poradniku dowiesz się wszystkiego o instalacji, kosztach i najlepszych rozwiązaniach na 2025 rok.
 
@@ -216,7 +250,7 @@ const mockBlogPostsData: Array<Omit<BlogPost, 'publishedAt' | 'updatedAt'> & {
 **🎯 Zwrot inwestycji:**
 - **Koszt wallboxa:** 5000 zł
 - **Roczne oszczędności:** 3780 zł
-- **Okres zwrotu:** **16 miesięcy**`,
+- **Okres zwrotu:** **16 miesięcy**`),
     author: 'iViMarket',
     publishedAt: '2024-01-10',
     category: 'Ładowanie',
@@ -233,7 +267,7 @@ const mockBlogPostsData: Array<Omit<BlogPost, 'publishedAt' | 'updatedAt'> & {
     slug: 'tesla-model-3-test-2024',
     title: 'Tesla Model 3 – Pełny test 2024',
     excerpt: 'Sprawdziliśmy najnowszą Teslę Model 3 w polskich warunkach. Zasięg 420 km, zaawansowana technologia i doskonały komfort jazdy. Czy to najlepszy elektryczny sedan?',
-    content: `# Tesla Model 3 – Pełny test 2024
+    content: markdownToHtml(`# Tesla Model 3 – Pełny test 2024
 
 **Elektryczny przełom w segmencie premium!** Tesla Model 3 to rewolucyjny sedan elektryczny, który od lat wyznacza standardy w branży EV. W naszym szczegółowym teście sprawdziliśmy, jak najnowsza wersja sprawdza się w polskich warunkach drogowych i klimatycznych.
 
@@ -343,7 +377,7 @@ Tesla Model 3 otrzymuje od nas **9/10 punktów** za doskonałe połączenie zasi
 **⚠️ Może nie być idealna dla:**
 - ❌ Osób preferujących **tradycyjne wnętrze**
 - ❌ Kierowców rzadko korzystających z **funkcji tech**
-- ❌ Użytkowników w obszarach bez **dobrej infrastruktury**`,
+- ❌ Użytkowników w obszarach bez **dobrej infrastruktury**`),
     author: 'iViMarket',
     publishedAt: '2024-01-15',
     category: 'Testy',

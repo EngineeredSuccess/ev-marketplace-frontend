@@ -156,44 +156,22 @@ export default function BlogPage() {
               Polecane artykuły
             </h2>
             
-            {/* Dynamic Layout for Featured Posts */}
-            {featuredPosts.length >= 3 ? (
-              <div style={{
-                display: 'grid',
-                gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
-                gap: '24px',
-                marginBottom: '32px'
-              }}>
-                {/* Main Featured Article - takes full width on mobile */}
-                <div style={{ 
-                  gridColumn: 'span 2',
-                  minHeight: '300px'
+            {/* Simple Grid Layout for Featured Posts */}
+            <div style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))',
+              gap: '32px',
+              marginBottom: '32px'
+            }}>
+              {featuredPosts.map(post => (
+                <div key={post.slug} style={{
+                  display: 'flex',
+                  flexDirection: 'column'
                 }}>
-                  <BlogCard post={featuredPosts[0]} />
+                  <BlogCard post={post} />
                 </div>
-
-                {/* Secondary Featured Articles - stack on mobile */}
-                {featuredPosts.slice(1, 3).map(post => (
-                  <div key={post.slug} style={{ 
-                    minHeight: '200px',
-                    display: 'flex',
-                    flexDirection: 'column'
-                  }}>
-                    <BlogCard post={post} />
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <div style={{
-                display: 'grid',
-                gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
-                gap: '24px'
-              }}>
-                {featuredPosts.map(post => (
-                  <BlogCard key={post.slug} post={post} />
-                ))}
-              </div>
-            )}
+              ))}
+            </div>
           </section>
         )}
 
