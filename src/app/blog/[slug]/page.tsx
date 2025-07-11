@@ -8,6 +8,7 @@ import { Calendar, Clock, User, Share2, Tag } from 'lucide-react'
 import { getPostBySlug, getAllPosts, getRelatedPosts, formatDate } from '@/lib/blog'
 import BlogCard from '@/components/blog/BlogCard'
 import BlogNavigation from '@/components/blog/BlogNavigation'
+import HTMLBlogPost from '@/components/blog/HTMLBlogPost'
 import { BlogPostStructuredData, BreadcrumbStructuredData } from '@/components/seo/StructuredData'
 
 // Force dynamic rendering to avoid serialization issues
@@ -294,10 +295,15 @@ export default function BlogPostPage({ params }: BlogPostPageProps) {
           lineHeight: '1.7',
           color: '#374151'
         }}>
-          <div
-            dangerouslySetInnerHTML={{ __html: post.content }}
-            className="blog-content"
-          />
+          {/* Use HTMLBlogPost for HTML content, fallback to regular content for markdown */}
+          {post.contentType === 'html' ? (
+            <HTMLBlogPost post={post} />
+          ) : (
+            <div
+              dangerouslySetInnerHTML={{ __html: post.content }}
+              className="blog-content"
+            />
+          )}
           <style dangerouslySetInnerHTML={{
             __html: `
               .blog-content h1 {

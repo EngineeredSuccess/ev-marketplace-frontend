@@ -1,4 +1,5 @@
 import { BlogPost } from '@/types/Blog'
+import { processHTMLFile } from '@/utils/markdown'
 
 // Mock blog posts data (replace with your actual posts)
 // Raw blog data with string dates to avoid serialization issues
@@ -206,6 +207,26 @@ Tesla Model 3 to nadal benchmark w segmencie premium EV. Mimo drobnych wad, cał
   },
   {
     slug: 'geely-ex5-elektryczny-suv-polska-premiera-2025',
+    title: 'Geely EX5 – premiera w Polsce 2025',
+    excerpt: 'Geely EX5 już w Q3 2025 w Polsce – 430 km zasięgu WLTP, od 129 900 zł z NaszEauto. Wersje Pro/Max, 5 gwiazdek Euro NCAP, specyfikacja techniczna.',
+    content: '', // Will be loaded from HTML file
+    contentType: 'html', // Indicate this is HTML content
+    htmlFile: '/src/posts/geely-ex5-elektryczny-suv-polska-premiera-2025.html',
+    author: 'iViMarket',
+    publishedAt: '2025-01-11',
+    updatedAt: '2025-01-11',
+    category: 'Samochody elektryczne',
+    tags: ['Geely', 'EX5', 'SUV elektryczny', 'Polska premiera', '2025', 'Jameel Motors', 'Euro NCAP'],
+    readingTime: 12,
+    featured: true,
+    seo: {
+      metaTitle: 'Geely EX5 – polska premiera 2025, specyfikacja i cena | IVI Market',
+      metaDescription: 'Geely EX5 już w Q3 2025 w Polsce – 430 km zasięgu WLTP, od 129 900 zł z NaszEauto. Wersje Pro/Max, 5 gwiazdek Euro NCAP, specyfikacja techniczna.',
+      ogImage: 'https://images.unsplash.com/photo-1593941707882-a5bac6861d75?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80'
+    }
+  },
+  {
+    slug: 'geely-ex5-elektryczny-suv-polska-premiera-2025-md',
     title: 'Geely EX5 – Rewolucyjny Elektryczny SUV Podbija Polskę w 2025!',
     excerpt: '🚗⚡ Elektryczna rewolucja na polskich drogach! Geely EX5 jako gra-zmieniacz premium EV – od 169 900 zł z dopłatą do 40 000 zł.',
     content: `# Geely EX5 – Rewolucyjny Elektryczny SUV Podbija Polskę w 2025!
@@ -358,7 +379,24 @@ export function getAllPosts(): BlogPost[] {
 }
 
 export function getPostBySlug(slug: string): BlogPost | null {
-  return mockBlogPosts.find(post => post.slug === slug) || null
+  const post = mockBlogPosts.find(post => post.slug === slug);
+  
+  if (!post) return null;
+  
+  // If it's an HTML post and content is empty, load the full HTML
+  if (post.contentType === 'html' && !post.content) {
+    // For now, return the post with a placeholder content
+    // In a real app, you'd read the HTML file here
+    return {
+      ...post,
+      content: `<div class="html-content-placeholder">
+        <p>This is an HTML-based blog post. The full content would be loaded from: ${post.htmlFile}</p>
+        <p>This demonstrates the capability to serve native HTML blog posts with full SEO control.</p>
+      </div>`
+    };
+  }
+  
+  return post;
 }
 
 export function getFeaturedPosts(): BlogPost[] {

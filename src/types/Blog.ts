@@ -3,6 +3,8 @@ export interface BlogPost {
   title: string
   excerpt: string
   content: string
+  contentType?: 'markdown' | 'html'
+  htmlFile?: string
   author: string
   publishedAt: Date
   updatedAt?: Date
