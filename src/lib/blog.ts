@@ -409,7 +409,27 @@ Tesla Model 3 otrzymuje od nas **9/10 punktów** za doskonałe połączenie zasi
       metaDescription: 'Geely EX5 już w Q3 2025 w Polsce – 430 km zasięgu WLTP, od 129 900 zł z NaszEauto. Wersje Pro/Max, 5 gwiazdek Euro NCAP, specyfikacja techniczna.',
       ogImage: 'https://images.unsplash.com/photo-1593941707882-a5bac6861d75?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80'
     }
+  },
+  {
+    slug: 'byd-dolphin-surf-elektryczny-maluch',
+    title: 'Czy BYD Dolphin Surf to nowy „Maluch”? Elektryczny SUV, który może zmienić rynek EV w Polsce',
+    excerpt: 'Analiza, czy BYD Dolphin Surf – przystępny cenowo elektryk – może odegrać dla elektromobilności podobną rolę jak Fiat 126p w historii polskiej motoryzacji.',
+    content: '',
+    contentType: 'html' as const,
+    htmlFile: '/src/posts/byd-dolphin-surf-elektryczny-maluch.html',
+    author: 'iViMarket',
+    publishedAt: '2025-07-12',
+    updatedAt: '2025-07-12',
+    category: 'Samochody elektryczne',
+    tags: ['BYD Dolphin Surf', 'samochody elektryczne', 'EV w Polsce', 'elektryczny SUV', 'budżetowe EV'],
+    readingTime: 10,
+    featured: true,
+    seo: {
+      metaTitle: 'BYD Dolphin Surf – Czy to nowy Maluch ery elektromobilności?',
+      metaDescription: 'Czy BYD Dolphin Surf może zostać ikoną elektryfikacji w Polsce? Sprawdź, jak ten przystępny SUV zmienia zasady gry w świecie samochodów elektrycznych.',
+      ogImage: 'https://agymzuliolgopwejswta.supabase.co/storage/v1/object/sign/fotkiblog/37DFDE05-CEC6-4098-8F04-3562A7084B24.png?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV9mNjRiM2IxNy04ZTc2LTQ4YjAtYTRiMi00ODE4OTJjZWM2OTAiLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJmb3RraWJsb2cvMzdERkRFMDUtQ0VDNi00MDk4LThGMDQtMzU2MkE3MDg0QjI0LnBuZyIsImlhdCI6MTc1MjMyNjM2OCwiZXhwIjoyMDY3Njg2MzY4fQ.IGdmN8nwmAdaFWbTylSKinKn0F-6nHPUGRxxU-bws_8'
   }
+}
 ]
 
 // Convert string dates to Date objects and create BlogPost array
