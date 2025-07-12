@@ -125,8 +125,8 @@ const mockBlogPostsData: Array<Omit<BlogPost, 'publishedAt' | 'updatedAt'> & {
     contentType: 'html' as const,
     htmlFile: '/src/posts/byd-dolphin-surf-elektryczny-maluch.html',
     author: 'iViMarket',
-    publishedAt: '2025-07-12',
-    updatedAt: '2025-07-12',
+    publishedAt: '2025-01-12',
+    updatedAt: '2025-01-12',
     category: 'Samochody elektryczne',
     tags: ['BYD Dolphin Surf', 'samochody elektryczne', 'EV w Polsce', 'elektryczny SUV', 'budżetowe EV'],
     readingTime: 10,
@@ -158,16 +158,12 @@ export function getPostBySlug(slug: string): BlogPost | null {
   
   if (!post) return null;
   
-  // If it's an HTML post and content is empty, load the full HTML
+  // If it's an HTML post and content is empty, return the post as-is
+  // The HTMLBlogPost component will handle the content rendering
   if (post.contentType === 'html' && !post.content) {
-    // For now, return the post with a placeholder content
-    // In a real app, you'd read the HTML file here
     return {
       ...post,
-      content: `<div class="html-content-placeholder">
-        <p>This is an HTML-based blog post. The full content would be loaded from: ${post.htmlFile}</p>
-        <p>This demonstrates the capability to serve native HTML blog posts with full SEO control.</p>
-      </div>`
+      content: '' // Empty content - HTMLBlogPost component will handle rendering
     };
   }
   

@@ -256,6 +256,241 @@ const HTMLBlogPost: React.FC<HTMLBlogPostProps> = ({ post }) => {
           <p><em>Historia lubi się powtarzać. Może tym razem zamiast "Malucha" będziemy wspominać "Delfinka"?</em></p>
         </div>
       `;
+    } else if (post.slug === 'stacje-ladowania-w-polsce-2025') {
+      // Charging stations content
+      htmlContent = `
+        <div class="html-blog-container">
+          <div class="key-benefits">
+            <p><strong>Kompletny przewodnik po stacjach ładowania w Polsce 2025!</strong> Mapa ponad 3000 punktów ładowania, koszty, aplikacje i praktyczne porady dla kierowców pojazdów elektrycznych. Wszystko, co musisz wiedzieć o infrastrukturze ładowania EV w Polsce.</p>
+            
+            <h3>Najważniejsze informacje:</h3>
+            <ul>
+              <li>🗺️ <strong>Ponad 3000 punktów ładowania</strong> w całej Polsce</li>
+              <li>💰 <strong>Koszty od 0,60 zł/kWh</strong> w zależności od operatora</li>
+              <li>📱 <strong>Najlepsze aplikacje</strong> do znajdowania stacji</li>
+              <li>⚡ <strong>Ładowanie DC do 350 kW</strong> na autostradach</li>
+              <li>🚗 <strong>Planowanie tras</strong> z uwzględnieniem ładowania</li>
+            </ul>
+          </div>
+
+          <h2>Mapa stacji ładowania w Polsce 2025</h2>
+          
+          <p><strong>Infrastruktura ładowania w Polsce rozwija się w błyskawicznym tempie!</strong> W 2025 roku mamy już ponad 3000 publicznych punktów ładowania, a ich liczba stale rośnie.</p>
+          
+          <h3>🏢 Największe sieci ładowania:</h3>
+          <div class="pricing-table">
+            <table>
+              <thead>
+                <tr>
+                  <th>Operator</th>
+                  <th>Liczba stacji</th>
+                  <th>Moc ładowania</th>
+                  <th>Lokalizacje</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr class="highlight">
+                  <td><strong>PKN Orlen</strong></td>
+                  <td>800+</td>
+                  <td>22-350 kW</td>
+                  <td>Stacje paliw, centra handlowe</td>
+                </tr>
+                <tr>
+                  <td><strong>Ionity</strong></td>
+                  <td>150+</td>
+                  <td>350 kW</td>
+                  <td>Autostrady, drogi ekspresowe</td>
+                </tr>
+                <tr>
+                  <td><strong>GreenWay</strong></td>
+                  <td>400+</td>
+                  <td>22-150 kW</td>
+                  <td>Miasta, centra handlowe</td>
+                </tr>
+                <tr>
+                  <td><strong>Tauron</strong></td>
+                  <td>300+</td>
+                  <td>22-50 kW</td>
+                  <td>Południowa Polska</td>
+                </tr>
+                <tr>
+                  <td><strong>Energa</strong></td>
+                  <td>250+</td>
+                  <td>22-50 kW</td>
+                  <td>Północna Polska</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <h2>Koszty ładowania - cennik 2025</h2>
+          
+          <div class="pricing-table">
+            <h3>Porównanie cen u głównych operatorów</h3>
+            <table>
+              <thead>
+                <tr>
+                  <th>Operator</th>
+                  <th>AC (22 kW)</th>
+                  <th>DC (50 kW)</th>
+                  <th>DC (150+ kW)</th>
+                  <th>Opłata aktywacyjna</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><strong>PKN Orlen</strong></td>
+                  <td>1,20 zł/kWh</td>
+                  <td>1,40 zł/kWh</td>
+                  <td>1,60 zł/kWh</td>
+                  <td>0 zł</td>
+                </tr>
+                <tr class="highlight">
+                  <td><strong>Ionity</strong></td>
+                  <td>-</td>
+                  <td>-</td>
+                  <td>1,89 zł/kWh</td>
+                  <td>0 zł</td>
+                </tr>
+                <tr>
+                  <td><strong>GreenWay</strong></td>
+                  <td>1,10 zł/kWh</td>
+                  <td>1,30 zł/kWh</td>
+                  <td>1,50 zł/kWh</td>
+                  <td>2 zł</td>
+                </tr>
+                <tr>
+                  <td><strong>Tauron</strong></td>
+                  <td>1,15 zł/kWh</td>
+                  <td>1,35 zł/kWh</td>
+                  <td>-</td>
+                  <td>0 zł</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <h2>📱 Najlepsze aplikacje do znajdowania stacji</h2>
+          
+          <div class="recommendation">
+            <h4>Polecane aplikacje mobilne:</h4>
+            <ul>
+              <li>🥇 <strong>PlugShare</strong> - największa baza stacji na świecie</li>
+              <li>🥈 <strong>ChargeMap</strong> - szczegółowe informacje o stacjach</li>
+              <li>🥉 <strong>Electromaps</strong> - planowanie tras z ładowaniem</li>
+              <li>🏆 <strong>ABRP (A Better Route Planner)</strong> - najlepsze planowanie tras</li>
+              <li>🇵🇱 <strong>Orlen Charge</strong> - dedykowana dla stacji Orlen</li>
+            </ul>
+          </div>
+
+          <h2>⚡ Typy ładowania - co musisz wiedzieć</h2>
+          
+          <h3>AC (Prąd przemienny) - ładowanie powolne</h3>
+          <ul>
+            <li><strong>Moc:</strong> 3,7 - 22 kW</li>
+            <li><strong>Czas ładowania:</strong> 4-12 godzin (pełne naładowanie)</li>
+            <li><strong>Zastosowanie:</strong> Dom, praca, długie postoje</li>
+            <li><strong>Koszt:</strong> Najniższy (0,60-1,20 zł/kWh)</li>
+          </ul>
+
+          <h3>DC (Prąd stały) - ładowanie szybkie</h3>
+          <ul>
+            <li><strong>Moc:</strong> 50-350 kW</li>
+            <li><strong>Czas ładowania:</strong> 20-60 minut (80% baterii)</li>
+            <li><strong>Zastosowanie:</strong> Podróże długodystansowe</li>
+            <li><strong>Koszt:</strong> Wyższy (1,30-1,90 zł/kWh)</li>
+          </ul>
+
+          <h2>🗺️ Planowanie tras z ładowaniem</h2>
+          
+          <div class="launch-edition">
+            <h3>💡 Praktyczne wskazówki:</h3>
+            <ul>
+              <li><strong>Planuj z zapasem</strong> - zawsze miej 20% baterii w rezerwie</li>
+              <li><strong>Sprawdzaj dostępność</strong> - niektóre stacje mogą być zajęte</li>
+              <li><strong>Miej plan B</strong> - znajdź alternatywne stacje na trasie</li>
+              <li><strong>Ładuj do 80%</strong> - powyżej tej wartości ładowanie spowalnia</li>
+              <li><strong>Korzystaj z aplikacji</strong> - sprawdzaj ceny i dostępność</li>
+            </ul>
+          </div>
+
+          <h2>🚗 Najlepsze trasy dla pojazdów elektrycznych</h2>
+          
+          <div class="competitive-analysis">
+            <h3>Popularne trasy z dobrą infrastrukturą:</h3>
+            <table>
+              <thead>
+                <tr>
+                  <th>Trasa</th>
+                  <th>Dystans</th>
+                  <th>Stacje ładowania</th>
+                  <th>Czas ładowania</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><strong>Warszawa - Kraków</strong></td>
+                  <td>300 km</td>
+                  <td>15+ stacji</td>
+                  <td>30-45 min</td>
+                </tr>
+                <tr>
+                  <td><strong>Warszawa - Gdańsk</strong></td>
+                  <td>350 km</td>
+                  <td>12+ stacji</td>
+                  <td>30-45 min</td>
+                </tr>
+                <tr class="highlight">
+                  <td><strong>Warszawa - Wrocław</strong></td>
+                  <td>350 km</td>
+                  <td>18+ stacji</td>
+                  <td>30-45 min</td>
+                </tr>
+                <tr>
+                  <td><strong>Kraków - Zakopane</strong></td>
+                  <td>100 km</td>
+                  <td>8+ stacji</td>
+                  <td>20-30 min</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <h2>💰 Jak oszczędzać na ładowaniu?</h2>
+          
+          <div class="recommendation">
+            <h4>Sposoby na niższe koszty:</h4>
+            <ul>
+              <li>🏠 <strong>Ładuj w domu</strong> - najtańsza opcja (0,60-0,80 zł/kWh)</li>
+              <li>🌙 <strong>Korzystaj z taryf nocnych</strong> - do 50% taniej</li>
+              <li>💳 <strong>Karty abonamentowe</strong> - zniżki u operatorów</li>
+              <li>⚡ <strong>Unikaj ultra-szybkiego ładowania</strong> - gdy nie jest konieczne</li>
+              <li>📅 <strong>Planuj ładowanie</strong> - unikaj godzin szczytu</li>
+            </ul>
+          </div>
+
+          <div class="verdict">
+            <p><strong>🎯 Podsumowanie:</strong> Infrastruktura ładowania w Polsce rozwija się dynamicznie. Z ponad 3000 punktów ładowania podróżowanie pojazdem elektrycznym staje się coraz wygodniejsze!</p>
+          </div>
+
+          <div class="cta-section">
+            <h2>🚀 Rozpocznij swoją przygodę z elektromobilnością!</h2>
+            
+            <p><strong>Masz pytania o ładowanie pojazdów elektrycznych? Skontaktuj się z nami!</strong></p>
+            
+            <div class="cta-buttons">
+              <a href="/blog" class="primary-cta">
+                📰 WIĘCEJ PORADNIKÓW EV
+              </a>
+              <a href="/kontakt" class="secondary-cta">
+                💬 ZADAJ PYTANIE
+              </a>
+            </div>
+          </div>
+
+          <p><strong>Stacje ładowania w Polsce 2025 - infrastruktura gotowa na elektryczną rewolucję!</strong></p>
+        </div>
+      `;
     } else {
       // Default fallback for other HTML posts
       htmlContent = `
