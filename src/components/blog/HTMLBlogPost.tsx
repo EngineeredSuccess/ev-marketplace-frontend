@@ -112,148 +112,519 @@ const HTMLBlogPost: React.FC<HTMLBlogPostProps> = ({ post }) => {
         </div>
       `;
     } else if (post.slug === 'byd-dolphin-surf-elektryczny-maluch') {
-      // BYD Dolphin content
+      // BYD Dolphin content - using the provided HTML content
+      htmlContent = `
+        <div class="html-blog-container">
+          <header>
+            <p class="lead">Fiat 126p, znany jako „Maluch", to ikona polskiej motoryzacji. Przystępny cenowo i prosty w konstrukcji, zmotoryzował miliony Polaków. Dziś, w erze transformacji energetycznej, pytanie brzmi: czy <strong>BYD Dolphin Surf</strong>, tani elektryczny SUV segmentu B, może odegrać podobną rolę dla elektromobilności w Polsce?</p>
+          </header>
+
+          <section>
+            <h2>Od „Malucha" do elektrycznej rewolucji</h2>
+            <p>W latach 70. Fiat 126p otworzył drzwi do świata czterech kółek dla przeciętnego Kowalskiego. Dziś, mimo licznych dopłat, samochody elektryczne wciąż postrzegane są jako zbyt drogie, niepraktyczne i wymagające kompromisów.</p>
+            
+            <p>Po koncertowym zaoraniu Izery, polskiego projektu elektrycznego, który miał być naszą narodową dumą w segmencie EV, może chociaż chiński delfin dopomoże w elektromobilności? BYD Dolphin Surf trafia na rynek w momencie, gdy Polacy wciąż szukają swojego pierwszego, sensownego auta na prąd.</p>
+          </section>
+
+          <section>
+            <h2>BYD Dolphin Surf – kompaktowy, ale ambitny</h2>
+            <p>Na polski rynek trafiają dwa różne modele BYD Dolphin – my skupiamy się na wersji <strong>Surf</strong>, mniejszej (399 cm długości), ale lepiej dopasowanej do miejskiej codzienności.</p>
+
+            <p>Model zbudowano na nowoczesnej platformie <strong>E-Platform 3.0</strong>, co zapewnia odpowiedni poziom bezpieczeństwa, zasięg i funkcje znane z droższych modeli EV.</p>
+
+            <h3>Wersje wyposażenia dostępne w Polsce:</h3>
+            <ul>
+              <li><strong>Active:</strong> 30 kWh, 89 KM, zasięg do 220 km</li>
+              <li><strong>Boost:</strong> 43,2 kWh, 89 KM</li>
+              <li><strong>Comfort:</strong> 43,2 kWh, 156 KM, zasięg do 322 km (WLTP)</li>
+            </ul>
+
+            <p><strong>Główni konkurenci:</strong> Dacia Spring, Hyundai Inster, Renault 5, Volkswagen ID.1</p>
+          </section>
+
+          <section>
+            <h2>Dlaczego BYD Dolphin Surf może być „Maluchem" elektryfikacji?</h2>
+
+            <h3>🔌 1. Przystępna cena jak na EV</h3>
+            <p>Startuje od 82 700 zł, a po dopłatach może kosztować nawet 40–50 tys. zł. Leasing i wynajem od 508 zł miesięcznie to już realna opcja dla wielu polskich gospodarstw domowych. To pierwszy raz, kiedy auto elektryczne przestaje być zabawką dla bogaczy.</p>
+
+            <h3>🚗 2. Zaskakująca przestronność</h3>
+            <p>Nie dajcie się zmylić kompaktowym rozmiarom. W środku jest naprawdę dużo miejsca, szczególnie na tylnej kanapie. Fotele są wygodne, często elektrycznie sterowane, a wnętrze robi lepsze wrażenie niż sugeruje cena – mimo obecności twardych plastików tu i ówdzie.</p>
+
+            <h3>🧠 3. Technologia, która nie jest budżetowa</h3>
+            <p>Ekran centralny (który można obracać!), kamery 360°, NFC, ładowarka indukcyjna – to wszystko w aucie za 80 tysięcy. Do tego funkcja V2L i zaawansowane systemy ADAS: aktywny tempomat, monitoring kierowcy, asystent pasa ruchu. Większość aut spalinowych w tej cenie może o tym tylko pomarzyć.</p>
+
+            <h3>🏙️ 4. Stworzony do miasta</h3>
+            <p>Zwrotność jak u małego mieszczucha, komfort jazdy dzięki miękkiemu zawieszeniu i dynamiczne przyspieszenie, które sprawia, że wyprzedzanie w mieście to czysta przyjemność. Idealny do codziennych dojazdów i miejskiego stylu życia.</p>
+          </section>
+
+          <section>
+            <h2>Dlaczego porównanie do „Malucha" nie jest do końca trafne?</h2>
+
+            <h3>💸 1. Nadal nie dla każdego</h3>
+            <p>Nawet po dopłatach cena przekracza możliwości sporej części Polaków. Rynek aut spalinowych, zwłaszcza używanych za 20-30 tysięcy, wciąż dominuje. „Maluch" był dostępny praktycznie dla każdego – Dolphin jeszcze nie.</p>
+
+            <h3>🛣️ 2. Ograniczenia w trasie</h3>
+            <p>Ładowanie trwa 30–40 minut od 10 do 80% baterii – w porządku, ale nie rewolucyjnie. Przy wyższych prędkościach kabina robi się głośna, a komfort na ekspresówkach pozostawia sporo do życzenia.</p>
+
+            <h3>⚙️ 3. Ergonomia i systemy mogą drażnić</h3>
+            <p>Widoczność ograniczona przez grube słupki A i duże lusterka. Klimatyzacja sterowana tylko manualnie, brak intuicyjnych ustawień. Niektóre systemy bezpieczeństwa (jak ISA czy monitoring kierowcy) są zbyt natarczywe i trudne do wyłączenia. Interfejs multimediów skomplikowany, a ekran nie obraca się przy CarPlay – szkoda.</p>
+          </section>
+
+          <section>
+            <h2>Podsumowanie: Rewolucja czy tylko ewolucja?</h2>
+            <p><strong>BYD Dolphin Surf</strong> to pierwszy elektryczny samochód, który naprawdę może konkurować z autami spalinowymi w segmencie budżetowym. Dzięki sensownej cenie, nowoczesnej technologii i zaskakującej przestronności, otwiera drogę do elektromobilności w Polsce.</p>
+            
+            <p>Nie jest jednak odpowiednikiem „Malucha" w pełnym tego słowa znaczeniu – nie zelektryfikuje kraju samodzielnie i nie będzie jedynym wyborem dla wszystkich rodzin. Ale może być tym <strong>punktem zwrotnym</strong>, który zmieni postrzeganie samochodów elektrycznych z drogich zabawek w realną opcję dla zwykłego człowieka.</p>
+            
+            <p>I kto wie? Może tam, gdzie zawiodła Izera, chiński delfin popłynie dalej i pomoże Polakom w końcu wskoczyć na pokład elektromobilności.</p>
+          </section>
+        </div>
+      `;
+    } else if (post.slug === 'tesla-model-3-test-2024') {
+      // Tesla Model 3 content
       htmlContent = `
         <div class="html-blog-container">
           <div class="key-benefits">
-            <p><strong>Czy BYD Dolphin Surf może zostać nowym "Maluchem" ery elektromobilności?</strong> Ten przystępny cenowo elektryczny SUV ma potencjał, by zrewolucjonizować polski rynek EV, podobnie jak Fiat 126p zmienił polską motoryzację w latach 70.</p>
+            <p><strong>Tesla Model 3 – najbardziej rozpoznawalny elektryczny sedan na świecie!</strong> Sprawdziliśmy najnowszą wersję w polskich warunkach. Zasięg 420 km, zaawansowana technologia i doskonały komfort jazdy. Czy to najlepszy elektryczny sedan dostępny w Polsce?</p>
             
-            <h3>Kluczowe zalety BYD Dolphin Surf:</h3>
+            <h3>Kluczowe zalety Tesla Model 3:</h3>
             <ul>
-              <li>💰 <strong>Przystępna cena</strong> - dostępny dla szerokiego grona klientów</li>
-              <li>🔋 <strong>Nowoczesna technologia</strong> - baterie LFP Blade Battery</li>
-              <li>🚗 <strong>Praktyczny rozmiar</strong> - idealny do miasta i rodziny</li>
-              <li>⚡ <strong>Szybkie ładowanie</strong> - wygoda codziennego użytkowania</li>
-              <li>🌱 <strong>Zero emisji</strong> - przyjazny środowisku</li>
+              <li>🚗 <strong>Zasięg do 420 km</strong> w cyklu WLTP</li>
+              <li>⚡ <strong>Przyspieszenie 0-100 km/h</strong> w 6,1 sekundy</li>
+              <li>🔋 <strong>Supercharger</strong> - najszybsza sieć ładowania</li>
+              <li>🤖 <strong>Autopilot</strong> - zaawansowane systemy wspomagania</li>
+              <li>📱 <strong>Over-the-Air</strong> - aktualizacje przez internet</li>
             </ul>
           </div>
 
-          <h2>Dlaczego BYD Dolphin Surf to potencjalny "Maluch" elektromobilności?</h2>
+          <h2>Design i wnętrze - minimalizm w najlepszym wydaniu</h2>
           
-          <p>Podobnie jak Fiat 126p w latach 70., BYD Dolphin Surf może stać się symbolem demokratyzacji motoryzacji - tym razem elektrycznej. Oto dlaczego:</p>
+          <p><strong>Tesla Model 3 to rewolucja w projektowaniu wnętrz samochodowych.</strong> Centralny ekran 15" zastępuje tradycyjne przyciski i pokrętła, oferując intuicyjną obsługę wszystkich funkcji pojazdu.</p>
           
-          <h3>🏭 Masowa produkcja = niskie ceny</h3>
-          <p>BYD, jako największy producent pojazdów elektrycznych na świecie, może oferować konkurencyjne ceny dzięki skali produkcji.</p>
-          
-          <h3>🔧 Prostota i niezawodność</h3>
-          <p>Jak "Maluch" był prosty w obsłudze, tak BYD Dolphin Surf stawia na prostotę użytkowania i niezawodność.</p>
-          
-          <h3>👨‍👩‍👧‍👦 Dostępność dla każdego</h3>
-          <p>Przystępna cena czyni go dostępnym dla przeciętnej polskiej rodziny, podobnie jak kiedyś Fiat 126p.</p>
+          <h3>🎨 Zewnętrzny design:</h3>
+          <ul>
+            <li><strong>Aerodynamika:</strong> Współczynnik oporu powietrza Cd = 0,23</li>
+            <li><strong>Linie:</strong> Eleganckie, sportowe proporcje</li>
+            <li><strong>Oświetlenie:</strong> Pełne LED z charakterystyczną sygnaturą</li>
+            <li><strong>Klamki:</strong> Chowane, poprawiające aerodynamikę</li>
+          </ul>
 
-          <h2>Specyfikacja BYD Dolphin Surf</h2>
+          <h2>Osiągi i dynamika jazdy</h2>
           
           <div class="pricing-table">
-            <h3>Kluczowe parametry</h3>
+            <h3>Specyfikacja techniczna</h3>
             <table>
               <thead>
                 <tr>
                   <th>Parametr</th>
-                  <th>Wartość</th>
-                  <th>Komentarz</th>
+                  <th>Model 3 RWD</th>
+                  <th>Model 3 Long Range</th>
+                  <th>Model 3 Performance</th>
                 </tr>
               </thead>
               <tbody>
                 <tr>
                   <td><strong>Zasięg WLTP</strong></td>
-                  <td>427 km</td>
-                  <td>Wystarczający na codzienne potrzeby</td>
+                  <td>420 km</td>
+                  <td>602 km</td>
+                  <td>547 km</td>
                 </tr>
                 <tr>
-                  <td><strong>Bateria</strong></td>
-                  <td>60,48 kWh</td>
-                  <td>Technologia LFP Blade Battery</td>
+                  <td><strong>Przyspieszenie 0-100</strong></td>
+                  <td>6,1 s</td>
+                  <td>4,4 s</td>
+                  <td>3,3 s</td>
                 </tr>
                 <tr>
-                  <td><strong>Moc</strong></td>
-                  <td>204 KM</td>
-                  <td>Dynamiczna jazda w mieście</td>
+                  <td><strong>Prędkość maksymalna</strong></td>
+                  <td>201 km/h</td>
+                  <td>233 km/h</td>
+                  <td>261 km/h</td>
                 </tr>
                 <tr class="highlight">
-                  <td><strong>Cena szacowana</strong></td>
-                  <td>Od 120 000 zł</td>
-                  <td>Konkurencyjna na rynku EV</td>
+                  <td><strong>Cena od</strong></td>
+                  <td>199 990 zł</td>
+                  <td>249 990 zł</td>
+                  <td>289 990 zł</td>
                 </tr>
               </tbody>
             </table>
           </div>
 
-          <h2>Porównanie: "Maluch" vs BYD Dolphin Surf</h2>
+          <h2>Technologia i systemy wspomagania</h2>
+          
+          <h3>🤖 Autopilot - przyszłość już dziś</h3>
+          <p>Tesla Model 3 wyposażona jest w najbardziej zaawansowane systemy wspomagania kierowcy dostępne na rynku:</p>
+          
+          <ul>
+            <li><strong>Traffic-Aware Cruise Control:</strong> Inteligentny tempomat</li>
+            <li><strong>Autosteer:</strong> Automatyczne prowadzenie w pasie</li>
+            <li><strong>Auto Lane Change:</strong> Automatyczna zmiana pasa</li>
+            <li><strong>Autopark:</strong> Automatyczne parkowanie</li>
+            <li><strong>Summon:</strong> Zdalnie sterowane manewrowanie</li>
+          </ul>
+
+          <h2>Ładowanie i zasięg w praktyce</h2>
+          
+          <div class="recommendation">
+            <h4>Supercharger - najlepsza sieć ładowania:</h4>
+            <ul>
+              <li>⚡ <strong>Moc ładowania:</strong> Do 250 kW</li>
+              <li>⏱️ <strong>Czas ładowania:</strong> 15 minut (10-80%)</li>
+              <li>🗺️ <strong>Dostępność:</strong> Ponad 50 lokalizacji w Polsce</li>
+              <li>💳 <strong>Płatność:</strong> Automatyczna przez aplikację</li>
+            </ul>
+          </div>
+
+          <h3>🔋 Zasięg w różnych warunkach:</h3>
+          <ul>
+            <li><strong>Miasto:</strong> 450-500 km (optymalne warunki)</li>
+            <li><strong>Trasa:</strong> 350-420 km (120 km/h, klimatyzacja)</li>
+            <li><strong>Zima:</strong> 280-350 km (-10°C, ogrzewanie)</li>
+            <li><strong>Lato:</strong> 400-450 km (25°C, klimatyzacja)</li>
+          </ul>
+
+          <h2>Koszty eksploatacji</h2>
           
           <div class="competitive-analysis">
+            <h3>Porównanie kosztów (10 000 km/rok)</h3>
             <table>
               <thead>
                 <tr>
-                  <th>Aspekt</th>
-                  <th>Fiat 126p "Maluch"</th>
-                  <th>BYD Dolphin Surf</th>
+                  <th>Kategoria</th>
+                  <th>Tesla Model 3</th>
+                  <th>BMW 320i</th>
+                  <th>Oszczędność</th>
                 </tr>
               </thead>
               <tbody>
                 <tr>
-                  <td><strong>Era</strong></td>
-                  <td>Lata 70-90</td>
-                  <td>Lata 20. XXI wieku</td>
+                  <td><strong>Paliwo/Energia</strong></td>
+                  <td>2 400 zł</td>
+                  <td>8 500 zł</td>
+                  <td>6 100 zł</td>
                 </tr>
                 <tr>
-                  <td><strong>Rewolucja</strong></td>
-                  <td>Motoryzacja mas</td>
-                  <td>Elektromobilność dla wszystkich</td>
+                  <td><strong>Serwis</strong></td>
+                  <td>800 zł</td>
+                  <td>2 500 zł</td>
+                  <td>1 700 zł</td>
                 </tr>
                 <tr>
-                  <td><strong>Dostępność</strong></td>
-                  <td>Przystępny dla przeciętnej rodziny</td>
-                  <td>Konkurencyjny w segmencie EV</td>
+                  <td><strong>Ubezpieczenie</strong></td>
+                  <td>3 200 zł</td>
+                  <td>2 800 zł</td>
+                  <td>-400 zł</td>
                 </tr>
                 <tr class="highlight">
-                  <td><strong>Wpływ społeczny</strong></td>
-                  <td>Zmienił polską motoryzację</td>
-                  <td>Może zmienić polską elektromobilność</td>
+                  <td><strong>RAZEM</strong></td>
+                  <td>6 400 zł</td>
+                  <td>13 800 zł</td>
+                  <td>7 400 zł</td>
                 </tr>
               </tbody>
             </table>
           </div>
 
-          <h2>Czy BYD Dolphin Surf zmieni polski rynek EV?</h2>
+          <h2>Wady i zalety - szczera ocena</h2>
           
           <div class="recommendation">
-            <h4>Argumenty ZA:</h4>
+            <h4>✅ Zalety:</h4>
             <ul>
-              <li>✅ <strong>Przystępna cena</strong> - dostępny dla szerszego grona</li>
-              <li>✅ <strong>Sprawdzona technologia</strong> - BYD to lider rynku EV</li>
-              <li>✅ <strong>Praktyczność</strong> - idealny rozmiar dla polskich warunków</li>
-              <li>✅ <strong>Infrastruktura</strong> - rosnąca sieć ładowarek</li>
+              <li><strong>Najlepsza technologia</strong> - stale aktualizowana</li>
+              <li><strong>Supercharger</strong> - najwygodniejsze ładowanie</li>
+              <li><strong>Niskie koszty eksploatacji</strong> - oszczędność 7000+ zł/rok</li>
+              <li><strong>Doskonała dynamika</strong> - sportowe osiągi</li>
+              <li><strong>Wartość rezydualna</strong> - wysoka na rynku wtórnym</li>
             </ul>
             
-            <h4>Wyzwania:</h4>
+            <h4>❌ Wady:</h4>
             <ul>
-              <li>⚠️ <strong>Świadomość marki</strong> - BYD dopiero wchodzi na polski rynek</li>
-              <li>⚠️ <strong>Sieć serwisowa</strong> - wymaga rozbudowy</li>
-              <li>⚠️ <strong>Przyzwyczajenia</strong> - Polacy powoli przechodzą na EV</li>
+              <li><strong>Jakość wykończenia</strong> - nierówna, szczególnie w starszych egzemplarzach</li>
+              <li><strong>Serwis</strong> - ograniczona sieć, długie terminy</li>
+              <li><strong>Brak fizycznych przycisków</strong> - wszystko przez ekran</li>
+              <li><strong>Hałas</strong> - słaba izolacja akustyczna</li>
             </ul>
           </div>
 
           <div class="verdict">
-            <p><strong>🎯 Werdykt:</strong> BYD Dolphin Surf ma potencjał stać się "Maluchem" elektromobilności, ale sukces zależy od strategii marketingowej i rozwoju infrastruktury.</p>
+            <p><strong>🎯 Werdykt:</strong> Tesla Model 3 to najlepszy elektryczny sedan dla osób ceniących technologię i dynamikę jazdy. Mimo pewnych wad, oferuje najlepsze połączenie zasięgu, osiągów i infrastruktury ładowania.</p>
           </div>
 
           <div class="cta-section">
-            <h2>🚀 Śledź rozwój elektromobilności w Polsce!</h2>
+            <h2>🚀 Zainteresowany Teslą Model 3?</h2>
             
-            <p><strong>Czy BYD Dolphin Surf rzeczywiście zmieni polski rynek? Czas pokaże!</strong></p>
+            <p><strong>Sprawdź aktualną ofertę i umów jazdę próbną!</strong></p>
             
             <div class="cta-buttons">
-              <a href="/blog" class="primary-cta">
-                📰 WIĘCEJ ARTYKUŁÓW O EV
+              <a href="https://www.tesla.com/pl_pl/model3" class="primary-cta" target="_blank">
+                🚗 KONFIGURUJ TESLĘ
               </a>
-              <a href="/kontakt" class="secondary-cta">
-                💬 PODZIEL SIĘ OPINIĄ
+              <a href="/blog" class="secondary-cta">
+                📰 WIĘCEJ TESTÓW EV
               </a>
             </div>
           </div>
 
-          <p><strong>BYD Dolphin Surf – czy to przyszłość polskiej elektromobilności?</strong></p>
-          <p><em>Historia lubi się powtarzać. Może tym razem zamiast "Malucha" będziemy wspominać "Delfinka"?</em></p>
+          <p><strong>Tesla Model 3 – elektryczny sedan, który zmienił rynek motoryzacyjny na zawsze!</strong></p>
+        </div>
+      `;
+    } else if (post.slug === 'jak-ladowac-pojazd-elektryczny-w-domu') {
+      // Home charging guide content
+      htmlContent = `
+        <div class="html-blog-container">
+          <div class="key-benefits">
+            <p><strong>Ładowanie w domu to podstawa wygodnego użytkowania pojazdu elektrycznego!</strong> Praktyczny poradnik instalacji wallboxa i optymalizacji kosztów ładowania w domu. Wallbox 11 kW, oszczędności do 4000 zł rocznie, najlepsze modele 2025.</p>
+            
+            <h3>Najważniejsze korzyści ładowania domowego:</h3>
+            <ul>
+              <li>💰 <strong>Najniższe koszty</strong> - od 0,60 zł/kWh w taryfie nocnej</li>
+              <li>🏠 <strong>Maksymalna wygoda</strong> - ładowanie podczas snu</li>
+              <li>⚡ <strong>Wallbox 11 kW</strong> - pełne naładowanie w 6-8 godzin</li>
+              <li>📱 <strong>Inteligentne zarządzanie</strong> - aplikacje mobilne</li>
+              <li>🌱 <strong>Energia odnawialna</strong> - połączenie z panelami PV</li>
+            </ul>
+          </div>
+
+          <h2>Rodzaje ładowania domowego</h2>
+          
+          <h3>🔌 1. Ładowanie z gniazdka domowego (230V)</h3>
+          <p><strong>Najprostsze, ale najwolniejsze rozwiązanie.</strong> Wystarczy standardowe gniazdko, ale ładowanie trwa bardzo długo.</p>
+          
+          <ul>
+            <li><strong>Moc:</strong> 2,3 kW (10A) lub 3,7 kW (16A)</li>
+            <li><strong>Czas ładowania:</strong> 20-30 godzin (pełne naładowanie)</li>
+            <li><strong>Koszt instalacji:</strong> 0 zł (wykorzystanie istniejącego gniazdka)</li>
+            <li><strong>Zalecenie:</strong> Tylko w nagłych przypadkach</li>
+          </ul>
+
+          <h3>⚡ 2. Wallbox - najlepsze rozwiązanie domowe</h3>
+          <p><strong>Dedykowana stacja ładowania to inwestycja, która się opłaca.</strong> Szybkie, bezpieczne i wygodne ładowanie.</p>
+          
+          <div class="pricing-table">
+            <h3>Porównanie mocy wallboxów</h3>
+            <table>
+              <thead>
+                <tr>
+                  <th>Moc</th>
+                  <th>Prąd</th>
+                  <th>Czas ładowania (60 kWh)</th>
+                  <th>Zastosowanie</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><strong>3,7 kW</strong></td>
+                  <td>16A (1-faza)</td>
+                  <td>16 godzin</td>
+                  <td>Małe baterie, nocne ładowanie</td>
+                </tr>
+                <tr class="highlight">
+                  <td><strong>7,4 kW</strong></td>
+                  <td>32A (1-faza)</td>
+                  <td>8 godzin</td>
+                  <td>Optymalne dla większości domów</td>
+                </tr>
+                <tr class="highlight">
+                  <td><strong>11 kW</strong></td>
+                  <td>16A (3-fazy)</td>
+                  <td>5,5 godziny</td>
+                  <td>Najlepszy stosunek ceny do wydajności</td>
+                </tr>
+                <tr>
+                  <td><strong>22 kW</strong></td>
+                  <td>32A (3-fazy)</td>
+                  <td>2,7 godziny</td>
+                  <td>Luksusowe rozwiązanie</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <h2>Najlepsze wallboxy 2025 - ranking</h2>
+          
+          <div class="competitive-analysis">
+            <h3>Top 5 wallboxów na polski rynek</h3>
+            <table>
+              <thead>
+                <tr>
+                  <th>Model</th>
+                  <th>Moc</th>
+                  <th>Cena</th>
+                  <th>Funkcje</th>
+                  <th>Ocena</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr class="highlight">
+                  <td><strong>Wallbox Pulsar Plus</strong></td>
+                  <td>11/22 kW</td>
+                  <td>2 500 zł</td>
+                  <td>WiFi, aplikacja, RFID</td>
+                  <td>⭐⭐⭐⭐⭐</td>
+                </tr>
+                <tr>
+                  <td><strong>KEBA KeContact P30</strong></td>
+                  <td>11/22 kW</td>
+                  <td>3 200 zł</td>
+                  <td>Ethernet, MID, RFID</td>
+                  <td>⭐⭐⭐⭐⭐</td>
+                </tr>
+                <tr>
+                  <td><strong>ABB Terra AC</strong></td>
+                  <td>11/22 kW</td>
+                  <td>2 800 zł</td>
+                  <td>4G, aplikacja, OCPP</td>
+                  <td>⭐⭐⭐⭐</td>
+                </tr>
+                <tr>
+                  <td><strong>Easee Home</strong></td>
+                  <td>11/22 kW</td>
+                  <td>2 400 zł</td>
+                  <td>WiFi, load balancing</td>
+                  <td>⭐⭐⭐⭐</td>
+                </tr>
+                <tr>
+                  <td><strong>Tesla Wall Connector</strong></td>
+                  <td>11 kW</td>
+                  <td>2 100 zł</td>
+                  <td>WiFi, tylko Tesla</td>
+                  <td>⭐⭐⭐⭐</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <h2>Koszty instalacji wallboxa</h2>
+          
+          <div class="pricing-table">
+            <h3>Szacunkowe koszty (2025)</h3>
+            <table>
+              <thead>
+                <tr>
+                  <th>Element</th>
+                  <th>Koszt minimalny</th>
+                  <th>Koszt maksymalny</th>
+                  <th>Uwagi</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><strong>Wallbox</strong></td>
+                  <td>2 000 zł</td>
+                  <td>4 000 zł</td>
+                  <td>Zależnie od funkcji</td>
+                </tr>
+                <tr>
+                  <td><strong>Instalacja elektryczna</strong></td>
+                  <td>800 zł</td>
+                  <td>3 000 zł</td>
+                  <td>Zależnie od odległości</td>
+                </tr>
+                <tr>
+                  <td><strong>Rozbudowa instalacji</strong></td>
+                  <td>0 zł</td>
+                  <td>2 000 zł</td>
+                  <td>Jeśli potrzebna</td>
+                </tr>
+                <tr>
+                  <td><strong>Pozwolenia/zgłoszenia</strong></td>
+                  <td>0 zł</td>
+                  <td>500 zł</td>
+                  <td>Dla mocy >11 kW</td>
+                </tr>
+                <tr class="highlight">
+                  <td><strong>RAZEM</strong></td>
+                  <td>2 800 zł</td>
+                  <td>9 500 zł</td>
+                  <td>Średnio: 5 000-6 000 zł</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <h2>Oszczędności - ile można zaoszczędzić?</h2>
+          
+          <div class="recommendation">
+            <h4>💰 Porównanie kosztów ładowania (100 kWh miesięcznie):</h4>
+            <ul>
+              <li>🏠 <strong>Dom (taryfa nocna):</strong> 60 zł/miesiąc (0,60 zł/kWh)</li>
+              <li>🏠 <strong>Dom (taryfa dzienna):</strong> 80 zł/miesiąc (0,80 zł/kWh)</li>
+              <li>🏢 <strong>Praca (AC 22 kW):</strong> 120 zł/miesiąc (1,20 zł/kWh)</li>
+              <li>⚡ <strong>Stacje DC (szybkie):</strong> 150 zł/miesiąc (1,50 zł/kWh)</li>
+            </ul>
+            
+            <p><strong>Roczne oszczędności ładowania w domu vs stacje publiczne: 1 080 zł!</strong></p>
+          </div>
+
+          <h2>Inteligentne funkcje wallboxów</h2>
+          
+          <h3>📱 Aplikacje mobilne</h3>
+          <ul>
+            <li><strong>Zdalne sterowanie:</strong> Start/stop ładowania</li>
+            <li><strong>Harmonogramy:</strong> Ładowanie w najtańszych godzinach</li>
+            <li><strong>Monitoring:</strong> Śledzenie zużycia energii</li>
+            <li><strong>Statystyki:</strong> Raporty kosztów i oszczędności</li>
+          </ul>
+
+          <h3>🌞 Integracja z panelami fotowoltaicznymi</h3>
+          <p>Połączenie wallboxa z instalacją PV to maksymalne oszczędności:</p>
+          <ul>
+            <li><strong>Ładowanie nadwyżkami:</strong> Wykorzystanie własnej energii</li>
+            <li><strong>Koszt energii:</strong> Praktycznie 0 zł/kWh</li>
+            <li><strong>Zwrot inwestycji:</strong> 3-5 lat</li>
+            <li><strong>Niezależność energetyczna:</strong> Mniej zależności od sieci</li>
+          </ul>
+
+          <h2>Krok po kroku - jak zainstalować wallbox?</h2>
+          
+          <div class="launch-edition">
+            <h3>📋 Plan działania:</h3>
+            <ol>
+              <li><strong>Ocena instalacji elektrycznej</strong> - sprawdzenie mocy przyłączeniowej</li>
+              <li><strong>Wybór lokalizacji</strong> - garaż, carport, miejsce parkingowe</li>
+              <li><strong>Wybór wallboxa</strong> - moc, funkcje, budżet</li>
+              <li><strong>Znalezienie elektryka</strong> - certyfikowany instalator</li>
+              <li><strong>Zgłoszenie do operatora</strong> - jeśli wymagane (>11 kW)</li>
+              <li><strong>Instalacja</strong> - montaż i uruchomienie</li>
+              <li><strong>Konfiguracja</strong> - aplikacja, harmonogramy</li>
+            </ol>
+          </div>
+
+          <h2>Najczęstsze błędy przy instalacji</h2>
+          
+          <div class="recommendation">
+            <h4>❌ Czego unikać:</h4>
+            <ul>
+              <li><strong>Za mała moc przyłączeniowa</strong> - sprawdź przed zakupem</li>
+              <li><strong>Zły wybór lokalizacji</strong> - za daleko od tablicy elektrycznej</li>
+              <li><strong>Brak zabezpieczeń</strong> - wyłącznik różnicowoprądowy obowiązkowy</li>
+              <li><strong>Nieodpowiedni kabel</strong> - za cienki przekrój</li>
+              <li><strong>Brak aplikacji</strong> - tracisz inteligentne funkcje</li>
+            </ul>
+          </div>
+
+          <div class="verdict">
+            <p><strong>🎯 Podsumowanie:</strong> Wallbox to najlepsza inwestycja dla właściciela pojazdu elektrycznego. Zwraca się w 2-3 lata dzięki oszczędnościom na ładowaniu i zapewnia maksymalną wygodę użytkowania.</p>
+          </div>
+
+          <div class="cta-section">
+            <h2>🚀 Gotowy na instalację wallboxa?</h2>
+            
+            <p><strong>Skontaktuj się z certyfikowanym instalatorem i zacznij oszczędzać już dziś!</strong></p>
+            
+            <div class="cta-buttons">
+              <a href="/kontakt" class="primary-cta">
+                🔧 ZNAJDŹ INSTALATORA
+              </a>
+              <a href="/blog" class="secondary-cta">
+                📰 WIĘCEJ PORADNIKÓW
+              </a>
+            </div>
+          </div>
+
+          <p><strong>Ładowanie w domu - klucz do wygodnego życia z pojazdem elektrycznym!</strong></p>
         </div>
       `;
     } else if (post.slug === 'stacje-ladowania-w-polsce-2025') {
