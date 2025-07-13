@@ -116,7 +116,7 @@ const HTMLBlogPost: React.FC<HTMLBlogPostProps> = ({ post }) => {
       htmlContent = `
         <div class="html-blog-container">
           <header>
-            <p class="lead">Fiat 126p, znany jako „Maluch", to ikona polskiej motoryzacji. Przystępny cenowo i prosty w konstrukcji, zmotoryzował miliony Polaków. Dziś, w erze transformacji energetycznej, pytanie brzmi: czy <strong>BYD Dolphin Surf</strong>, tani elektryczny SUV segmentu B, może odegrać podobną rolę dla elektromobilności w Polsce?</p>
+            <p class="lead">Fiat 126p, znany jako „Maluch", to ikona polskiej motoryzacji. Przystępny cenowo i prosty w konstrukcji, zmotoryzował miliony Polaków. Dziś, w erze transformacji energetycznej, pytanie brzmi: czy <strong>BYD Dolphin Surf</strong>, tani elektryczny kompakt segmentu B, może odegrać podobną rolę dla elektromobilności w Polsce?</p>
           </header>
 
           <section>

@@ -119,7 +119,7 @@ const mockBlogPostsData: Array<Omit<BlogPost, 'publishedAt' | 'updatedAt'> & {
   },
   {
     slug: 'byd-dolphin-surf-elektryczny-maluch',
-    title: 'Czy BYD Dolphin Surf to nowy „Maluch”? Elektryczny SUV, który może zmienić rynek EV w Polsce',
+    title: 'Czy BYD Dolphin Surf to nowy „Maluch"? Elektryczny kompakt, który może zmienić rynek EV w Polsce', // CHANGED: SUV → kompakt
     excerpt: 'Analiza, czy BYD Dolphin Surf – przystępny cenowo elektryk – może odegrać dla elektromobilności podobną rolę jak Fiat 126p w historii polskiej motoryzacji.',
     content: '',
     contentType: 'html' as const,
@@ -128,12 +128,12 @@ const mockBlogPostsData: Array<Omit<BlogPost, 'publishedAt' | 'updatedAt'> & {
     publishedAt: '2025-01-12',
     updatedAt: '2025-01-12',
     category: 'Samochody elektryczne',
-    tags: ['BYD Dolphin Surf', 'samochody elektryczne', 'EV w Polsce', 'elektryczny SUV', 'budżetowe EV'],
+    tags: ['BYD Dolphin Surf', 'samochody elektryczne', 'EV w Polsce', 'elektryczny kompakt', 'budżetowe EV'], // CHANGED: elektryczny SUV → elektryczny kompakt
     readingTime: 10,
     featured: true,
     seo: {
       metaTitle: 'BYD Dolphin Surf – Czy to nowy Maluch ery elektromobilności?',
-      metaDescription: 'Czy BYD Dolphin Surf może zostać ikoną elektryfikacji w Polsce? Sprawdź, jak ten przystępny SUV zmienia zasady gry w świecie samochodów elektrycznych.',
+      metaDescription: 'Czy BYD Dolphin Surf może zostać ikoną elektryfikacji w Polsce? Sprawdź, jak ten przystępny kompakt zmienia zasady gry w świecie samochodów elektrycznych.', // SHOULD BE CHANGED: SUV → kompakt
       ogImage: 'https://agymzuliolgopwejswta.supabase.co/storage/v1/object/sign/fotkiblog/37DFDE05-CEC6-4098-8F04-3562A7084B24.png?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV9mNjRiM2IxNy04ZTc2LTQ4YjAtYTRiMi00ODE4OTJjZWM2OTAiLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJmb3RraWJsb2cvMzdERkRFMDUtQ0VDNi00MDk4LThGMDQtMzU2MkE3MDg0QjI0LnBuZyIsImlhdCI6MTc1MjMyNjM2OCwiZXhwIjoyMDY3Njg2MzY4fQ.IGdmN8nwmAdaFWbTylSKinKn0F-6nHPUGRxxU-bws_8'
   }
 }
