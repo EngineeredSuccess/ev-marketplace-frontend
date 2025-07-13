@@ -17,7 +17,8 @@ const BlogCard: React.FC<BlogCardProps> = ({ post }) => {
       overflow: 'hidden',
       height: '100%',
       display: 'flex',
-      flexDirection: 'column'
+      flexDirection: 'column',
+      minHeight: '400px' // Ensure minimum height for consistency
     }}>
       
       {/* Featured Badge */}
@@ -42,7 +43,11 @@ const BlogCard: React.FC<BlogCardProps> = ({ post }) => {
       )}
 
       {/* Category */}
-      <div style={{ marginBottom: spacing[4], marginTop: post.featured ? spacing[8] : '0' }}>
+      <div style={{ 
+        marginBottom: spacing[4], 
+        marginTop: post.featured ? spacing[8] : '0',
+        flex: '0 0 auto'
+      }}>
         <span style={{
           display: 'inline-flex',
           alignItems: 'center',
@@ -70,7 +75,8 @@ const BlogCard: React.FC<BlogCardProps> = ({ post }) => {
         WebkitLineClamp: 2,
         WebkitBoxOrient: 'vertical',
         overflow: 'hidden',
-        flex: '0 0 auto'
+        flex: '0 0 auto',
+        minHeight: '2.5em' // Ensure consistent title height
       }}>
         <Link
           href={`/blog/${post.slug}`}
@@ -95,7 +101,8 @@ const BlogCard: React.FC<BlogCardProps> = ({ post }) => {
         WebkitLineClamp: 3,
         WebkitBoxOrient: 'vertical',
         overflow: 'hidden',
-        flex: '1 1 auto'
+        flex: '1 1 auto',
+        minHeight: '4.5em' // Ensure consistent excerpt height
       }}>
         {post.excerpt}
       </p>
@@ -105,7 +112,7 @@ const BlogCard: React.FC<BlogCardProps> = ({ post }) => {
         display: 'flex',
         flexWrap: 'wrap',
         alignItems: 'center',
-        gap: spacing[4],
+        gap: spacing[3],
         fontSize: typography.fontSize.xs,
         color: colors.text.secondary,
         marginBottom: spacing[4],
@@ -134,7 +141,8 @@ const BlogCard: React.FC<BlogCardProps> = ({ post }) => {
           flexWrap: 'wrap',
           gap: spacing[2],
           marginBottom: spacing[5],
-          flex: '0 0 auto'
+          flex: '0 0 auto',
+          minHeight: '2em' // Ensure consistent tag area height
         }}>
           {post.tags.slice(0, 3).map(tag => (
             <span
@@ -168,30 +176,32 @@ const BlogCard: React.FC<BlogCardProps> = ({ post }) => {
       )}
 
       {/* Read More Button */}
-      <Link
-        href={`/blog/${post.slug}`}
-        className="blog-read-more"
-        style={{
-          display: 'inline-flex',
-          alignItems: 'center',
-          padding: `${spacing[3]} ${spacing[5]}`,
-          background: `linear-gradient(135deg, ${colors.primary[500]} 0%, ${colors.primary[600]} 100%)`,
-          color: colors.text.inverse,
-          textDecoration: 'none',
-          fontSize: typography.fontSize.sm,
-          fontWeight: typography.fontWeight.semibold,
-          borderRadius: borderRadius.lg,
-          transition: 'all 0.2s',
-          boxShadow: `0 2px 8px ${colors.primary[500]}33`,
-          flex: '0 0 auto',
-          alignSelf: 'flex-start'
-        }}
-      >
-        Czytaj artykuł
-        <svg style={{ width: '14px', height: '14px', marginLeft: spacing[2] }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-        </svg>
-      </Link>
+      <div style={{ marginTop: 'auto', flex: '0 0 auto' }}>
+        <Link
+          href={`/blog/${post.slug}`}
+          className="blog-read-more"
+          style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            padding: `${spacing[3]} ${spacing[5]}`,
+            background: `linear-gradient(135deg, ${colors.primary[500]} 0%, ${colors.primary[600]} 100%)`,
+            color: colors.text.inverse,
+            textDecoration: 'none',
+            fontSize: typography.fontSize.sm,
+            fontWeight: typography.fontWeight.semibold,
+            borderRadius: borderRadius.lg,
+            transition: 'all 0.2s',
+            boxShadow: `0 2px 8px ${colors.primary[500]}33`,
+            width: '100%',
+            justifyContent: 'center'
+          }}
+        >
+          Czytaj artykuł
+          <svg style={{ width: '14px', height: '14px', marginLeft: spacing[2] }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+          </svg>
+        </Link>
+      </div>
       
       <style dangerouslySetInnerHTML={{
         __html: `
@@ -206,7 +216,23 @@ const BlogCard: React.FC<BlogCardProps> = ({ post }) => {
           
           @media (max-width: 768px) {
             .blog-card {
+              padding: ${spacing[5]} !important;
+              min-height: 350px !important;
+            }
+            
+            .blog-card h2 {
+              font-size: ${typography.fontSize.lg} !important;
+            }
+            
+            .blog-card p {
+              font-size: ${typography.fontSize.xs} !important;
+            }
+          }
+          
+          @media (max-width: 480px) {
+            .blog-card {
               padding: ${spacing[4]} !important;
+              min-height: 320px !important;
             }
           }
         `

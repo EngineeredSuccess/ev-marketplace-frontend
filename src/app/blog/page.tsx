@@ -86,9 +86,17 @@ export default function BlogPage() {
           marginBottom: '32px',
           boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)'
         }}>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+          <div className="search-filters-container" style={{ 
+            display: 'flex', 
+            flexDirection: 'column', 
+            gap: '16px'
+          }}>
             {/* Search */}
-            <div style={{ position: 'relative' }}>
+            <div className="search-input-container" style={{ 
+              position: 'relative',
+              flex: '1',
+              maxWidth: '100%'
+            }}>
               <Search style={{
                 position: 'absolute',
                 left: '12px',
@@ -105,6 +113,7 @@ export default function BlogPage() {
                 onChange={(e) => setSearchQuery(e.target.value)}
                 style={{
                   width: '100%',
+                  maxWidth: '100%',
                   paddingLeft: '40px',
                   paddingRight: '16px',
                   paddingTop: '12px',
@@ -113,13 +122,15 @@ export default function BlogPage() {
                   borderRadius: '12px',
                   fontSize: '14px',
                   outline: 'none',
-                  background: 'white'
+                  background: 'white',
+                  boxSizing: 'border-box'
                 }}
               />
             </div>
 
             {/* Category Filter */}
             <select
+              className="category-select"
               value={selectedCategory}
               onChange={(e) => setSelectedCategory(e.target.value)}
               style={{
@@ -131,7 +142,8 @@ export default function BlogPage() {
                 fontSize: '14px',
                 outline: 'none',
                 background: 'white',
-                cursor: 'pointer'
+                cursor: 'pointer',
+                boxSizing: 'border-box'
               }}
             >
               {categories.map(category => (
@@ -156,17 +168,18 @@ export default function BlogPage() {
               Polecane artykuły
             </h2>
             
-            {/* Simple Grid Layout for Featured Posts */}
+            {/* Improved Grid Layout for Featured Posts with Better Spacing */}
             <div style={{
               display: 'grid',
               gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))',
-              gap: '32px',
+              gap: 'clamp(24px, 4vw, 40px)',
               marginBottom: '32px'
             }}>
               {featuredPosts.map(post => (
-                <div key={post.slug} style={{
+                <div key={post.slug} className="blog-card-container" style={{
                   display: 'flex',
-                  flexDirection: 'column'
+                  flexDirection: 'column',
+                  height: '100%'
                 }}>
                   <BlogCard post={post} />
                 </div>
@@ -209,11 +222,18 @@ export default function BlogPage() {
           {filteredPosts.length > 0 ? (
             <div style={{
               display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
-              gap: '20px'
+              gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
+              gap: 'clamp(24px, 4vw, 32px)',
+              alignItems: 'stretch'
             }}>
               {filteredPosts.map(post => (
-                <BlogCard key={post.slug} post={post} />
+                <div key={post.slug} className="blog-card-container" style={{
+                  display: 'flex',
+                  flexDirection: 'column',
+                  height: '100%'
+                }}>
+                  <BlogCard post={post} />
+                </div>
               ))}
             </div>
           ) : (
@@ -238,6 +258,41 @@ export default function BlogPage() {
           )}
         </section>
       </div>
+
+      {/* Responsive styles */}
+      <style dangerouslySetInnerHTML={{
+        __html: `
+          @media (min-width: 768px) {
+            .search-filters-container {
+              flex-direction: row !important;
+              align-items: center !important;
+            }
+            
+            .search-input-container {
+              flex: 1 !important;
+              margin-right: 16px !important;
+            }
+            
+            .category-select {
+              width: auto !important;
+              min-width: 200px !important;
+            }
+          }
+          
+          @media (max-width: 767px) {
+            .search-input-container input {
+              font-size: 16px !important; /* Prevents zoom on iOS */
+            }
+          }
+          
+          /* Ensure cards have consistent heights */
+          .blog-card-container {
+            display: flex !important;
+            flex-direction: column !important;
+            height: 100% !important;
+          }
+        `
+      }} />
     </div>
   )
 }
