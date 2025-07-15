@@ -110,7 +110,7 @@ export const Navigation: React.FC<NavigationProps> = ({
             {isAuthenticated ? (
               <>
                 <span style={{ color: 'white', fontSize: '14px' }}>
-                  {currentUser?.firstName} {currentUser?.lastName}
+                  {currentUser?.first_name} {currentUser?.last_name}
                 </span>
                 <button 
                   onClick={onLogout}
