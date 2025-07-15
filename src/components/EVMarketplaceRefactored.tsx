@@ -16,19 +16,18 @@ declare global {
 
 interface User {
   id: number;
-  phone: string;
   email: string;
-  firstName: string;
-  lastName: string;
-  isCompany: boolean;
+  first_name: string;
+  last_name: string;
+  is_company: boolean;
   street: string;
   city: string;
-  postalCode: string;
+  postal_code: string;
   country: string;
-  companyName?: string;
+  company_name?: string;
   nip?: string;
-  isVerified: boolean;
-  registrationDate: Date;
+  is_verified: boolean;
+  auth_provider: string;
 }
 
 interface Vehicle {
@@ -156,7 +155,6 @@ export default function EVMarketplace() {
   // Auth form data
   const [authFormData, setAuthFormData] = useState({
     email: '',
-    phone: '',
     firstName: '',
     lastName: '',
     isCompany: false,
@@ -200,16 +198,17 @@ export default function EVMarketplace() {
       setCurrentUser({
         id: Date.now(),
         email: email,
-        firstName: '',
-        lastName: '',
-        isCompany: false,
+        first_name: '',
+        last_name: '',
+        is_company: false,
         street: '',
         city: '',
-        postalCode: '',
+        postal_code: '',
         country: 'Polska',
-        phone: '',
-        isVerified: true,
-        registrationDate: new Date()
+        company_name: '',
+        nip: '',
+        is_verified: true,
+        auth_provider: 'magic_link'
       });
     } else {
       // For registration, proceed to details step
@@ -253,18 +252,17 @@ export default function EVMarketplace() {
       const newUser = {
         id: Date.now(),
         email: authFormData.email,
-        phone: authFormData.phone,
-        firstName: authFormData.firstName,
-        lastName: authFormData.lastName,
-        isCompany: authFormData.isCompany,
+        first_name: authFormData.firstName,
+        last_name: authFormData.lastName,
+        is_company: authFormData.isCompany,
         street: authFormData.street,
         city: authFormData.city,
-        postalCode: authFormData.postalCode,
+        postal_code: authFormData.postalCode,
         country: authFormData.country,
-        companyName: authFormData.isCompany ? authFormData.companyName : undefined,
+        company_name: authFormData.isCompany ? authFormData.companyName : undefined,
         nip: authFormData.isCompany ? authFormData.nip : undefined,
-        isVerified: true,
-        registrationDate: new Date()
+        is_verified: true,
+        auth_provider: 'google'
       };
       
       setCurrentUser(newUser);
@@ -274,7 +272,6 @@ export default function EVMarketplace() {
       // Reset form
       setAuthFormData({
         email: '',
-        phone: '',
         firstName: '',
         lastName: '',
         isCompany: false,
@@ -486,25 +483,6 @@ export default function EVMarketplace() {
                   />
                 </div>
 
-                <div>
-                  <label style={{ display: 'block', fontSize: '14px', fontWeight: '600', color: '#374151', marginBottom: '8px' }}>
-                    Numer telefonu
-                  </label>
-                  <input
-                    type="tel"
-                    placeholder="+48 123 456 789"
-                    value={authFormData.phone}
-                    onChange={(e) => setAuthFormData({...authFormData, phone: e.target.value})}
-                    style={{
-                      width: '100%',
-                      padding: '12px 16px',
-                      border: '2px solid #e5e7eb',
-                      borderRadius: '12px',
-                      fontSize: '14px',
-                      outline: 'none'
-                    }}
-                  />
-                </div>
 
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
                   <div>
@@ -819,7 +797,7 @@ export default function EVMarketplace() {
             {currentUser ? (
               <>
                 <span style={{ color: 'white', fontSize: '14px' }}>
-                  {currentUser?.firstName} {currentUser?.lastName}
+                  {currentUser?.first_name} {currentUser?.last_name}
                 </span>
                 <button 
                   onClick={logout}
