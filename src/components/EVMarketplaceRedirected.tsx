@@ -34,7 +34,6 @@ interface Vehicle {
   heatPump: boolean;
   seller?: {
     name: string;
-    phone: string;
     verified: boolean;
     rating: number;
     isCompany?: boolean;
@@ -70,7 +69,6 @@ const mockVehicles: Vehicle[] = [
     sellerId: 1,
     seller: {
       name: "Jan Kowalski",
-      phone: "+48 123 456 789",
       verified: true,
       rating: 4.8,
       isCompany: false
@@ -101,7 +99,6 @@ const mockVehicles: Vehicle[] = [
     sellerId: 2,
     seller: {
       name: "Anna Nowak",
-      phone: "+48 987 654 321",
       verified: true,
       rating: 4.9,
       isCompany: false
@@ -651,8 +648,8 @@ export default function EVMarketplace() {
                           justifyContent: 'center',
                           gap: '8px'
                         }}>
-                        <Phone style={{ height: '16px', width: '16px' }} />
-                        Zadzwoń: {selectedVehicle.seller.phone}
+                        <Mail style={{ height: '16px', width: '16px' }} />
+                        Wyślij wiadomość
                       </button>
                       <button 
                         style={{
@@ -668,8 +665,8 @@ export default function EVMarketplace() {
                           justifyContent: 'center',
                           gap: '8px'
                         }}>
-                        <Mail style={{ height: '16px', width: '16px' }} />
-                        Wyślij wiadomość
+                        <Phone style={{ height: '16px', width: '16px' }} />
+                        Kontakt
                       </button>
                     </div>
                   </div>
