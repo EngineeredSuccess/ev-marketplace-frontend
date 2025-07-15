@@ -1,17 +1,16 @@
 import { supabase } from '@/lib/supabase'
 import { User } from '@supabase/supabase-js'
-import { smsService } from './smsService'
+import { magicLinkService } from './magicLinkService'
+import { oauthService } from './oauthService'
 
 export interface AuthUser {
   id: string
-  phone?: string
   email?: string
   user_metadata?: any
 }
 
 export interface UserProfile {
   id: number
-  phone: string
   email: string
   first_name: string
   last_name: string
@@ -23,6 +22,7 @@ export interface UserProfile {
   company_name?: string
   nip?: string
   is_verified: boolean
+  auth_provider: string
 }
 
 export const authService = {
@@ -63,7 +63,7 @@ export const authService = {
       .insert({
         id: parseInt(user.id),
         ...profileData,
-        is_verified: true // Phone is already verified through auth
+        is_verified: true // Email/OAuth is already verified
       })
       .select()
       .single()
@@ -97,21 +97,37 @@ export const authService = {
     return data
   },
 
-  // Phone verification methods (delegate to smsService)
-  sendVerificationCode: async (phone: string) => {
-    return await smsService.sendVerificationCode(phone)
+  // Magic link authentication
+  sendMagicLink: async (email: string) => {
+    return await magicLinkService.sendMagicLink(email)
   },
 
-  verifyCode: async (phone: string, code: string) => {
-    return await smsService.verifyCode(phone, code)
+  // OAuth authentication
+  signInWithGoogle: async () => {
+    return await oauthService.signInWithGoogle()
   },
 
-  // Register user (create profile after phone verification)
+  signInWithApple: async () => {
+    return await oauthService.signInWithApple()
+  },
+
+  // Register user (create profile after authentication)
   registerUser: async (userData: any) => {
     try {
+      const { data: { user } } = await supabase.auth.getUser()
+      
+      if (!user) {
+        return {
+          success: false,
+          message: 'No authenticated user found'
+        }
+      }
+
+      // Determine auth provider
+      const authProvider = user.app_metadata?.provider || 'email'
+
       const profile = await authService.createUserProfile({
-        phone: userData.phone,
-        email: userData.email,
+        email: userData.email || user.email || '',
         first_name: userData.firstName,
         last_name: userData.lastName,
         is_company: userData.isCompany,
@@ -120,31 +136,14 @@ export const authService = {
         postal_code: userData.postalCode || '',
         country: userData.country || 'Poland',
         company_name: userData.isCompany ? userData.companyName : undefined,
-        nip: userData.isCompany ? userData.nip : undefined
+        nip: userData.isCompany ? userData.nip : undefined,
+        auth_provider: authProvider
       })
 
       if (profile) {
-        // Convert UserProfile to User format expected by useAuth
-        const user = {
-          id: profile.id,
-          phone: profile.phone,
-          email: profile.email,
-          firstName: profile.first_name,
-          lastName: profile.last_name,
-          isCompany: profile.is_company,
-          street: profile.street,
-          city: profile.city,
-          postalCode: profile.postal_code,
-          country: profile.country,
-          companyName: profile.company_name,
-          nip: profile.nip,
-          isVerified: profile.is_verified,
-          registrationDate: new Date()
-        }
-        
         return {
           success: true,
-          user: user,
+          user: profile,
           profile: profile
         }
       } else {

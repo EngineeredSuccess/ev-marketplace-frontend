@@ -60,53 +60,7 @@ interface Vehicle {
   sellerId: number;
 }
 
-const mockUsers: User[] = [
-  {
-    id: 1,
-    phone: "+48123456789",
-    email: "jan.kowalski@email.com",
-    firstName: "Jan",
-    lastName: "Kowalski",
-    isCompany: false,
-    street: "ul. Marszałkowska 1",
-    city: "Warszawa",
-    postalCode: "00-001",
-    country: "Polska",
-    isVerified: true,
-    registrationDate: new Date('2023-01-15')
-  },
-  {
-    id: 2,
-    phone: "+48987654321", 
-    email: "anna.nowak@email.com",
-    firstName: "Anna",
-    lastName: "Nowak",
-    isCompany: false,
-    street: "ul. Floriańska 10",
-    city: "Kraków",
-    postalCode: "31-019",
-    country: "Polska",
-    isVerified: true,
-    registrationDate: new Date('2023-02-20')
-  },
-  {
-    id: 3,
-    phone: "+48777888999",
-    email: "biuro@autosalonzielinski.pl",
-    firstName: "Katarzyna",
-    lastName: "Zielińska",
-    isCompany: true,
-    companyName: "Auto Salon Zieliński Sp. z o.o.",
-    nip: "1234567890",
-    street: "ul. Przemysłowa 15",
-    city: "Wrocław", 
-    postalCode: "50-001",
-    country: "Polska",
-    isVerified: true,
-    registrationDate: new Date('2022-11-10')
-  }
-];
-
+// Sample data - replace with API calls
 const mockVehicles: Vehicle[] = [
   {
     id: 1,
@@ -169,101 +123,6 @@ const mockVehicles: Vehicle[] = [
       rating: 4.9,
       isCompany: false
     }
-  },
-  {
-    id: 3,
-    make: "Volkswagen",
-    model: "ID.4",
-    year: 2023,
-    price: 200000,
-    batteryCapacity: 77,
-    range: 520,
-    chargingType: "Type 2, CCS",
-    location: "Gdańsk",
-    description: "Ekonomiczny SUV elektryczny, bardzo oszczędny, rodzinny",
-    photos: ["https://images.unsplash.com/photo-1605559424843-9e4c228bf1c2?w=400"],
-    mileage: 15000,
-    batteryType: 'NMC',
-    driveType: 'RWD',
-    powerOutput: 150,
-    maxChargingSpeed: 125,
-    efficiency: 16.1,
-    chargingPorts: ['Type 2', 'CCS'],
-    autopilot: false,
-    heatedSeats: true,
-    heatPump: false,
-    sellerId: 1,
-    seller: {
-      name: "Piotr Wiśniewski",
-      phone: "+48 555 123 456",
-      verified: true,
-      rating: 4.7,
-      isCompany: false
-    }
-  },
-  {
-    id: 4,
-    make: "Audi",
-    model: "e-tron GT",
-    year: 2022,
-    price: 450000,
-    batteryCapacity: 93,
-    range: 450,
-    chargingType: "Type 2, CCS",
-    location: "Wrocław",
-    description: "Sportowy sedan elektryczny, maksymalne osiągi, napęd 4x4",
-    photos: ["https://images.unsplash.com/photo-1544636331-e26879cd4d9b?w=400"],
-    mileage: 18000,
-    batteryType: 'Li-ion',
-    driveType: 'AWD',
-    powerOutput: 350,
-    maxChargingSpeed: 270,
-    efficiency: 19.3,
-    chargingPorts: ['Type 2', 'CCS'],
-    autopilot: false,
-    heatedSeats: true,
-    heatPump: true,
-    sellerId: 3,
-    seller: {
-      name: "Auto Salon Zieliński",
-      phone: "+48 777 888 999",
-      verified: true,
-      rating: 4.6,
-      isCompany: true,
-      companyName: "Auto Salon Zieliński Sp. z o.o."
-    }
-  },
-  {
-    id: 5,
-    make: "BYD",
-    model: "Tang",
-    year: 2023,
-    price: 280000,
-    batteryCapacity: 86,
-    range: 400,
-    chargingType: "Type 2, CCS",
-    location: "Poznań",
-    description: "Chiński SUV premium, bateria LiFePO4, bardzo bezpieczny",
-    photos: ["https://images.unsplash.com/photo-1549399381-f0b1fbb02c07?w=400"],
-    mileage: 8000,
-    batteryType: 'LiFePO4',
-    driveType: 'AWD',
-    powerOutput: 380,
-    maxChargingSpeed: 110,
-    efficiency: 21.5,
-    chargingPorts: ['Type 2', 'CCS'],
-    autopilot: false,
-    heatedSeats: true,
-    heatPump: false,
-    sellerId: 3,
-    seller: {
-      name: "Auto Salon Zieliński",
-      phone: "+48 777 888 999",
-      verified: true,
-      rating: 4.5,
-      isCompany: true,
-      companyName: "Auto Salon Zieliński Sp. z o.o."
-    }
   }
 ];
 
@@ -274,10 +133,10 @@ export default function EVMarketplace() {
   
   // Authentication state
   const [currentUser, setCurrentUser] = useState<User | null>(null);
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [authMode, setAuthMode] = useState<'login' | 'register'>('login');
-  const [phoneVerificationStep, setPhoneVerificationStep] = useState<'phone' | 'code' | 'details'>('phone');
+  const [authStep, setAuthStep] = useState<'auth' | 'details'>('auth');
+  const [authenticatedEmail, setAuthenticatedEmail] = useState('');
   
   const [currentView, setCurrentView] = useState('home');
   const [selectedVehicle, setSelectedVehicle] = useState<Vehicle | null>(null);
@@ -287,20 +146,13 @@ export default function EVMarketplace() {
     make: 'Wszystkie',
     priceRange: 'Wszystkie',
     year: 'Wszystkie',
-    location: 'Wszystkie',
-    batteryType: 'Wszystkie',
-    driveType: 'Wszystkie',
-    rangeCategory: 'Wszystkie',
-    chargingSpeed: 'Wszystkie',
-    batteryCapacity: 'Wszystkie',
-    features: 'Wszystkie'
+    location: 'Wszystkie'
   });
 
   // Auth form data
   const [authFormData, setAuthFormData] = useState({
-    phone: '',
-    verificationCode: '',
     email: '',
+    phone: '',
     firstName: '',
     lastName: '',
     isCompany: false,
@@ -314,53 +166,59 @@ export default function EVMarketplace() {
     marketingConsent: false
   });
 
+  // Simple magic link simulation
+  const handleMagicLinkAuth = () => {
+    const email = prompt('Wprowadź adres email:');
+    if (email) {
+      alert(`Magic link wysłany na: ${email}`);
+      setTimeout(() => {
+        handleAuthSuccess(email);
+      }, 1000);
+    }
+  };
+
+  // Simple OAuth simulation
+  const handleOAuthAuth = (provider: string) => {
+    const email = `user@${provider}.com`;
+    alert(`Logowanie przez ${provider}`);
+    setTimeout(() => {
+      handleAuthSuccess(email);
+    }, 1000);
+  };
+
+  const handleAuthSuccess = (email: string) => {
+    setAuthenticatedEmail(email);
+    setAuthFormData(prev => ({ ...prev, email }));
+    
+    if (authMode === 'login') {
+      // For login, close modal and complete login
+      setShowAuthModal(false);
+      setCurrentUser({
+        id: Date.now(),
+        email: email,
+        firstName: '',
+        lastName: '',
+        isCompany: false,
+        street: '',
+        city: '',
+        postalCode: '',
+        country: 'Polska',
+        phone: '',
+        isVerified: true,
+        registrationDate: new Date()
+      });
+    } else {
+      // For registration, proceed to details step
+      setAuthStep('details');
+    }
+  };
+
   // Initialize dataLayer for GTM
   useEffect(() => {
     if (typeof window !== 'undefined') {
       window.dataLayer = window.dataLayer || [];
     }
   }, []);
-
-  // Track page views when currentView changes
-  useEffect(() => {
-    if (typeof window !== 'undefined' && window.dataLayer) {
-      window.dataLayer.push({
-        event: 'page_view',
-        page_title: currentView === 'home' ? 'Strona główna' : 
-                   currentView === 'browse' ? 'Przeglądaj pojazdy' :
-                   currentView === 'blog' ? 'Blog' :
-                   currentView === 'sell' ? 'Sprzedaj pojazd' :
-                   currentView === 'details' ? 'Szczegóły pojazdu' : currentView,
-        page_location: window.location.href,
-        page_path: `/${currentView}`
-      });
-    }
-  }, [currentView]);
-
-  // Track authentication events
-  const trackAuthEvent = (action: string, method?: string) => {
-    if (typeof window !== 'undefined' && window.dataLayer) {
-      window.dataLayer.push({
-        event: 'auth_action',
-        auth_action: action,
-        auth_method: method || 'phone'
-      });
-    }
-  };
-
-  // Track vehicle interactions
-  const trackVehicleEvent = (action: string, vehicleData?: any) => {
-    if (typeof window !== 'undefined' && window.dataLayer) {
-      window.dataLayer.push({
-        event: 'vehicle_interaction',
-        vehicle_action: action,
-        vehicle_make: vehicleData?.make,
-        vehicle_model: vehicleData?.model,
-        vehicle_price: vehicleData?.price,
-        vehicle_year: vehicleData?.year
-      });
-    }
-  };
 
   const filterVehicles = () => {
     let filtered = vehicles.filter(vehicle => {
@@ -372,19 +230,7 @@ export default function EVMarketplace() {
       const matchesLocation = filters.location === 'Wszystkie' || vehicle.location === filters.location;
       const matchesYear = filters.year === 'Wszystkie' || vehicle.year.toString() === filters.year;
       
-      // Price filter
-      let matchesPrice = true;
-      if (filters.priceRange !== 'Wszystkie') {
-        const [min, max] = filters.priceRange.split('-').map(p => parseInt(p) * 1000);
-        matchesPrice = vehicle.price >= min && (max ? vehicle.price <= max : true);
-      }
-      
-      // EV-specific filters
-      const matchesBatteryType = filters.batteryType === 'Wszystkie' || vehicle.batteryType === filters.batteryType;
-      const matchesDriveType = filters.driveType === 'Wszystkie' || vehicle.driveType === filters.driveType;
-      
-      return matchesSearch && matchesMake && matchesLocation && matchesYear && matchesPrice &&
-             matchesBatteryType && matchesDriveType;
+      return matchesSearch && matchesMake && matchesLocation && matchesYear;
     });
     
     setFilteredVehicles(filtered);
@@ -394,94 +240,63 @@ export default function EVMarketplace() {
     filterVehicles();
   }, [searchTerm, filters, vehicles]);
 
-  // Authentication functions
-  const sendVerificationCode = () => {
-    setLoading(true);
-    trackAuthEvent('verification_code_sent');
-    setTimeout(() => {
-      setLoading(false);
-      setPhoneVerificationStep('code');
-    }, 2000);
-  };
-
-  const verifyCode = () => {
-    setLoading(true);
-    setTimeout(() => {
-      setLoading(false);
-      if (authFormData.verificationCode === '123456') {
-        const existingUser = mockUsers.find(u => u.phone === authFormData.phone);
-        if (existingUser && authMode === 'login') {
-          setCurrentUser(existingUser);
-          setIsAuthenticated(true);
-          setShowAuthModal(false);
-          setPhoneVerificationStep('phone');
-          trackAuthEvent('login_success');
-        } else if (authMode === 'register') {
-          setPhoneVerificationStep('details');
-          trackAuthEvent('verification_success');
-        }
-      } else {
-        alert('Nieprawidłowy kod weryfikacyjny');
-        trackAuthEvent('verification_failed');
-      }
-    }, 1000);
-  };
-
   const completeRegistration = () => {
     setLoading(true);
+    
     setTimeout(() => {
-      const newUser: User = {
-        id: mockUsers.length + 1,
-        phone: authFormData.phone,
+      setLoading(false);
+      
+      const newUser = {
+        id: Date.now(),
         email: authFormData.email,
+        phone: authFormData.phone,
         firstName: authFormData.firstName,
         lastName: authFormData.lastName,
         isCompany: authFormData.isCompany,
-        companyName: authFormData.companyName,
-        nip: authFormData.nip,
         street: authFormData.street,
         city: authFormData.city,
         postalCode: authFormData.postalCode,
         country: authFormData.country,
+        companyName: authFormData.isCompany ? authFormData.companyName : undefined,
+        nip: authFormData.isCompany ? authFormData.nip : undefined,
         isVerified: true,
         registrationDate: new Date()
       };
       
       setCurrentUser(newUser);
-      setIsAuthenticated(true);
       setShowAuthModal(false);
-      setPhoneVerificationStep('phone');
-      setLoading(false);
-      trackAuthEvent('registration_complete', authFormData.isCompany ? 'company' : 'individual');
+      setAuthStep('auth');
+      
+      // Reset form
+      setAuthFormData({
+        email: '',
+        phone: '',
+        firstName: '',
+        lastName: '',
+        isCompany: false,
+        companyName: '',
+        nip: '',
+        street: '',
+        city: '',
+        postalCode: '',
+        country: 'Polska',
+        gdprConsent: false,
+        marketingConsent: false
+      });
     }, 2000);
   };
 
   const logout = () => {
     setCurrentUser(null);
-    setIsAuthenticated(false);
     setCurrentView('home');
-    trackAuthEvent('logout');
   };
 
   const handleSellClick = () => {
-    trackVehicleEvent('sell_intent');
-    if (!isAuthenticated) {
+    if (!currentUser) {
       setAuthMode('register');
       setShowAuthModal(true);
     } else {
       setCurrentView('sell');
-    }
-  };
-
-  // Track search events
-  const handleSearch = () => {
-    if (typeof window !== 'undefined' && window.dataLayer) {
-      window.dataLayer.push({
-        event: 'search',
-        search_term: searchTerm,
-        search_filters: Object.entries(filters).filter(([key, value]) => value !== 'Wszystkie'),
-        search_results_count: filteredVehicles.length
-      });
     }
   };
 
@@ -517,7 +332,7 @@ export default function EVMarketplace() {
             <button
               onClick={() => {
                 setShowAuthModal(false);
-                setPhoneVerificationStep('phone');
+                setAuthStep('auth');
               }}
               style={{
                 background: 'none',
@@ -531,55 +346,90 @@ export default function EVMarketplace() {
             </button>
           </div>
 
-          {phoneVerificationStep === 'phone' && (
+          {authStep === 'auth' && (
             <div>
               <div style={{ textAlign: 'center', marginBottom: '24px' }}>
-                <Phone style={{ height: '48px', width: '48px', color: '#10b981', margin: '0 auto 16px' }} />
+                <Mail style={{ height: '48px', width: '48px', color: '#10b981', margin: '0 auto 16px' }} />
                 <p style={{ color: '#6b7280' }}>
                   {authMode === 'login' 
-                    ? 'Podaj numer telefonu, aby się zalogować'
-                    : 'Podaj numer telefonu, aby rozpocząć rejestrację'
+                    ? 'Zaloguj się za pomocą magic link lub konta społecznościowego'
+                    : 'Zarejestruj się za pomocą magic link lub konta społecznościowego'
                   }
                 </p>
               </div>
 
-              <div style={{ marginBottom: '20px' }}>
-                <label style={{ display: 'block', fontSize: '14px', fontWeight: '600', color: '#374151', marginBottom: '8px' }}>
-                  Numer telefonu
-                </label>
-                <input
-                  type="tel"
-                  placeholder="+48 123 456 789"
-                  value={authFormData.phone}
-                  onChange={(e) => setAuthFormData({...authFormData, phone: e.target.value})}
-                  style={{
-                    width: '100%',
-                    padding: '12px 16px',
-                    border: '2px solid #e5e7eb',
-                    borderRadius: '12px',
-                    fontSize: '16px',
-                    outline: 'none'
-                  }}
-                />
-              </div>
-
+              {/* Magic Link Form */}
               <button
-                onClick={sendVerificationCode}
-                disabled={loading || !authFormData.phone}
+                onClick={handleMagicLinkAuth}
                 style={{
                   width: '100%',
-                  background: loading ? '#9ca3af' : 'linear-gradient(135deg, #10b981, #059669)',
+                  background: 'linear-gradient(135deg, #10b981, #059669)',
                   color: 'white',
                   border: 'none',
                   padding: '14px',
                   borderRadius: '12px',
                   fontSize: '16px',
                   fontWeight: '600',
-                  cursor: loading ? 'not-allowed' : 'pointer'
+                  cursor: 'pointer',
+                  marginBottom: '16px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '8px'
                 }}
               >
-                {loading ? 'Wysyłanie...' : 'Wyślij kod weryfikacyjny'}
+                <Mail style={{ height: '18px', width: '18px' }} />
+                Wyślij Magic Link
               </button>
+              
+              <div style={{ margin: '16px 0', textAlign: 'center', color: '#6b7280' }}>
+                lub
+              </div>
+              
+              {/* OAuth Buttons */}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                <button
+                  onClick={() => handleOAuthAuth('Google')}
+                  style={{
+                    width: '100%',
+                    background: '#4285f4',
+                    color: 'white',
+                    border: 'none',
+                    padding: '12px',
+                    borderRadius: '12px',
+                    fontSize: '14px',
+                    fontWeight: '600',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '8px'
+                  }}
+                >
+                  🔍 Kontynuuj z Google
+                </button>
+                
+                <button
+                  onClick={() => handleOAuthAuth('Apple')}
+                  style={{
+                    width: '100%',
+                    background: '#000000',
+                    color: 'white',
+                    border: 'none',
+                    padding: '12px',
+                    borderRadius: '12px',
+                    fontSize: '14px',
+                    fontWeight: '600',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '8px'
+                  }}
+                >
+                  🍎 Kontynuuj z Apple
+                </button>
+              </div>
 
               <div style={{ textAlign: 'center', marginTop: '16px' }}>
                 <button
@@ -599,62 +449,7 @@ export default function EVMarketplace() {
             </div>
           )}
 
-          {phoneVerificationStep === 'code' && (
-            <div>
-              <div style={{ textAlign: 'center', marginBottom: '24px' }}>
-                <Shield style={{ height: '48px', width: '48px', color: '#10b981', margin: '0 auto 16px' }} />
-                <p style={{ color: '#6b7280' }}>
-                  Wysłaliśmy kod weryfikacyjny na numer<br />
-                  <strong>{authFormData.phone}</strong>
-                </p>
-                <p style={{ fontSize: '12px', color: '#9ca3af', marginTop: '8px' }}>
-                  Demo: użyj kodu <strong>123456</strong>
-                </p>
-              </div>
-
-              <div style={{ marginBottom: '20px' }}>
-                <label style={{ display: 'block', fontSize: '14px', fontWeight: '600', color: '#374151', marginBottom: '8px' }}>
-                  Kod weryfikacyjny
-                </label>
-                <input
-                  type="text"
-                  placeholder="123456"
-                  value={authFormData.verificationCode}
-                  onChange={(e) => setAuthFormData({...authFormData, verificationCode: e.target.value})}
-                  style={{
-                    width: '100%',
-                    padding: '12px 16px',
-                    border: '2px solid #e5e7eb',
-                    borderRadius: '12px',
-                    fontSize: '20px',
-                    outline: 'none',
-                    textAlign: 'center',
-                    letterSpacing: '0.2em'
-                  }}
-                />
-              </div>
-
-              <button
-                onClick={verifyCode}
-                disabled={loading || !authFormData.verificationCode}
-                style={{
-                  width: '100%',
-                  background: loading ? '#9ca3af' : 'linear-gradient(135deg, #10b981, #059669)',
-                  color: 'white',
-                  border: 'none',
-                  padding: '14px',
-                  borderRadius: '12px',
-                  fontSize: '16px',
-                  fontWeight: '600',
-                  cursor: loading ? 'not-allowed' : 'pointer'
-                }}
-              >
-                {loading ? 'Weryfikowanie...' : 'Zweryfikuj kod'}
-              </button>
-            </div>
-          )}
-
-          {phoneVerificationStep === 'details' && authMode === 'register' && (
+          {authStep === 'details' && authMode === 'register' && (
             <div>
               <div style={{ textAlign: 'center', marginBottom: '24px' }}>
                 <User style={{ height: '48px', width: '48px', color: '#10b981', margin: '0 auto 16px' }} />
@@ -673,6 +468,27 @@ export default function EVMarketplace() {
                     placeholder="twoj@email.com"
                     value={authFormData.email}
                     onChange={(e) => setAuthFormData({...authFormData, email: e.target.value})}
+                    style={{
+                      width: '100%',
+                      padding: '12px 16px',
+                      border: '2px solid #e5e7eb',
+                      borderRadius: '12px',
+                      fontSize: '14px',
+                      outline: 'none'
+                    }}
+                    disabled
+                  />
+                </div>
+
+                <div>
+                  <label style={{ display: 'block', fontSize: '14px', fontWeight: '600', color: '#374151', marginBottom: '8px' }}>
+                    Numer telefonu
+                  </label>
+                  <input
+                    type="tel"
+                    placeholder="+48 123 456 789"
+                    value={authFormData.phone}
+                    onChange={(e) => setAuthFormData({...authFormData, phone: e.target.value})}
                     style={{
                       width: '100%',
                       padding: '12px 16px',
@@ -880,23 +696,7 @@ export default function EVMarketplace() {
                         }}
                       />
                       <span style={{ color: '#374151' }}>
-                        <strong>Wymagane:</strong> Wyrażam zgodę na przetwarzanie moich danych osobowych przez iVi Market w celu realizacji usług marketplace pojazdów elektrycznych zgodnie z{' '}
-                        <button
-                          type="button"
-                          onClick={() => setCurrentView('privacy')}
-                          style={{
-                            background: 'none',
-                            border: 'none',
-                            color: '#10b981',
-                            textDecoration: 'underline',
-                            cursor: 'pointer',
-                            fontSize: '13px',
-                            padding: '0'
-                          }}
-                        >
-                          Polityką Prywatności
-                        </button>
-                        .
+                        <strong>Wymagane:</strong> Wyrażam zgodę na przetwarzanie moich danych osobowych przez iVi Market w celu realizacji usług marketplace pojazdów elektrycznych.
                       </span>
                     </label>
                     
@@ -966,15 +766,7 @@ export default function EVMarketplace() {
               alignItems: 'center',
               justifyContent: 'center'
             }}>
-              <img
-                src="/logo.svg"
-                alt="iVi Market Logo"
-                style={{
-                  width: '24px',
-                  height: '24px',
-                  objectFit: 'contain'
-                }}
-              />
+              <Car style={{ height: '24px', width: '24px', color: 'white' }} />
             </div>
             <span style={{ 
               fontSize: '24px', 
@@ -1018,7 +810,7 @@ export default function EVMarketplace() {
           </div>
 
           <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
-            {isAuthenticated ? (
+            {currentUser ? (
               <>
                 <span style={{ color: 'white', fontSize: '14px' }}>
                   {currentUser?.firstName} {currentUser?.lastName}
@@ -1128,9 +920,9 @@ export default function EVMarketplace() {
         marginBottom: '20px'
       }}>
         {[
-          { key: 'make', label: 'Wszystkie marki', options: ['Wszystkie', 'Tesla', 'BMW', 'Audi', 'Volkswagen', 'BYD'] },
-          { key: 'location', label: 'Wszystkie lokalizacje', options: ['Wszystkie', 'Warszawa', 'Kraków', 'Gdańsk', 'Wrocław', 'Poznań'] },
-          { key: 'year', label: 'Wszystkie roczniki', options: ['Wszystkie', '2024', '2023', '2022', '2021', '2020'] }
+          { key: 'make', label: 'Wszystkie marki', options: ['Wszystkie', 'Tesla', 'BMW', 'Audi', 'Volkswagen'] },
+          { key: 'location', label: 'Wszystkie lokalizacje', options: ['Wszystkie', 'Warszawa', 'Kraków', 'Gdańsk', 'Wrocław'] },
+          { key: 'year', label: 'Wszystkie roczniki', options: ['Wszystkie', '2024', '2023', '2022', '2021'] }
         ].map(({ key, label, options }) => (
           <select
             key={key}
@@ -1156,7 +948,6 @@ export default function EVMarketplace() {
       </div>
 
       <button 
-        onClick={handleSearch}
         style={{
           background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
           color: 'white',
@@ -1265,7 +1056,6 @@ export default function EVMarketplace() {
 
         <button
           onClick={() => {
-            trackVehicleEvent('view_details', vehicle);
             setSelectedVehicle(vehicle);
             setCurrentView('details');
           }}
@@ -1369,34 +1159,6 @@ export default function EVMarketplace() {
       <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '60px 20px' }}>
         <SearchBar />
         
-        <div style={{ 
-          display: 'grid', 
-          gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', 
-          gap: '32px', 
-          marginBottom: '60px' 
-        }}>
-          {[
-            { number: `${vehicles.length}+`, label: 'Dostępnych pojazdów' },
-            { number: '500+', label: 'Zadowolonych klientów' },
-            { number: '50+', label: 'Miast w Polsce' },
-            { number: '450km', label: 'Średni zasięg' }
-          ].map(({ number, label }, index) => (
-            <div key={index} style={{ textAlign: 'center' }}>
-              <div style={{ 
-                fontSize: '36px', 
-                fontWeight: '800', 
-                background: 'linear-gradient(135deg, #10b981, #059669)',
-                WebkitBackgroundClip: 'text',
-                WebkitTextFillColor: 'transparent',
-                marginBottom: '8px'
-              }}>
-                {number}
-              </div>
-              <div style={{ color: '#6b7280', fontSize: '16px' }}>{label}</div>
-            </div>
-          ))}
-        </div>
-
         <div style={{ marginBottom: '60px' }}>
           <h2 style={{ 
             fontSize: '36px', 
@@ -1543,7 +1305,6 @@ export default function EVMarketplace() {
                     
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                       <button 
-                        onClick={() => trackVehicleEvent('contact_seller_phone', selectedVehicle)}
                         style={{
                           background: 'linear-gradient(135deg, #10b981, #059669)',
                           color: 'white',
@@ -1561,7 +1322,6 @@ export default function EVMarketplace() {
                         Zadzwoń: {selectedVehicle.seller.phone}
                       </button>
                       <button 
-                        onClick={() => trackVehicleEvent('contact_seller_email', selectedVehicle)}
                         style={{
                           background: '#6b7280',
                           color: 'white',
@@ -1599,7 +1359,7 @@ export default function EVMarketplace() {
   };
 
   const SellPage = () => {
-    if (!isAuthenticated) {
+    if (!currentUser) {
       return (
         <div style={{ maxWidth: '600px', margin: '0 auto', padding: '40px 20px', textAlign: 'center' }}>
           <div style={{
@@ -1654,598 +1414,26 @@ export default function EVMarketplace() {
           borderRadius: '20px',
           padding: '32px'
         }}>
-          <form style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
-              <div>
-                <label style={{ display: 'block', fontSize: '14px', fontWeight: '600', color: '#374151', marginBottom: '8px' }}>
-                  Marka *
-                </label>
-                <select style={{
-                  width: '100%',
-                  padding: '12px 16px',
-                  border: '2px solid #e5e7eb',
-                  borderRadius: '12px',
-                  fontSize: '14px',
-                  outline: 'none',
-                  background: 'white'
-                }}>
-                  <option>Wybierz markę</option>
-                  <option>Tesla</option>
-                  <option>BMW</option>
-                  <option>Audi</option>
-                  <option>Volkswagen</option>
-                </select>
-              </div>
-              
-              <div>
-                <label style={{ display: 'block', fontSize: '14px', fontWeight: '600', color: '#374151', marginBottom: '8px' }}>
-                  Model *
-                </label>
-                <input
-                  type="text"
-                  placeholder="np. Model 3, iX3, e-tron"
-                  style={{
-                    width: '100%',
-                    padding: '12px 16px',
-                    border: '2px solid #e5e7eb',
-                    borderRadius: '12px',
-                    fontSize: '14px',
-                    outline: 'none',
-                    background: 'white'
-                  }}
-                />
-              </div>
-            </div>
-
-            <div>
-              <label style={{ display: 'block', fontSize: '14px', fontWeight: '600', color: '#374151', marginBottom: '8px' }}>
-                Opis pojazdu *
-              </label>
-              <textarea
-                rows={4}
-                placeholder="Opisz szczegółowo stan pojazdu..."
-                style={{
-                  width: '100%',
-                  padding: '12px 16px',
-                  border: '2px solid #e5e7eb',
-                  borderRadius: '12px',
-                  fontSize: '14px',
-                  outline: 'none',
-                  background: 'white',
-                  resize: 'vertical'
-                }}
-              />
-            </div>
-
-            <button
-              type="submit"
-              style={{
-                background: 'linear-gradient(135deg, #10b981, #059669)',
-                color: 'white',
-                border: 'none',
-                padding: '16px 24px',
-                borderRadius: '12px',
-                fontSize: '16px',
-                fontWeight: '700',
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                gap: '8px'
-              }}
-            >
-              <Car style={{ height: '18px', width: '18px' }} />
-              Dodaj ogłoszenie
-            </button>
-          </form>
-        </div>
-      </div>
-    );
-  };
-
-  const BlogPage = () => {
-    // Blog posts data with markdown content converted to HTML
-    const blogPosts = [
-      {
-        id: 1,
-        title: "Tesla Model 3 - Pełny test 2024",
-        excerpt: "Sprawdziliśmy najnowszą Teslę Model 3 w polskich warunkach. Zasięg, komfort i technologia.",
-        date: "2024-01-15",
-        author: "Zespół iVi Market",
-        image: "https://images.unsplash.com/photo-1560958089-b8a1929cea89?w=600",
-        slug: "tesla-model-3-test-2024",
-        tags: ["tesla", "test", "ev", "recenzja"],
-        content: `
-          <h1>Tesla Model 3 - Pełny test 2024</h1>
-          
-          <img src="https://images.unsplash.com/photo-1560958089-b8a1929cea89?w=800" alt="Tesla Model 3" style="width: 100%; height: 300px; object-fit: cover; border-radius: 12px; margin-bottom: 24px;" />
-          
-          <h2>Wprowadzenie</h2>
-          <p>Tesla Model 3 to jeden z najpopularniejszych pojazdów elektrycznych na świecie. W naszym szczegółowym teście sprawdziliśmy, jak sprawdza się w polskich warunkach drogowych i klimatycznych.</p>
-          
-          <h2>Zasięg i bateria</h2>
-          <p>W testach uzyskaliśmy zasięg <strong>420 km</strong> w mieszanych warunkach jazdy:</p>
-          <ul>
-            <li>Miasto: 480 km</li>
-            <li>Trasa: 380 km</li>
-            <li>Zima (-5°C): 340 km</li>
-          </ul>
-          
-          <p>Bateria o pojemności <strong>75 kWh</strong> zapewnia wystarczającą autonomię na większość zastosowań.</p>
-          
-          <img src="https://images.unsplash.com/photo-1593941707882-a5bac6861d75?w=600" alt="Ładowanie Tesla" style="width: 100%; height: 250px; object-fit: cover; border-radius: 12px; margin: 24px 0;" />
-          
-          <h2>Komfort jazdy</h2>
-          <ul>
-            <li>Zawieszenie dostosowane do europejskich dróg</li>
-            <li>Kabina przestronna i dobrze wyciszona</li>
-            <li>Minimalistyczne wnętrze z ekranem dotykowym 15"</li>
-          </ul>
-          
-          <h2>Technologia</h2>
-          <p><strong>Autopilot</strong> działa dobrze na autostradach, ale wymaga uwagi w mieście. <strong>Over-the-air updates</strong> regularnie dodają nowe funkcje.</p>
-          
-          <h2>Podsumowanie</h2>
-          <p>Tesla Model 3 to doskonały wybór dla osób szukających:</p>
-          <ul>
-            <li>Praktycznego pojazdu elektrycznego</li>
-            <li>Zaawansowanej technologii</li>
-            <li>Dobrego stosunku jakości do ceny</li>
-          </ul>
-          
-          <p><strong>Ocena: 9/10</strong></p>
-        `
-      },
-      {
-        id: 2,
-        title: "Jak ładować pojazd elektryczny w domu?",
-        excerpt: "Praktyczny poradnik instalacji wallboxa i optymalizacji kosztów ładowania w domu.",
-        date: "2024-01-10",
-        author: "Ekspert iVi Market",
-        image: "https://images.unsplash.com/photo-1593941707882-a5bac6861d75?w=600",
-        slug: "jak-ladowac-pojazd-elektryczny-w-domu",
-        tags: ["ładowanie", "wallbox", "dom", "poradnik"],
-        content: `
-          <h1>Jak ładować pojazd elektryczny w domu?</h1>
-          
-          <img src="https://images.unsplash.com/photo-1593941707882-a5bac6861d75?w=800" alt="Ładowanie w domu" style="width: 100%; height: 300px; object-fit: cover; border-radius: 12px; margin-bottom: 24px;" />
-          
-          <h2>Rodzaje ładowarek domowych</h2>
-          
-          <h3>1. Gniazdko 230V (2,3 kW)</h3>
-          <ul>
-            <li>Najwolniejsze ładowanie</li>
-            <li>Nie wymaga dodatkowej instalacji</li>
-            <li>Czas ładowania: 24-36 godzin</li>
-          </ul>
-          
-          <h3>2. Wallbox AC (7,4-22 kW)</h3>
-          <ul>
-            <li><strong>Najlepsze rozwiązanie</strong> dla większości użytkowników</li>
-            <li>Wymaga instalacji przez elektryka</li>
-            <li>Czas ładowania: 4-8 godzin</li>
-          </ul>
-          
-          <h3>3. Ładowarka DC (50+ kW)</h3>
-          <ul>
-            <li>Bardzo szybkie ładowanie</li>
-            <li>Drogie w instalacji</li>
-            <li>Głównie dla flot i stacji publicznych</li>
-          </ul>
-          
-          <h2>Instalacja wallboxa</h2>
-          
-          <img src="https://images.unsplash.com/photo-1586953208448-b95a79798f07?w=600" alt="Wallbox" style="width: 100%; height: 250px; object-fit: cover; border-radius: 12px; margin: 24px 0;" />
-          
-          <h3>Wymagania:</h3>
-          <ul>
-            <li>Przyłącze elektryczne min. 25A</li>
-            <li>Instalacja przez uprawnionego elektryka</li>
-            <li>Ubezpieczenie od przepięć</li>
-            <li>Możliwość montażu w garażu/na zewnątrz</li>
-          </ul>
-          
-          <h3>Koszty:</h3>
-          <ul>
-            <li>Wallbox: 2,000-5,000 zł</li>
-            <li>Instalacja: 1,000-2,000 zł</li>
-            <li><strong>Łącznie: 3,000-7,000 zł</strong></li>
-          </ul>
-          
-          <h2>Koszty i oszczędności</h2>
-          
-          <h3>Taryfa domowa vs stacje publiczne:</h3>
-          <ul>
-            <li><strong>Dom (taryfa G11):</strong> 0,60 zł/kWh</li>
-            <li><strong>Dom (taryfa G12 - noc):</strong> 0,40 zł/kWh</li>
-            <li><strong>Stacje szybkie:</strong> 1,80-2,50 zł/kWh</li>
-          </ul>
-          
-          <h3>Oszczędności roczne:</h3>
-          <p>Przy przebiegu 15,000 km/rok można zaoszczędzić <strong>3,000-4,000 zł</strong> ładując w domu zamiast na stacjach publicznych.</p>
-          
-          <h2>Najlepsze wallboxy 2024</h2>
-          <ol>
-            <li><strong>KEBA KeContact P30</strong> - 3,500 zł</li>
-            <li><strong>ABL Sursum eMH1</strong> - 2,800 zł</li>
-            <li><strong>Easee Home</strong> - 4,200 zł</li>
-          </ol>
-          
-          <h2>Podsumowanie</h2>
-          <p>Wallbox to inwestycja, która zwraca się w 1-2 lata dzięki oszczędnościom na ładowaniu!</p>
-        `
-      },
-      {
-        id: 3,
-        title: "Mapa ładowarek w Polsce 2024",
-        excerpt: "Przegląd najważniejszych sieci ładowania i aplikacji do znajdowania stacji ładowania.",
-        date: "2024-01-05",
-        author: "Redakcja iVi Market",
-        image: "https://images.unsplash.com/photo-1586953208448-b95a79798f07?w=600",
-        slug: "mapa-ladowarek-polska-2024",
-        tags: ["ładowarki", "mapa", "aplikacje", "podróże"],
-        content: `
-          <h1>Mapa ładowarek w Polsce 2024</h1>
-          
-          <img src="https://images.unsplash.com/photo-1586953208448-b95a79798f07?w=800" alt="Mapa ładowarek" style="width: 100%; height: 300px; object-fit: cover; border-radius: 12px; margin-bottom: 24px;" />
-          
-          <h2>Główne sieci ładowania</h2>
-          <p>W Polsce działają następujące największe sieci ładowania:</p>
-          
-          <h3>1. Ionity</h3>
-          <ul>
-            <li>Moc: 150-350 kW</li>
-            <li>Lokalizacje: autostrady i główne trasy</li>
-            <li>Cena: 1,89 zł/kWh</li>
-          </ul>
-          
-          <h3>2. Orlen Charge</h3>
-          <ul>
-            <li>Najliczniejsza sieć w Polsce</li>
-            <li>Stacje przy większości stacji Orlen</li>
-            <li>Moc: 50-150 kW</li>
-          </ul>
-          
-          <h3>3. GreenWay</h3>
-          <ul>
-            <li>Fokus na szybkie ładowanie DC</li>
-            <li>Lokalizacje strategiczne na trasach</li>
-            <li>Dobra dostępność aplikacji</li>
-          </ul>
-          
-          <h3>4. Tauron</h3>
-          <ul>
-            <li>Rozbudowana sieć w południowej Polsce</li>
-            <li>Integracja z aplikacją Tauron eMobility</li>
-            <li>Konkurencyjne ceny</li>
-          </ul>
-          
-          <h2>Aplikacje mobilne</h2>
-          
-          <h3>Najlepsze aplikacje do znajdowania ładowarek:</h3>
-          
-          <h4>1. PlugShare (⭐⭐⭐⭐⭐)</h4>
-          <ul>
-            <li>Globalna baza ładowarek</li>
-            <li>Recenzje użytkowników</li>
-            <li>Aktualne informacje o dostępności</li>
-          </ul>
-          
-          <h4>2. ChargeMap (⭐⭐⭐⭐)</h4>
-          <ul>
-            <li>Europejska aplikacja</li>
-            <li>Planowanie tras</li>
-            <li>Płatności w aplikacji</li>
-          </ul>
-          
-          <h4>3. Aplikacje operatorów</h4>
-          <ul>
-            <li>Orlen Charge App</li>
-            <li>GreenWay App</li>
-            <li>Tauron eMobility</li>
-          </ul>
-          
-          <h2>Planowanie podróży</h2>
-          
-          <h3>Zasady planowania tras:</h3>
-          <ul>
-            <li><strong>Zasięg bezpieczeństwa:</strong> Planuj postoję co 200-250 km</li>
-            <li><strong>Backup:</strong> Zawsze miej alternatywną stację</li>
-            <li><strong>Czas ładowania:</strong> Uwzględnij 30-45 min na postój</li>
-            <li><strong>Zima:</strong> Zakładaj 30% mniejszy zasięg</li>
-          </ul>
-          
-          <h3>Popularne trasy:</h3>
-          <ul>
-            <li><strong>Warszawa-Kraków:</strong> Orlen Radom, Ionity Kielce</li>
-            <li><strong>Warszawa-Gdańsk:</strong> Orlen Łomża, GreenWay Grudziądz</li>
-            <li><strong>Kraków-Wrocław:</strong> Orlen Opole, Tauron Katowice</li>
-          </ul>
-          
-          <h2>Porady praktyczne</h2>
-          
-          <h3>Przed wyjazdem:</h3>
-          <ul>
-            <li>Sprawdź aktualne ceny na różnych stacjach</li>
-            <li>Pobierz aplikacje głównych operatorów</li>
-            <li>Sprawdź kompatybilność złączy</li>
-            <li>Załaduj kartę płatniczą w aplikacjach</li>
-          </ul>
-          
-          <h3>Na stacji:</h3>
-          <ul>
-            <li>Sprawdź stan ładowarki przed rozpoczęciem</li>
-            <li>Monitoruj proces ładowania</li>
-            <li>Nie blokuj stacji po zakończeniu ładowania</li>
-          </ul>
-          
-          <h2>Przyszłość ładowania w Polsce</h2>
-          <p>Do 2025 roku planowane jest <strong>podwojenie liczby stacji</strong> szybkiego ładowania w Polsce. Inwestycje koncentrują się na:</p>
-          <ul>
-            <li>Autostrady i drogi ekspresowe</li>
-            <li>Centra handlowe</li>
-            <li>Parkingi przy hotelach</li>
-            <li>Stacje benzynowe</li>
-          </ul>
-        `
-      }
-    ];
-
-    const [selectedPost, setSelectedPost] = useState<any>(null);
-
-    if (selectedPost) {
-      return (
-        <div style={{ maxWidth: '800px', margin: '0 auto', padding: '40px 20px' }}>
-          <button
-            onClick={() => setSelectedPost(null)}
-            style={{
-              marginBottom: '24px',
-              display: 'flex',
-              alignItems: 'center',
-              color: '#10b981',
-              background: 'transparent',
-              border: 'none',
-              fontSize: '16px',
-              cursor: 'pointer',
-              fontWeight: '600'
-            }}
-          >
-            ← Powrót do bloga
-          </button>
-
-          <article style={{
-            background: 'rgba(255, 255, 255, 0.95)',
-            borderRadius: '20px',
-            overflow: 'hidden',
-            boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)'
-          }}>
-            <div style={{ padding: '40px' }}>
-              <div style={{ 
-                display: 'flex', 
-                gap: '16px', 
-                color: '#6b7280', 
-                fontSize: '14px',
-                marginBottom: '32px',
-                alignItems: 'center'
-              }}>
-                <span style={{ fontWeight: '600' }}>{selectedPost.author}</span>
-                <span>•</span>
-                <span>{new Date(selectedPost.date).toLocaleDateString('pl-PL')}</span>
-                <span>•</span>
-                <div style={{ display: 'flex', gap: '8px' }}>
-                  {selectedPost.tags?.map((tag: string, index: number) => (
-                    <span 
-                      key={index}
-                      style={{
-                        background: '#10b981',
-                        color: 'white',
-                        padding: '2px 8px',
-                        borderRadius: '12px',
-                        fontSize: '12px',
-                        fontWeight: '600'
-                      }}
-                    >
-                      {tag}
-                    </span>
-                  ))}
-                </div>
-              </div>
-              
-              <div 
-                style={{ 
-                  color: '#4b5563', 
-                  fontSize: '16px', 
-                  lineHeight: '1.7' 
-                }}
-                dangerouslySetInnerHTML={{ __html: selectedPost.content }}
-              />
-              
-              <div style={{
-                borderTop: '1px solid #e5e7eb',
-                paddingTop: '24px',
-                marginTop: '40px',
-                textAlign: 'center'
-              }}>
-                <p style={{ color: '#6b7280', marginBottom: '16px' }}>
-                  Podobał Ci się artykuł? Podziel się nim!
-                </p>
-                <div style={{ display: 'flex', gap: '12px', justifyContent: 'center' }}>
-                  <button style={{
-                    background: '#10b981',
-                    color: 'white',
-                    border: 'none',
-                    padding: '8px 16px',
-                    borderRadius: '8px',
-                    fontSize: '14px',
-                    cursor: 'pointer'
-                  }}>
-                    📧 Email
-                  </button>
-                  <button style={{
-                    background: '#1DA1F2',
-                    color: 'white',
-                    border: 'none',
-                    padding: '8px 16px',
-                    borderRadius: '8px',
-                    fontSize: '14px',
-                    cursor: 'pointer'
-                  }}>
-                    🐦 Twitter
-                  </button>
-                  <button style={{
-                    background: '#4267B2',
-                    color: 'white',
-                    border: 'none',
-                    padding: '8px 16px',
-                    borderRadius: '8px',
-                    fontSize: '14px',
-                    cursor: 'pointer'
-                  }}>
-                    📘 Facebook
-                  </button>
-                </div>
-              </div>
-            </div>
-          </article>
-        </div>
-      );
-    }
-
-    return (
-      <div style={{ maxWidth: '1000px', margin: '0 auto', padding: '40px 20px' }}>
-        <div style={{ marginBottom: '40px' }}>
-          <h1 style={{ fontSize: '36px', fontWeight: '800', marginBottom: '16px', color: '#1f2937' }}>
-            Blog iVi Market
-          </h1>
-          <p style={{ color: '#6b7280', fontSize: '18px' }}>
-            Najnowsze artykuły o pojazdach elektrycznych, testy, porady i aktualności z branży EV
+          <p style={{ textAlign: 'center', color: '#6b7280', fontSize: '16px' }}>
+            Formularz dodawania pojazdów będzie dostępny wkrótce!
           </p>
         </div>
-        
-        <div style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(350px, 1fr))',
-          gap: '24px',
-          marginBottom: '40px'
-        }}>
-          {blogPosts.map(post => (
-            <article 
-              key={post.id}
-              style={{
-                background: 'rgba(255, 255, 255, 0.95)',
-                borderRadius: '20px',
-                overflow: 'hidden',
-                boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)',
-                cursor: 'pointer',
-                transition: 'all 0.3s ease'
-              }}
-              onClick={() => setSelectedPost(post)}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.transform = 'translateY(-4px)';
-                e.currentTarget.style.boxShadow = '0 12px 40px rgba(0, 0, 0, 0.15)';
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.transform = 'translateY(0)';
-                e.currentTarget.style.boxShadow = '0 8px 32px rgba(0, 0, 0, 0.1)';
-              }}
-            >
-              <img
-                src={post.image}
-                alt={post.title}
-                style={{ width: '100%', height: '200px', objectFit: 'cover' }}
-              />
-              
-              <div style={{ padding: '24px' }}>
-                <div style={{ 
-                  display: 'flex', 
-                  gap: '6px',
-                  marginBottom: '12px'
-                }}>
-                  {post.tags?.slice(0, 2).map((tag, index) => (
-                    <span 
-                      key={index}
-                      style={{
-                        background: '#10b981',
-                        color: 'white',
-                        padding: '2px 8px',
-                        borderRadius: '12px',
-                        fontSize: '10px',
-                        fontWeight: '600'
-                      }}
-                    >
-                      {tag}
-                    </span>
-                  ))}
-                </div>
-                
-                <h2 style={{ 
-                  fontSize: '20px', 
-                  fontWeight: '700', 
-                  color: '#1f2937',
-                  marginBottom: '12px',
-                  lineHeight: '1.4'
-                }}>
-                  {post.title}
-                </h2>
-                
-                <p style={{ 
-                  color: '#6b7280', 
-                  fontSize: '14px', 
-                  lineHeight: '1.5',
-                  marginBottom: '16px'
-                }}>
-                  {post.excerpt}
-                </p>
-                
-                <div style={{ 
-                  display: 'flex', 
-                  justifyContent: 'space-between',
-                  alignItems: 'center',
-                  fontSize: '12px',
-                  color: '#9ca3af'
-                }}>
-                  <span>{post.author}</span>
-                  <span>{new Date(post.date).toLocaleDateString('pl-PL')}</span>
-                </div>
-              </div>
-            </article>
-          ))}
-        </div>
-
-        <div style={{
-          background: 'rgba(255, 255, 255, 0.95)',
-          borderRadius: '20px',
-          padding: '40px',
-          textAlign: 'center',
-          boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)'
-        }}>
-          <h3 style={{ fontSize: '24px', fontWeight: '700', color: '#1f2937', marginBottom: '16px' }}>
-            📝 Przewodnik po dodawaniu postów
-          </h3>
-          <div style={{ 
-            textAlign: 'left',
-            maxWidth: '600px',
-            margin: '0 auto',
-            background: '#f8fafc',
-            padding: '24px',
-            borderRadius: '12px'
-          }}>
-            <h4 style={{ color: '#1f2937', marginBottom: '12px' }}>Aby dodać nowy post:</h4>
-            <ol style={{ color: '#6b7280', lineHeight: '1.6' }}>
-              <li>Utwórz plik .md w folderze <code>src/posts/</code></li>
-              <li>Dodaj metadata na górze (tytuł, data, autor, itp.)</li>
-              <li>Napisz treść w Markdown</li>
-              <li>Dodaj zdjęcia do <code>public/blog/</code></li>
-              <li>Skonwertuj do HTML i dodaj do array'a</li>
-            </ol>
-            <p style={{ marginTop: '16px', fontSize: '14px', color: '#9ca3af' }}>
-              💡 Wkrótce zautomatyzujemy ten proces!
-            </p>
-          </div>
-        </div>
       </div>
     );
   };
+
+  const BlogPage = () => (
+    <div style={{ maxWidth: '1000px', margin: '0 auto', padding: '40px 20px' }}>
+      <div style={{ marginBottom: '40px' }}>
+        <h1 style={{ fontSize: '36px', fontWeight: '800', marginBottom: '16px', color: '#1f2937' }}>
+          Blog iVi Market
+        </h1>
+        <p style={{ color: '#6b7280', fontSize: '18px' }}>
+          Najnowsze artykuły o pojazdach elektrycznych będą dostępne wkrótce!
+        </p>
+      </div>
+    </div>
+  );
 
   const CookieBanner = () => {
     if (!showCookieBanner) return null;
@@ -2266,22 +1454,7 @@ export default function EVMarketplace() {
           <div style={{ flex: '1', minWidth: '300px' }}>
             <p style={{ margin: '0', fontSize: '14px', lineHeight: '1.5' }}>
               Ta strona używa plików cookies w celu świadczenia usług na najwyższym poziomie. 
-              Dalsze korzystanie ze strony oznacza, że zgadzasz się na ich użycie zgodnie z{' '}
-              <button
-                onClick={() => setCurrentView('privacy')}
-                style={{
-                  background: 'none',
-                  border: 'none',
-                  color: '#10b981',
-                  textDecoration: 'underline',
-                  cursor: 'pointer',
-                  fontSize: '14px',
-                  padding: '0'
-                }}
-              >
-                Polityką Prywatności
-              </button>
-              .
+              Dalsze korzystanie ze strony oznacza, że zgadzasz się na ich użycie.
             </p>
           </div>
           <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
@@ -2301,547 +1474,28 @@ export default function EVMarketplace() {
             >
               Akceptuję
             </button>
-            <button
-              onClick={() => {
-                setCurrentView('privacy');
-                setShowCookieBanner(false);
-              }}
-              style={{
-                background: 'transparent',
-                color: 'white',
-                border: '2px solid rgba(255, 255, 255, 0.3)',
-                padding: '8px 16px',
-                borderRadius: '8px',
-                fontSize: '14px',
-                fontWeight: '600',
-                cursor: 'pointer',
-                whiteSpace: 'nowrap'
-              }}
-            >
-              Więcej informacji
-            </button>
           </div>
         </div>
       </div>
     );
   };
 
-  const PrivacyPage = () => (
-    <div style={{ maxWidth: '800px', margin: '0 auto', padding: '40px 20px' }}>
-      <button
-        onClick={() => setCurrentView('home')}
-        style={{
-          marginBottom: '24px',
-          display: 'flex',
-          alignItems: 'center',
-          color: '#10b981',
-          background: 'transparent',
-          border: 'none',
-          fontSize: '16px',
-          cursor: 'pointer',
-          fontWeight: '600'
-        }}
-      >
-        ← Powrót do strony głównej
-      </button>
-
-      <div style={{
-        background: 'rgba(255, 255, 255, 0.95)',
-        borderRadius: '20px',
-        padding: '40px'
-      }}>
-        <h1 style={{ 
-          fontSize: '32px', 
-          fontWeight: '800', 
-          marginBottom: '32px', 
-          color: '#1f2937'
-        }}>
-          Polityka Prywatności
-        </h1>
-
-        <div style={{ lineHeight: '1.6', color: '#4b5563' }}>
-          <h2 style={{ fontSize: '24px', fontWeight: '700', marginBottom: '16px', color: '#1f2937' }}>
-            1. Administrator danych
-          </h2>
-          <p style={{ marginBottom: '24px' }}>
-            Administratorem Państwa danych osobowych jest iVi Market Sp. z o.o. z siedzibą w Warszawie, 
-            ul. Marszałkowska 1, 00-001 Warszawa, NIP: 1234567890, wpisana do Krajowego Rejestru Sądowego 
-            pod numerem KRS 0000123456.
-          </p>
-
-          <h2 style={{ fontSize: '24px', fontWeight: '700', marginBottom: '16px', color: '#1f2937' }}>
-            2. Cele i podstawy prawne przetwarzania danych
-          </h2>
-          <p style={{ marginBottom: '16px' }}>Przetwarzamy Państwa dane osobowe w następujących celach:</p>
-          <ul style={{ marginBottom: '24px', paddingLeft: '20px' }}>
-            <li style={{ marginBottom: '8px' }}>
-              <strong>Świadczenie usług marketplace</strong> - na podstawie art. 6 ust. 1 lit. b RODO (wykonanie umowy)
-            </li>
-            <li style={{ marginBottom: '8px' }}>
-              <strong>Weryfikacja tożsamości użytkowników</strong> - na podstawie art. 6 ust. 1 lit. f RODO (prawnie uzasadniony interes)
-            </li>
-            <li style={{ marginBottom: '8px' }}>
-              <strong>Marketing bezpośredni</strong> - na podstawie art. 6 ust. 1 lit. a RODO (zgoda) - tylko za zgodą
-            </li>
-            <li style={{ marginBottom: '8px' }}>
-              <strong>Wypełnienie obowiązków prawnych</strong> - na podstawie art. 6 ust. 1 lit. c RODO
-            </li>
-          </ul>
-
-          <h2 style={{ fontSize: '24px', fontWeight: '700', marginBottom: '16px', color: '#1f2937' }}>
-            3. Kategorie przetwarzanych danych
-          </h2>
-          <p style={{ marginBottom: '16px' }}>Przetwarzamy następujące kategorie danych osobowych:</p>
-          <ul style={{ marginBottom: '24px', paddingLeft: '20px' }}>
-            <li style={{ marginBottom: '8px' }}>Dane identyfikacyjne (imię, nazwisko, numer telefonu, adres e-mail)</li>
-            <li style={{ marginBottom: '8px' }}>Dane adresowe (adres zamieszkania/siedziby)</li>
-            <li style={{ marginBottom: '8px' }}>Dane firmowe (nazwa firmy, NIP) - w przypadku kont firmowych</li>
-            <li style={{ marginBottom: '8px' }}>Dane techniczne (adres IP, informacje o urządzeniu, cookies)</li>
-          </ul>
-
-          <h2 style={{ fontSize: '24px', fontWeight: '700', marginBottom: '16px', color: '#1f2937' }}>
-            4. Okres przechowywania danych
-          </h2>
-          <p style={{ marginBottom: '24px' }}>
-            Dane osobowe przechowujemy przez okres niezbędny do realizacji celów, dla których zostały zebrane, 
-            nie dłużej niż przez 5 lat od zakończenia współpracy, z zastrzeżeniem przepisów prawa nakazujących 
-            dłuższe przechowywanie danych.
-          </p>
-
-          <h2 style={{ fontSize: '24px', fontWeight: '700', marginBottom: '16px', color: '#1f2937' }}>
-            5. Prawa osób, których dane dotyczą
-          </h2>
-          <p style={{ marginBottom: '16px' }}>Przysługują Państwu następujące prawa:</p>
-          <ul style={{ marginBottom: '24px', paddingLeft: '20px' }}>
-            <li style={{ marginBottom: '8px' }}>Prawo dostępu do danych (art. 15 RODO)</li>
-            <li style={{ marginBottom: '8px' }}>Prawo do sprostowania danych (art. 16 RODO)</li>
-            <li style={{ marginBottom: '8px' }}>Prawo do usunięcia danych (art. 17 RODO)</li>
-            <li style={{ marginBottom: '8px' }}>Prawo do ograniczenia przetwarzania (art. 18 RODO)</li>
-            <li style={{ marginBottom: '8px' }}>Prawo do przenoszenia danych (art. 20 RODO)</li>
-            <li style={{ marginBottom: '8px' }}>Prawo sprzeciwu (art. 21 RODO)</li>
-            <li style={{ marginBottom: '8px' }}>Prawo do cofnięcia zgody (art. 7 ust. 3 RODO)</li>
-          </ul>
-
-          <h2 style={{ fontSize: '24px', fontWeight: '700', marginBottom: '16px', color: '#1f2937' }}>
-            6. Kontakt w sprawach ochrony danych
-          </h2>
-          <p style={{ marginBottom: '24px' }}>
-            W sprawach dotyczących ochrony danych osobowych można się kontaktować pod adresem e-mail: 
-            <strong> rodo@ivimarket.pl</strong> lub pisemnie na adres siedziby spółki.
-          </p>
-
-          <h2 style={{ fontSize: '24px', fontWeight: '700', marginBottom: '16px', color: '#1f2937' }}>
-            7. Prawo do wniesienia skargi
-          </h2>
-          <p style={{ marginBottom: '24px' }}>
-            W przypadku naruszenia przepisów o ochronie danych osobowych przysługuje Państwu prawo wniesienia 
-            skargi do Prezesa Urzędu Ochrony Danych Osobowych.
-          </p>
-
-          <div style={{ 
-            background: '#f0fdf4', 
-            padding: '16px', 
-            borderRadius: '12px', 
-            marginTop: '32px',
-            border: '1px solid #bbf7d0'
-          }}>
-            <p style={{ margin: '0', fontSize: '14px', color: '#166534' }}>
-              <strong>Ostatnia aktualizacja:</strong> {new Date().toLocaleDateString('pl-PL')}
-            </p>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-
-  const TermsPage = () => (
-    <div style={{ maxWidth: '800px', margin: '0 auto', padding: '40px 20px' }}>
-      <button
-        onClick={() => setCurrentView('home')}
-        style={{
-          marginBottom: '24px',
-          display: 'flex',
-          alignItems: 'center',
-          color: '#10b981',
-          background: 'transparent',
-          border: 'none',
-          fontSize: '16px',
-          cursor: 'pointer',
-          fontWeight: '600'
-        }}
-      >
-        ← Powrót do strony głównej
-      </button>
-
-      <div style={{
-        background: 'rgba(255, 255, 255, 0.95)',
-        borderRadius: '20px',
-        padding: '40px'
-      }}>
-        <h1 style={{ 
-          fontSize: '32px', 
-          fontWeight: '800', 
-          marginBottom: '32px', 
-          color: '#1f2937'
-        }}>
-          Regulamin Serwisu
-        </h1>
-
-        <div style={{ lineHeight: '1.6', color: '#4b5563' }}>
-          <h2 style={{ fontSize: '24px', fontWeight: '700', marginBottom: '16px', color: '#1f2937' }}>
-            1. Postanowienia ogólne
-          </h2>
-          <p style={{ marginBottom: '16px' }}>
-            Niniejszy Regulamin określa zasady korzystania z serwisu internetowego iVi Market dostępnego 
-            pod adresem www.ivimarket.pl, prowadzonego przez iVi Market Sp. z o.o.
-          </p>
-          <p style={{ marginBottom: '24px' }}>
-            Korzystanie z Serwisu oznacza akceptację postanowień niniejszego Regulaminu.
-          </p>
-
-          <h2 style={{ fontSize: '24px', fontWeight: '700', marginBottom: '16px', color: '#1f2937' }}>
-            2. Definicje
-          </h2>
-          <ul style={{ marginBottom: '24px', paddingLeft: '20px' }}>
-            <li style={{ marginBottom: '8px' }}>
-              <strong>Serwis</strong> - serwis internetowy iVi Market dostępny pod adresem www.ivimarket.pl
-            </li>
-            <li style={{ marginBottom: '8px' }}>
-              <strong>Użytkownik</strong> - osoba fizyczna, prawna lub jednostka organizacyjna nieposiadająca osobowości prawnej korzystająca z Serwisu
-            </li>
-            <li style={{ marginBottom: '8px' }}>
-              <strong>Konto</strong> - zbiór zasobów i ustawień utworzony dla Użytkownika w Serwisie
-            </li>
-            <li style={{ marginBottom: '8px' }}>
-              <strong>Ogłoszenie</strong> - treść zamieszczona przez Użytkownika w Serwisie dotycząca sprzedaży pojazdu elektrycznego
-            </li>
-          </ul>
-
-          <h2 style={{ fontSize: '24px', fontWeight: '700', marginBottom: '16px', color: '#1f2937' }}>
-            3. Zasady korzystania z Serwisu
-          </h2>
-          <p style={{ marginBottom: '16px' }}>Użytkownik zobowiązuje się do:</p>
-          <ul style={{ marginBottom: '24px', paddingLeft: '20px' }}>
-            <li style={{ marginBottom: '8px' }}>Korzystania z Serwisu zgodnie z prawem i dobrymi obyczajami</li>
-            <li style={{ marginBottom: '8px' }}>Podawania prawdziwych i aktualnych danych</li>
-            <li style={{ marginBottom: '8px' }}>Nienaruszania praw osób trzecich</li>
-            <li style={{ marginBottom: '8px' }}>Nieutrudniania funkcjonowania Serwisu</li>
-          </ul>
-
-          <h2 style={{ fontSize: '24px', fontWeight: '700', marginBottom: '16px', color: '#1f2937' }}>
-            4. Rejestracja i Konto Użytkownika
-          </h2>
-          <p style={{ marginBottom: '16px' }}>
-            Rejestracja w Serwisie jest dobrowolna, ale niezbędna do korzystania z pełnej funkcjonalności.
-          </p>
-          <p style={{ marginBottom: '24px' }}>
-            Użytkownik może założyć konto osobiste lub firmowe, podając wymagane dane zgodnie z formularzem rejestracyjnym.
-          </p>
-
-          <h2 style={{ fontSize: '24px', fontWeight: '700', marginBottom: '16px', color: '#1f2937' }}>
-            5. Ogłoszenia
-          </h2>
-          <p style={{ marginBottom: '16px' }}>Użytkownik może zamieszczać ogłoszenia dotyczące sprzedaży pojazdów elektrycznych pod warunkiem:</p>
-          <ul style={{ marginBottom: '24px', paddingLeft: '20px' }}>
-            <li style={{ marginBottom: '8px' }}>Posiadania uprawnień do dysponowania pojazdem</li>
-            <li style={{ marginBottom: '8px' }}>Podania prawdziwych informacji o pojeździe</li>
-            <li style={{ marginBottom: '8px' }}>Przestrzegania przepisów prawa dotyczących sprzedaży pojazdów</li>
-          </ul>
-
-          <h2 style={{ fontSize: '24px', fontWeight: '700', marginBottom: '16px', color: '#1f2937' }}>
-            6. Prawo odstąpienia (dla konsumentów)
-          </h2>
-          <p style={{ marginBottom: '16px' }}>
-            Konsument ma prawo odstąpić od umowy zawartej na odległość w terminie 14 dni bez podania przyczyny.
-          </p>
-          <p style={{ marginBottom: '24px' }}>
-            Termin biegnie od dnia zawarcia umowy. Oświadczenie o odstąpieniu można złożyć na adres: odstapienie@ivimarket.pl
-          </p>
-
-          <h2 style={{ fontSize: '24px', fontWeight: '700', marginBottom: '16px', color: '#1f2937' }}>
-            7. Odpowiedzialność
-          </h2>
-          <p style={{ marginBottom: '16px' }}>
-            Serwis pełni rolę pośrednika w kontaktach między użytkownikami. Nie ponosi odpowiedzialności za:
-          </p>
-          <ul style={{ marginBottom: '24px', paddingLeft: '20px' }}>
-            <li style={{ marginBottom: '8px' }}>Prawdziwość informacji podanych przez użytkowników</li>
-            <li style={{ marginBottom: '8px' }}>Jakość oferowanych pojazdów</li>
-            <li style={{ marginBottom: '8px' }}>Realizację transakcji między użytkownikami</li>
-          </ul>
-
-          <h2 style={{ fontSize: '24px', fontWeight: '700', marginBottom: '16px', color: '#1f2937' }}>
-            8. Postanowienia końcowe
-          </h2>
-          <p style={{ marginBottom: '16px' }}>
-            W sprawach nieuregulowanych niniejszym Regulaminem zastosowanie mają przepisy prawa polskiego.
-          </p>
-          <p style={{ marginBottom: '24px' }}>
-            Wszelkie spory będą rozstrzygane przez sąd właściwy dla siedziby iVi Market Sp. z o.o.
-          </p>
-
-          <div style={{ 
-            background: '#fef3c7', 
-            padding: '16px', 
-            borderRadius: '12px', 
-            marginTop: '32px',
-            border: '1px solid #fbbf24'
-          }}>
-            <h3 style={{ fontSize: '16px', fontWeight: '700', marginBottom: '8px', color: '#92400e', margin: '0 0 8px 0' }}>
-              Informacja dla konsumentów
-            </h3>
-            <p style={{ margin: '0', fontSize: '14px', color: '#92400e' }}>
-              W przypadku sporów konsument może skorzystać z pozasądowych sposobów rozpatrywania reklamacji i dochodzenia roszczeń. 
-              Szczegółowe informacje dostępne na stronie: <strong>www.uokik.gov.pl</strong>
-            </p>
-          </div>
-
-          <div style={{ 
-            background: '#f0fdf4', 
-            padding: '16px', 
-            borderRadius: '12px', 
-            marginTop: '16px',
-            border: '1px solid #bbf7d0'
-          }}>
-            <p style={{ margin: '0', fontSize: '14px', color: '#166534' }}>
-              <strong>Ostatnia aktualizacja:</strong> {new Date().toLocaleDateString('pl-PL')}
-            </p>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-
-  const Footer = () => (
-    <footer style={{
-      background: '#1f2937',
-      color: 'white',
-      padding: '40px 0 20px',
-      marginTop: '60px'
-    }}>
-      <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '0 20px' }}>
-        <div style={{ 
-          display: 'grid', 
-          gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', 
-          gap: '40px',
-          marginBottom: '32px'
-        }}>
-          <div>
-            <h3 style={{ fontSize: '18px', fontWeight: '700', marginBottom: '16px', color: '#10b981' }}>
-              iVi Market
-            </h3>
-            <p style={{ fontSize: '14px', lineHeight: '1.6', color: '#9ca3af', marginBottom: '16px' }}>
-              Marketplace pojazdów elektrycznych w Polsce. Znajdź swój wymarzony pojazd elektryczny 
-              lub sprzedaj swój obecny w bezpieczny sposób.
-            </p>
-            <div style={{ display: 'flex', gap: '12px' }}>
-              <div style={{ 
-                background: '#374151', 
-                padding: '8px', 
-                borderRadius: '8px',
-                fontSize: '12px'
-              }}>
-                🔋 Tylko pojazdy elektryczne
-              </div>
-              <div style={{ 
-                background: '#374151', 
-                padding: '8px', 
-                borderRadius: '8px',
-                fontSize: '12px'
-              }}>
-                ✅ Zweryfikowani sprzedawcy
-              </div>
-            </div>
-          </div>
-
-          <div>
-            <h4 style={{ fontSize: '16px', fontWeight: '600', marginBottom: '16px', color: 'white' }}>
-              Informacje prawne
-            </h4>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-              <button
-                onClick={() => setCurrentView('terms')}
-                style={{
-                  background: 'none',
-                  border: 'none',
-                  color: '#9ca3af',
-                  fontSize: '14px',
-                  cursor: 'pointer',
-                  textAlign: 'left',
-                  padding: '4px 0'
-                }}
-              >
-                Regulamin serwisu
-              </button>
-              <button
-                onClick={() => setCurrentView('privacy')}
-                style={{
-                  background: 'none',
-                  border: 'none',
-                  color: '#9ca3af',
-                  fontSize: '14px',
-                  cursor: 'pointer',
-                  textAlign: 'left',
-                  padding: '4px 0'
-                }}
-              >
-                Polityka prywatności
-              </button>
-              <a 
-                href="mailto:rodo@ivimarket.pl"
-                style={{
-                  color: '#9ca3af',
-                  fontSize: '14px',
-                  textDecoration: 'none',
-                  padding: '4px 0'
-                }}
-              >
-                Kontakt RODO
-              </a>
-            </div>
-          </div>
-
-          <div>
-            <h4 style={{ fontSize: '16px', fontWeight: '600', marginBottom: '16px', color: 'white' }}>
-              Kontakt
-            </h4>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', fontSize: '14px', color: '#9ca3af' }}>
-              <div>iVi Market Sp. z o.o.</div>
-              <div>ul. Marszałkowska 1</div>
-              <div>00-001 Warszawa</div>
-              <div>NIP: 1234567890</div>
-              <div>KRS: 0000123456</div>
-              <a 
-                href="mailto:kontakt@ivimarket.pl"
-                style={{ color: '#10b981', textDecoration: 'none' }}
-              >
-                kontakt@ivimarket.pl
-              </a>
-            </div>
-          </div>
-
-          <div>
-            <h4 style={{ fontSize: '16px', fontWeight: '600', marginBottom: '16px', color: 'white' }}>
-              Dla konsumentów
-            </h4>
-            <div style={{ fontSize: '14px', color: '#9ca3af', lineHeight: '1.6' }}>
-              <p style={{ marginBottom: '12px' }}>
-                Platforma ODR (Online Dispute Resolution):
-              </p>
-              <a 
-                href="https://ec.europa.eu/consumers/odr"
-                target="_blank"
-                rel="noopener noreferrer"
-                style={{ color: '#10b981', textDecoration: 'none', fontSize: '13px' }}
-              >
-                ec.europa.eu/consumers/odr
-              </a>
-              <p style={{ marginTop: '12px', fontSize: '13px' }}>
-                Urząd Ochrony Konkurencji i Konsumentów: 
-                <a 
-                  href="https://www.uokik.gov.pl"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  style={{ color: '#10b981', textDecoration: 'none', marginLeft: '4px' }}
-                >
-                  www.uokik.gov.pl
-                </a>
-              </p>
-            </div>
-          </div>
-        </div>
-
-        <div style={{ 
-          borderTop: '1px solid #374151', 
-          paddingTop: '20px', 
-          textAlign: 'center',
-          fontSize: '14px',
-          color: '#6b7280'
-        }}>
-          <p style={{ margin: '0' }}>
-            © {new Date().getFullYear()} iVi Market Sp. z o.o. Wszelkie prawa zastrzeżone.
-          </p>
-          <p style={{ margin: '8px 0 0 0', fontSize: '12px' }}>
-            Serwis jest obecnie w fazie rozwoju. Wszystkie dane mają charakter demonstracyjny.
-          </p>
-        </div>
-      </div>
-    </footer>
-  );
-
   return (
-    <>
-      {/* Google Tag Manager - Only load if GTM ID is available */}
-      {process.env.NEXT_PUBLIC_GTM_ID && (
-        <Script
-          id="gtm-script"
-          strategy="afterInteractive"
-          dangerouslySetInnerHTML={{
-            __html: `
-              (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
-              new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
-              j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
-              'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
-              })(window,document,'script','dataLayer','${process.env.NEXT_PUBLIC_GTM_ID}');
-            `,
-          }}
-        />
-      )}
+    <div style={{
+      minHeight: '100vh',
+      background: 'linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%)',
+      fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
+    }}>
+      <Navigation />
       
-      {/* Hotjar Tracking Code - Only load in production, over HTTPS, and if ID is available */}
-      {process.env.NODE_ENV === 'production' &&
-       process.env.NEXT_PUBLIC_HOTJAR_ID &&
-       typeof window !== 'undefined' &&
-       window.location.protocol === 'https:' && (
-        <Script
-          id="hotjar-script"
-          strategy="afterInteractive"
-          dangerouslySetInnerHTML={{
-            __html: `
-              (function(h,o,t,j,a,r){
-                h.hj=h.hj||function(){(h.hj.q=h.hj.q||[]).push(arguments)};
-                h._hjSettings={hjid:${process.env.NEXT_PUBLIC_HOTJAR_ID},hjsv:6};
-                a=o.getElementsByTagName('head')[0];
-                r=o.createElement('script');r.async=1;
-                r.src=t+h._hjSettings.hjid+j+h._hjSettings.hjsv;
-                a.appendChild(r);
-              })(window,document,'https://static.hotjar.com/c/hotjar-','.js?sv=');
-            `,
-          }}
-        />
-      )}
-
-      <div style={{
-        minHeight: '100vh',
-        background: 'linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%)',
-        fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
-      }}>
-        {/* Google Tag Manager (noscript) */}
-        {process.env.NEXT_PUBLIC_GTM_ID && (
-          <noscript>
-            <iframe
-              src={`https://www.googletagmanager.com/ns.html?id=${process.env.NEXT_PUBLIC_GTM_ID}`}
-              height="0"
-              width="0"
-              style={{display: 'none', visibility: 'hidden'}}
-            />
-          </noscript>
-        )}
-        
-        <Navigation />
-        
-        {currentView === 'home' && <HomePage />}
-        {currentView === 'browse' && <BrowsePage />}
-        {currentView === 'details' && <VehicleDetails />}
-        {currentView === 'blog' && <BlogPage />}
-        {currentView === 'sell' && <SellPage />}
-        {currentView === 'privacy' && <PrivacyPage />}
-        {currentView === 'terms' && <TermsPage />}
-        
-        <Footer />
-        <AuthModal />
-        <CookieBanner />
-      </div>
-    </>
+      {currentView === 'home' && <HomePage />}
+      {currentView === 'browse' && <BrowsePage />}
+      {currentView === 'details' && <VehicleDetails />}
+      {currentView === 'blog' && <BlogPage />}
+      {currentView === 'sell' && <SellPage />}
+      
+      <AuthModal />
+      <CookieBanner />
+    </div>
   );
 }
