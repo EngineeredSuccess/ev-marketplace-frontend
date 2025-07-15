@@ -68,7 +68,6 @@ export const RegistrationForm: React.FC<RegistrationFormProps> = ({
     try {
       // Create user profile in Supabase
       await authService.createUserProfile({
-        phone: phone,
         email: formData.email,
         first_name: formData.firstName,
         last_name: formData.lastName,
