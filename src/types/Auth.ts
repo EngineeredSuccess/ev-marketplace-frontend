@@ -46,3 +46,7 @@ export interface OAuthResponse {
   message: string
   data?: any
 }
+
+export type AuthMode = 'login' | 'register'
+
+export type PhoneVerificationStep = 'phone' | 'code' | 'registration'
