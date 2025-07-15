@@ -16,6 +16,8 @@ export interface User {
 }
 
 export interface AuthFormData {
+  phone: string
+  verificationCode: string
   email: string
   firstName: string
   lastName: string
