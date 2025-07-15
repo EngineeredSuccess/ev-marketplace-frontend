@@ -30,6 +30,8 @@ export interface AuthFormData {
   marketingConsent: boolean
 }
 
+export type AuthMode = 'login' | 'register'
+
 export interface AuthResponse {
   success: boolean
   message: string

@@ -1,6 +1,6 @@
 import { useState, useCallback } from 'react';
 import { User } from '../types/User';
-import { AuthFormData, AuthMode, PhoneVerificationStep } from '../types/Auth';
+import { AuthFormData, AuthMode } from '../types/Auth';
 import { authService } from '../services/authService';
 import { validateRegistrationForm } from '../utils/validation';
 
@@ -9,13 +9,10 @@ export const useAuth = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [authMode, setAuthMode] = useState<AuthMode>('login');
-  const [phoneVerificationStep, setPhoneVerificationStep] = useState<PhoneVerificationStep>('phone');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const [authFormData, setAuthFormData] = useState<AuthFormData>({
-    phone: '',
-    verificationCode: '',
     email: '',
     firstName: '',
     lastName: '',
@@ -36,71 +33,82 @@ export const useAuth = () => {
       window.dataLayer.push({
         event: 'auth_action',
         auth_action: action,
-        auth_method: method || 'phone'
+        auth_method: method || 'google'
       });
     }
   }, []);
 
-  const sendVerificationCode = useCallback(async () => {
-    if (!authFormData.phone) {
-      setError('Numer telefonu jest wymagany');
-      return;
-    }
-
+  const signInWithGoogle = useCallback(async () => {
     setLoading(true);
     setError(null);
     
     try {
-      const result = await authService.sendVerificationCode(authFormData.phone);
+      const result = await authService.signInWithGoogle();
       if (result.success) {
-        setPhoneVerificationStep('code');
-        trackAuthEvent('verification_code_sent');
-      } else {
-        setError(result.message || 'Błąd podczas wysyłania kodu');
-      }
-    } catch (err) {
-      setError('Błąd podczas wysyłania kodu weryfikacyjnego');
-    } finally {
-      setLoading(false);
-    }
-  }, [authFormData.phone, trackAuthEvent]);
-
-  const verifyCode = useCallback(async () => {
-    if (!authFormData.verificationCode) {
-      setError('Kod weryfikacyjny jest wymagany');
-      return;
-    }
-
-    setLoading(true);
-    setError(null);
-
-    try {
-      const result = await authService.verifyCode(authFormData.phone, authFormData.verificationCode);
-      
-      if (result.success) {
-        if (result.user && authMode === 'login') {
-          // User exists, log them in
-          setCurrentUser(result.user);
+        trackAuthEvent('google_login_success');
+        // Handle successful login - user profile should be available
+        const profile = await authService.getUserProfile();
+        if (profile) {
+          setCurrentUser(profile); // UserProfile matches User type now
           setIsAuthenticated(true);
           setShowAuthModal(false);
-          setPhoneVerificationStep('phone');
-          trackAuthEvent('login_success');
-        } else if (authMode === 'register') {
-          // New user, proceed to details form
-          setPhoneVerificationStep('details');
-          trackAuthEvent('verification_success');
         }
       } else {
-        setError(result.message || 'Nieprawidłowy kod weryfikacyjny');
-        trackAuthEvent('verification_failed');
+        setError(result.message || 'Błąd podczas logowania przez Google');
+        trackAuthEvent('google_login_failed');
       }
     } catch (err) {
-      setError('Błąd podczas weryfikacji kodu');
-      trackAuthEvent('verification_failed');
+      setError('Błąd podczas logowania przez Google');
+      trackAuthEvent('google_login_failed');
     } finally {
       setLoading(false);
     }
-  }, [authFormData.phone, authFormData.verificationCode, authMode, trackAuthEvent]);
+  }, [trackAuthEvent]);
+
+  const signInWithApple = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+    
+    try {
+      const result = await authService.signInWithApple();
+      if (result.success) {
+        trackAuthEvent('apple_login_success');
+        // Handle successful login - user profile should be available
+        const profile = await authService.getUserProfile();
+        if (profile) {
+          setCurrentUser(profile); // UserProfile matches User type now
+          setIsAuthenticated(true);
+          setShowAuthModal(false);
+        }
+      } else {
+        setError(result.message || 'Błąd podczas logowania przez Apple');
+        trackAuthEvent('apple_login_failed');
+      }
+    } catch (err) {
+      setError('Błąd podczas logowania przez Apple');
+      trackAuthEvent('apple_login_failed');
+    } finally {
+      setLoading(false);
+    }
+  }, [trackAuthEvent]);
+
+  const sendMagicLink = useCallback(async (email: string) => {
+    setLoading(true);
+    setError(null);
+    
+    try {
+      const result = await authService.sendMagicLink(email);
+      if (result.success) {
+        trackAuthEvent('magic_link_sent');
+      } else {
+        setError(result.message || 'Błąd podczas wysyłania magic link');
+      }
+    } catch (err) {
+      setError('Błąd podczas wysyłania magic link');
+    } finally {
+      setLoading(false);
+    }
+  }, [trackAuthEvent]);
 
   const completeRegistration = useCallback(async () => {
     if (!validateRegistrationForm(authFormData)) {
@@ -118,13 +126,10 @@ export const useAuth = () => {
         setCurrentUser(result.user);
         setIsAuthenticated(true);
         setShowAuthModal(false);
-        setPhoneVerificationStep('phone');
         trackAuthEvent('registration_complete', authFormData.isCompany ? 'company' : 'individual');
         
         // Reset form
         setAuthFormData({
-          phone: '',
-          verificationCode: '',
           email: '',
           firstName: '',
           lastName: '',
@@ -148,31 +153,33 @@ export const useAuth = () => {
     }
   }, [authFormData, trackAuthEvent]);
 
-  const logout = useCallback(() => {
-    setCurrentUser(null);
-    setIsAuthenticated(false);
-    setShowAuthModal(false);
-    setPhoneVerificationStep('phone');
-    setError(null);
-    trackAuthEvent('logout');
-    
-    // Reset form
-    setAuthFormData({
-      phone: '',
-      verificationCode: '',
-      email: '',
-      firstName: '',
-      lastName: '',
-      isCompany: false,
-      companyName: '',
-      nip: '',
-      street: '',
-      city: '',
-      postalCode: '',
-      country: 'Polska',
-      gdprConsent: false,
-      marketingConsent: false
-    });
+  const logout = useCallback(async () => {
+    try {
+      await authService.signOut();
+      setCurrentUser(null);
+      setIsAuthenticated(false);
+      setShowAuthModal(false);
+      setError(null);
+      trackAuthEvent('logout');
+      
+      // Reset form
+      setAuthFormData({
+        email: '',
+        firstName: '',
+        lastName: '',
+        isCompany: false,
+        companyName: '',
+        nip: '',
+        street: '',
+        city: '',
+        postalCode: '',
+        country: 'Polska',
+        gdprConsent: false,
+        marketingConsent: false
+      });
+    } catch (err) {
+      setError('Błąd podczas wylogowania');
+    }
   }, [trackAuthEvent]);
 
   const openAuthModal = useCallback((mode: AuthMode) => {
@@ -183,7 +190,6 @@ export const useAuth = () => {
 
   const closeAuthModal = useCallback(() => {
     setShowAuthModal(false);
-    setPhoneVerificationStep('phone');
     setError(null);
   }, []);
 
@@ -198,21 +204,20 @@ export const useAuth = () => {
     isAuthenticated,
     showAuthModal,
     authMode,
-    phoneVerificationStep,
     loading,
     error,
     authFormData,
     
     // Actions
-    sendVerificationCode,
-    verifyCode,
+    signInWithGoogle,
+    signInWithApple,
+    sendMagicLink,
     completeRegistration,
     logout,
     openAuthModal,
     closeAuthModal,
     updateAuthFormData,
     setAuthMode,
-    setPhoneVerificationStep,
     trackAuthEvent
   };
 };
