@@ -1,4 +1,4 @@
-import EVMarketplace from '../components/EVMarketplaceRedirected';
+import EVMarketplace from '../components/EVMarketplaceRefactored';
 import { Metadata } from 'next';
 
 export const metadata: Metadata = {
