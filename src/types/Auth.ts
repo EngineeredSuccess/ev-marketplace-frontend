@@ -16,6 +16,8 @@ export interface User {
 }
 
 export interface AuthFormData {
+  phone: string
+  verificationCode: string
   email: string
   firstName: string
   lastName: string
@@ -46,3 +48,7 @@ export interface OAuthResponse {
   message: string
   data?: any
 }
+
+export type AuthMode = 'login' | 'register'
+
+export type PhoneVerificationStep = 'phone' | 'code' | 'details'

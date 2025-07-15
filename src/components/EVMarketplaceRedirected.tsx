@@ -840,8 +840,7 @@ export default function EVMarketplace() {
               <>
                 <button 
                   onClick={() => {
-                    setAuthMode('login');
-                    setShowAuthModal(true);
+                    window.location.href = '/auth/login';
                   }}
                   style={{
                     background: 'rgba(255, 255, 255, 0.9)',
@@ -857,8 +856,7 @@ export default function EVMarketplace() {
                 </button>
                 <button 
                   onClick={() => {
-                    setAuthMode('register');
-                    setShowAuthModal(true);
+                    window.location.href = '/auth/register';
                   }}
                   style={{
                     background: 'transparent',
