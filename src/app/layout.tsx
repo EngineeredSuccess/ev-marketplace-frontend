@@ -1,4 +1,3 @@
-import { AuthProvider } from '@/contexts/AuthContext'
 import { Metadata } from 'next'
 import { WebsiteStructuredData, OrganizationStructuredData } from '@/components/seo/StructuredData'
 import WebVitals from '@/components/analytics/WebVitals'
@@ -64,9 +63,7 @@ export default function RootLayout({
         />
         <OrganizationStructuredData />
         <WebVitals />
-        <AuthProvider>
-          {children}
-        </AuthProvider>
+        {children}
       </body>
     </html>
   )

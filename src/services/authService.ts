@@ -171,6 +171,49 @@ export const authService = {
     }
   },
 
+  // Send phone verification code
+  sendVerificationCode: async (phone: string) => {
+    try {
+      // For demo purposes, simulate sending verification code
+      // In production, you would integrate with SMS service like Twilio
+      console.log(`Sending verification code to ${phone}`)
+      
+      return {
+        success: true,
+        message: 'Kod weryfikacyjny został wysłany'
+      }
+    } catch (error: any) {
+      return {
+        success: false,
+        message: error.message || 'Błąd podczas wysyłania kodu'
+      }
+    }
+  },
+
+  // Verify phone code
+  verifyCode: async (phone: string, code: string) => {
+    try {
+      // For demo purposes, accept any 6-digit code
+      // In production, you would verify against the actual sent code
+      if (code.length === 6 && /^\d+$/.test(code)) {
+        return {
+          success: true,
+          message: 'Kod został zweryfikowany'
+        }
+      } else {
+        return {
+          success: false,
+          message: 'Nieprawidłowy kod weryfikacyjny'
+        }
+      }
+    } catch (error: any) {
+      return {
+        success: false,
+        message: error.message || 'Błąd podczas weryfikacji kodu'
+      }
+    }
+  },
+
   // Listen to auth changes
   onAuthStateChange: (callback: (user: AuthUser | null) => void) => {
     return supabase.auth.onAuthStateChange((event, session) => {
