@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import Script from 'next/script';
 import { Search, Filter, Car, Battery, Zap, MapPin, Phone, Mail, Heart, Star, ChevronDown, Menu, X, ArrowRight, Sparkles, User, Shield, Building, CheckCircle, AlertCircle } from 'lucide-react';
+import AuthModal from './auth/AuthModal';
 
 
 
@@ -138,7 +139,6 @@ export default function EVMarketplace() {
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [authMode, setAuthMode] = useState<'login' | 'register'>('login');
-  const [authStep, setAuthStep] = useState<'auth' | 'details'>('auth');
   const [authenticatedEmail, setAuthenticatedEmail] = useState('');
   
   const [currentView, setCurrentView] = useState('home');
@@ -152,21 +152,6 @@ export default function EVMarketplace() {
     location: 'Wszystkie'
   });
 
-  // Auth form data
-  const [authFormData, setAuthFormData] = useState({
-    email: '',
-    firstName: '',
-    lastName: '',
-    isCompany: false,
-    companyName: '',
-    nip: '',
-    street: '',
-    city: '',
-    postalCode: '',
-    country: 'Polska',
-    gdprConsent: false,
-    marketingConsent: false
-  });
 
   // Simple magic link simulation
   const handleMagicLinkAuth = () => {
@@ -190,30 +175,24 @@ export default function EVMarketplace() {
 
   const handleAuthSuccess = (email: string) => {
     setAuthenticatedEmail(email);
-    setAuthFormData(prev => ({ ...prev, email }));
     
-    if (authMode === 'login') {
-      // For login, close modal and complete login
-      setShowAuthModal(false);
-      setCurrentUser({
-        id: Date.now(),
-        email: email,
-        first_name: '',
-        last_name: '',
-        is_company: false,
-        street: '',
-        city: '',
-        postal_code: '',
-        country: 'Polska',
-        company_name: '',
-        nip: '',
-        is_verified: true,
-        auth_provider: 'magic_link'
-      });
-    } else {
-      // For registration, proceed to details step
-      setAuthStep('details');
-    }
+    // Complete authentication immediately - no additional forms needed
+    setShowAuthModal(false);
+    setCurrentUser({
+      id: Date.now(),
+      email: email,
+      first_name: '',
+      last_name: '',
+      is_company: false,
+      street: '',
+      city: '',
+      postal_code: '',
+      country: 'Polska',
+      company_name: '',
+      nip: '',
+      is_verified: true,
+      auth_provider: 'oauth'
+    });
   };
 
   // Initialize dataLayer for GTM
@@ -243,49 +222,6 @@ export default function EVMarketplace() {
     filterVehicles();
   }, [searchTerm, filters, vehicles]);
 
-  const completeRegistration = () => {
-    setLoading(true);
-    
-    setTimeout(() => {
-      setLoading(false);
-      
-      const newUser = {
-        id: Date.now(),
-        email: authFormData.email,
-        first_name: authFormData.firstName,
-        last_name: authFormData.lastName,
-        is_company: authFormData.isCompany,
-        street: authFormData.street,
-        city: authFormData.city,
-        postal_code: authFormData.postalCode,
-        country: authFormData.country,
-        company_name: authFormData.isCompany ? authFormData.companyName : undefined,
-        nip: authFormData.isCompany ? authFormData.nip : undefined,
-        is_verified: true,
-        auth_provider: 'google'
-      };
-      
-      setCurrentUser(newUser);
-      setShowAuthModal(false);
-      setAuthStep('auth');
-      
-      // Reset form
-      setAuthFormData({
-        email: '',
-        firstName: '',
-        lastName: '',
-        isCompany: false,
-        companyName: '',
-        nip: '',
-        street: '',
-        city: '',
-        postalCode: '',
-        country: 'Polska',
-        gdprConsent: false,
-        marketingConsent: false
-      });
-    }, 2000);
-  };
 
   const logout = () => {
     setCurrentUser(null);
@@ -303,7 +239,6 @@ export default function EVMarketplace() {
 
   const closeAuthModal = () => {
     setShowAuthModal(false);
-    setAuthStep('auth');
   };
 
   const AuthModal = () => {
@@ -349,386 +284,106 @@ export default function EVMarketplace() {
             </button>
           </div>
 
-          {authStep === 'auth' && (
-            <div>
-              <div style={{ textAlign: 'center', marginBottom: '24px' }}>
-                <Mail style={{ height: '48px', width: '48px', color: '#10b981', margin: '0 auto 16px' }} />
-                <p style={{ color: '#6b7280' }}>
-                  {authMode === 'login' 
-                    ? 'Zaloguj się za pomocą magic link lub konta społecznościowego'
-                    : 'Zarejestruj się za pomocą magic link lub konta społecznościowego'
-                  }
-                </p>
-              </div>
+          <div>
+            <div style={{ textAlign: 'center', marginBottom: '24px' }}>
+              <Mail style={{ height: '48px', width: '48px', color: '#10b981', margin: '0 auto 16px' }} />
+              <p style={{ color: '#6b7280' }}>
+                {authMode === 'login' 
+                  ? 'Zaloguj się za pomocą magic link lub konta społecznościowego'
+                  : 'Zarejestruj się za pomocą magic link lub konta społecznościowego'
+                }
+              </p>
+            </div>
 
-              {/* Magic Link Form */}
+            {/* Magic Link Form */}
+            <button
+              onClick={handleMagicLinkAuth}
+              style={{
+                width: '100%',
+                background: 'linear-gradient(135deg, #10b981, #059669)',
+                color: 'white',
+                border: 'none',
+                padding: '14px',
+                borderRadius: '12px',
+                fontSize: '16px',
+                fontWeight: '600',
+                cursor: 'pointer',
+                marginBottom: '16px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '8px'
+              }}
+            >
+              <Mail style={{ height: '18px', width: '18px' }} />
+              Wyślij Magic Link
+            </button>
+            
+            <div style={{ margin: '16px 0', textAlign: 'center', color: '#6b7280' }}>
+              lub
+            </div>
+            
+            {/* OAuth Buttons */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
               <button
-                onClick={handleMagicLinkAuth}
+                onClick={() => handleOAuthAuth('Google')}
                 style={{
                   width: '100%',
-                  background: 'linear-gradient(135deg, #10b981, #059669)',
+                  background: '#4285f4',
                   color: 'white',
                   border: 'none',
-                  padding: '14px',
+                  padding: '12px',
                   borderRadius: '12px',
-                  fontSize: '16px',
+                  fontSize: '14px',
                   fontWeight: '600',
                   cursor: 'pointer',
-                  marginBottom: '16px',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
                   gap: '8px'
                 }}
               >
-                <Mail style={{ height: '18px', width: '18px' }} />
-                Wyślij Magic Link
+                🔍 Kontynuuj z Google
               </button>
               
-              <div style={{ margin: '16px 0', textAlign: 'center', color: '#6b7280' }}>
-                lub
-              </div>
-              
-              {/* OAuth Buttons */}
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                <button
-                  onClick={() => handleOAuthAuth('Google')}
-                  style={{
-                    width: '100%',
-                    background: '#4285f4',
-                    color: 'white',
-                    border: 'none',
-                    padding: '12px',
-                    borderRadius: '12px',
-                    fontSize: '14px',
-                    fontWeight: '600',
-                    cursor: 'pointer',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    gap: '8px'
-                  }}
-                >
-                  🔍 Kontynuuj z Google
-                </button>
-                
-                <button
-                  onClick={() => handleOAuthAuth('Apple')}
-                  style={{
-                    width: '100%',
-                    background: '#000000',
-                    color: 'white',
-                    border: 'none',
-                    padding: '12px',
-                    borderRadius: '12px',
-                    fontSize: '14px',
-                    fontWeight: '600',
-                    cursor: 'pointer',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    gap: '8px'
-                  }}
-                >
-                  🍎 Kontynuuj z Apple
-                </button>
-              </div>
-
-              <div style={{ textAlign: 'center', marginTop: '16px' }}>
-                <button
-                  onClick={() => setAuthMode(authMode === 'login' ? 'register' : 'login')}
-                  style={{
-                    background: 'none',
-                    border: 'none',
-                    color: '#10b981',
-                    fontSize: '14px',
-                    cursor: 'pointer',
-                    textDecoration: 'underline'
-                  }}
-                >
-                  {authMode === 'login' ? 'Nie masz konta? Zarejestruj się' : 'Masz już konto? Zaloguj się'}
-                </button>
-              </div>
-            </div>
-          )}
-
-          {authStep === 'details' && authMode === 'register' && (
-            <div>
-              <div style={{ textAlign: 'center', marginBottom: '24px' }}>
-                <User style={{ height: '48px', width: '48px', color: '#10b981', margin: '0 auto 16px' }} />
-                <p style={{ color: '#6b7280' }}>
-                  Uzupełnij swoje dane, aby zakończyć rejestrację
-                </p>
-              </div>
-
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-                <div>
-                  <label style={{ display: 'block', fontSize: '14px', fontWeight: '600', color: '#374151', marginBottom: '8px' }}>
-                    Email *
-                  </label>
-                  <input
-                    type="email"
-                    placeholder="twoj@email.com"
-                    value={authFormData.email}
-                    onChange={(e) => setAuthFormData({...authFormData, email: e.target.value})}
-                    style={{
-                      width: '100%',
-                      padding: '12px 16px',
-                      border: '2px solid #e5e7eb',
-                      borderRadius: '12px',
-                      fontSize: '14px',
-                      outline: 'none'
-                    }}
-                    disabled
-                  />
-                </div>
-
-
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
-                  <div>
-                    <label style={{ display: 'block', fontSize: '14px', fontWeight: '600', color: '#374151', marginBottom: '8px' }}>
-                      Imię *
-                    </label>
-                    <input
-                      type="text"
-                      placeholder="Jan"
-                      value={authFormData.firstName}
-                      onChange={(e) => setAuthFormData({...authFormData, firstName: e.target.value})}
-                      style={{
-                        width: '100%',
-                        padding: '12px 16px',
-                        border: '2px solid #e5e7eb',
-                        borderRadius: '12px',
-                        fontSize: '14px',
-                        outline: 'none'
-                      }}
-                    />
-                  </div>
-                  <div>
-                    <label style={{ display: 'block', fontSize: '14px', fontWeight: '600', color: '#374151', marginBottom: '8px' }}>
-                      Nazwisko *
-                    </label>
-                    <input
-                      type="text"
-                      placeholder="Kowalski"
-                      value={authFormData.lastName}
-                      onChange={(e) => setAuthFormData({...authFormData, lastName: e.target.value})}
-                      style={{
-                        width: '100%',
-                        padding: '12px 16px',
-                        border: '2px solid #e5e7eb',
-                        borderRadius: '12px',
-                        fontSize: '14px',
-                        outline: 'none'
-                      }}
-                    />
-                  </div>
-                </div>
-
-                <div>
-                  <label style={{ display: 'block', fontSize: '14px', fontWeight: '600', color: '#374151', marginBottom: '8px' }}>
-                    Typ konta *
-                  </label>
-                  <div style={{ 
-                    display: 'grid', 
-                    gridTemplateColumns: '1fr 1fr', 
-                    gap: '12px',
-                    padding: '12px',
-                    border: '2px solid #e5e7eb',
-                    borderRadius: '12px',
-                    background: '#f9fafb'
-                  }}>
-                    <label style={{ 
-                      display: 'flex', 
-                      alignItems: 'center', 
-                      cursor: 'pointer',
-                      padding: '8px 12px',
-                      borderRadius: '8px',
-                      background: !authFormData.isCompany ? '#10b981' : 'transparent',
-                      color: !authFormData.isCompany ? 'white' : '#374151',
-                      transition: 'all 0.2s'
-                    }}>
-                      <input
-                        type="radio"
-                        name="accountType"
-                        checked={!authFormData.isCompany}
-                        onChange={() => setAuthFormData({...authFormData, isCompany: false, companyName: '', nip: ''})}
-                        style={{ marginRight: '8px' }}
-                      />
-                      <User size={16} style={{ marginRight: '6px' }} />
-                      Konto osobiste
-                    </label>
-                    <label style={{ 
-                      display: 'flex', 
-                      alignItems: 'center', 
-                      cursor: 'pointer',
-                      padding: '8px 12px',
-                      borderRadius: '8px',
-                      background: authFormData.isCompany ? '#10b981' : 'transparent',
-                      color: authFormData.isCompany ? 'white' : '#374151',
-                      transition: 'all 0.2s'
-                    }}>
-                      <input
-                        type="radio"
-                        name="accountType"
-                        checked={authFormData.isCompany}
-                        onChange={() => setAuthFormData({...authFormData, isCompany: true})}
-                        style={{ marginRight: '8px' }}
-                      />
-                      <Building size={16} style={{ marginRight: '6px' }} />
-                      Konto firmowe
-                    </label>
-                  </div>
-                </div>
-
-                {authFormData.isCompany && (
-                  <>
-                    <div>
-                      <label style={{ display: 'block', fontSize: '14px', fontWeight: '600', color: '#374151', marginBottom: '8px' }}>
-                        Nazwa firmy *
-                      </label>
-                      <input
-                        type="text"
-                        placeholder="Nazwa Sp. z o.o."
-                        value={authFormData.companyName}
-                        onChange={(e) => setAuthFormData({...authFormData, companyName: e.target.value})}
-                        style={{
-                          width: '100%',
-                          padding: '12px 16px',
-                          border: '2px solid #e5e7eb',
-                          borderRadius: '12px',
-                          fontSize: '14px',
-                          outline: 'none'
-                        }}
-                      />
-                    </div>
-                    <div>
-                      <label style={{ display: 'block', fontSize: '14px', fontWeight: '600', color: '#374151', marginBottom: '8px' }}>
-                        NIP *
-                      </label>
-                      <input
-                        type="text"
-                        placeholder="1234567890"
-                        value={authFormData.nip}
-                        onChange={(e) => setAuthFormData({...authFormData, nip: e.target.value})}
-                        style={{
-                          width: '100%',
-                          padding: '12px 16px',
-                          border: '2px solid #e5e7eb',
-                          borderRadius: '12px',
-                          fontSize: '14px',
-                          outline: 'none'
-                        }}
-                      />
-                    </div>
-                  </>
-                )}
-
-                <div>
-                  <label style={{ display: 'block', fontSize: '14px', fontWeight: '600', color: '#374151', marginBottom: '8px' }}>
-                    Miasto *
-                  </label>
-                  <input
-                    type="text"
-                    placeholder="Warszawa"
-                    value={authFormData.city}
-                    onChange={(e) => setAuthFormData({...authFormData, city: e.target.value})}
-                    style={{
-                      width: '100%',
-                      padding: '12px 16px',
-                      border: '2px solid #e5e7eb',
-                      borderRadius: '12px',
-                      fontSize: '14px',
-                      outline: 'none'
-                    }}
-                  />
-                </div>
-
-                {/* GDPR Compliance Section */}
-                <div style={{
-                  padding: '16px',
-                  background: '#f8fafc',
-                  borderRadius: '12px',
-                  border: '2px solid #e5e7eb'
-                }}>
-                  <h4 style={{ 
-                    fontSize: '14px', 
-                    fontWeight: '600', 
-                    color: '#374151', 
-                    marginBottom: '12px',
-                    margin: '0 0 12px 0'
-                  }}>
-                    Zgody na przetwarzanie danych osobowych (RODO)
-                  </h4>
-                  
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                    <label style={{ 
-                      display: 'flex', 
-                      alignItems: 'flex-start', 
-                      cursor: 'pointer',
-                      fontSize: '13px',
-                      lineHeight: '1.4'
-                    }}>
-                      <input
-                        type="checkbox"
-                        checked={authFormData.gdprConsent}
-                        onChange={(e) => setAuthFormData({...authFormData, gdprConsent: e.target.checked})}
-                        style={{ 
-                          marginRight: '8px', 
-                          marginTop: '2px',
-                          minWidth: '16px'
-                        }}
-                      />
-                      <span style={{ color: '#374151' }}>
-                        <strong>Wymagane:</strong> Wyrażam zgodę na przetwarzanie moich danych osobowych przez iVi Market w celu realizacji usług marketplace pojazdów elektrycznych.
-                      </span>
-                    </label>
-                    
-                    <label style={{ 
-                      display: 'flex', 
-                      alignItems: 'flex-start', 
-                      cursor: 'pointer',
-                      fontSize: '13px',
-                      lineHeight: '1.4'
-                    }}>
-                      <input
-                        type="checkbox"
-                        checked={authFormData.marketingConsent}
-                        onChange={(e) => setAuthFormData({...authFormData, marketingConsent: e.target.checked})}
-                        style={{ 
-                          marginRight: '8px', 
-                          marginTop: '2px',
-                          minWidth: '16px'
-                        }}
-                      />
-                      <span style={{ color: '#6b7280' }}>
-                        Opcjonalne: Wyrażam zgodę na otrzymywanie informacji marketingowych o nowych ofertach i promocjach.
-                      </span>
-                    </label>
-                  </div>
-                </div>
-              </div>
-
               <button
-                onClick={completeRegistration}
-                disabled={loading || !authFormData.email || !authFormData.firstName || !authFormData.lastName || !authFormData.city || !authFormData.gdprConsent || (authFormData.isCompany && (!authFormData.companyName || !authFormData.nip))}
+                onClick={() => handleOAuthAuth('Apple')}
                 style={{
                   width: '100%',
-                  background: loading || !authFormData.email || !authFormData.firstName || !authFormData.lastName || !authFormData.city || !authFormData.gdprConsent || (authFormData.isCompany && (!authFormData.companyName || !authFormData.nip)) ? '#9ca3af' : 'linear-gradient(135deg, #10b981, #059669)',
+                  background: '#000000',
                   color: 'white',
                   border: 'none',
-                  padding: '14px',
+                  padding: '12px',
                   borderRadius: '12px',
-                  fontSize: '16px',
+                  fontSize: '14px',
                   fontWeight: '600',
-                  cursor: loading || !authFormData.email || !authFormData.firstName || !authFormData.lastName || !authFormData.city || !authFormData.gdprConsent || (authFormData.isCompany && (!authFormData.companyName || !authFormData.nip)) ? 'not-allowed' : 'pointer',
-                  marginTop: '24px'
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '8px'
                 }}
               >
-                {loading ? 'Rejestrowanie...' : 'Zakończ rejestrację'}
+                🍎 Kontynuuj z Apple
               </button>
             </div>
-          )}
+
+            <div style={{ textAlign: 'center', marginTop: '16px' }}>
+              <button
+                onClick={() => setAuthMode(authMode === 'login' ? 'register' : 'login')}
+                style={{
+                  background: 'none',
+                  border: 'none',
+                  color: '#10b981',
+                  fontSize: '14px',
+                  cursor: 'pointer',
+                  textDecoration: 'underline'
+                }}
+              >
+                {authMode === 'login' ? 'Nie masz konta? Zarejestruj się' : 'Masz już konto? Zaloguj się'}
+              </button>
+            </div>
+          </div>
         </div>
       </div>
     );
