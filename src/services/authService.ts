@@ -14,6 +14,7 @@ export interface UserProfile {
   email: string
   first_name: string
   last_name: string
+  phone: string
   is_company: boolean
   street: string
   city: string
@@ -130,6 +131,7 @@ export const authService = {
         email: userData.email || user.email || '',
         first_name: userData.firstName,
         last_name: userData.lastName,
+        phone: userData.phone || '',
         is_company: userData.isCompany,
         street: userData.street || '',
         city: userData.city,
