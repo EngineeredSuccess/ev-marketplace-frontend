@@ -1,6 +1,10 @@
+'use client'
+
 import React, { useState, useEffect } from 'react';
 import Script from 'next/script';
 import { Search, Filter, Car, Battery, Zap, MapPin, Phone, Mail, Heart, Star, ChevronDown, Menu, X, ArrowRight, Sparkles, User, Shield, Building, CheckCircle, AlertCircle } from 'lucide-react';
+import Script from 'next/script';
+
 
 // Extend Window interface for GTM
 declare global {
