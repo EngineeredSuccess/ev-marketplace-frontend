@@ -4,7 +4,6 @@ import React, { useState } from 'react'
 import { User, Building } from 'lucide-react'
 import { useAuth } from '@/contexts/AuthContext'
 import { authService } from '@/services/authService'
-import { AccountTypeSelector } from './AccountTypeSelector'
 
 interface FormData {
   email: string
@@ -68,7 +67,6 @@ export const RegistrationForm: React.FC<RegistrationFormProps> = ({
     try {
       // Create user profile in Supabase
       await authService.createUserProfile({
-        phone: phone,
         email: formData.email,
         first_name: formData.firstName,
         last_name: formData.lastName,
@@ -78,7 +76,8 @@ export const RegistrationForm: React.FC<RegistrationFormProps> = ({
         postal_code: formData.postalCode || '',
         country: 'Poland',
         company_name: formData.isCompany ? formData.companyName : undefined,
-        nip: formData.isCompany ? formData.nip : undefined
+        nip: formData.isCompany ? formData.nip : undefined,
+        auth_provider: 'email'
       })
 
       // Refresh the user profile in context
