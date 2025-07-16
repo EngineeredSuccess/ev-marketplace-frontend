@@ -1,5 +1,6 @@
 import { supabase } from '@/lib/supabase'
 import { User } from '@supabase/supabase-js'
+import { User as AppUser } from '../types/User'
 import { magicLinkService } from './magicLinkService'
 import { oauthService } from './oauthService'
 
@@ -23,6 +24,26 @@ export interface UserProfile {
   nip?: string
   is_verified: boolean
   auth_provider: string
+}
+
+// Helper function to convert UserProfile to AppUser
+const convertProfileToUser = (profile: UserProfile): AppUser => {
+  return {
+    id: profile.id,
+    phone: '', // Phone not stored in UserProfile yet
+    email: profile.email,
+    firstName: profile.first_name,
+    lastName: profile.last_name,
+    isCompany: profile.is_company,
+    street: profile.street,
+    city: profile.city,
+    postalCode: profile.postal_code,
+    country: profile.country,
+    companyName: profile.company_name,
+    nip: profile.nip,
+    isVerified: profile.is_verified,
+    registrationDate: new Date() // Default to current date
+  }
 }
 
 export const authService = {
@@ -143,7 +164,7 @@ export const authService = {
       if (profile) {
         return {
           success: true,
-          user: profile,
+          user: convertProfileToUser(profile),
           profile: profile
         }
       } else {
@@ -174,5 +195,25 @@ export const authService = {
     return supabase.auth.onAuthStateChange((event, session) => {
       callback(session?.user || null)
     })
+  },
+
+  // Phone verification methods (stub implementations for now)
+  sendVerificationCode: async (phone: string) => {
+    // This is a stub implementation - in production you'd integrate with SMS service
+    console.log('Sending verification code to:', phone)
+    return {
+      success: true,
+      message: 'Verification code sent successfully'
+    }
+  },
+
+  verifyCode: async (phone: string, code: string) => {
+    // This is a stub implementation - in production you'd verify with SMS service
+    console.log('Verifying code:', code, 'for phone:', phone)
+    return {
+      success: true,
+      message: 'Code verified successfully',
+      user: null // Return null for new users, user object for existing users
+    }
   }
 }
