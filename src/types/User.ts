@@ -1,16 +1,16 @@
 export interface User {
   id: number;
-  phone: string;
+  phone?: string;
   email: string;
-  firstName: string;
-  lastName: string;
-  isCompany: boolean;
+  first_name: string;
+  last_name: string;
+  is_company: boolean;
   street: string;
   city: string;
-  postalCode: string;
+  postal_code: string;
   country: string;
-  companyName?: string;
+  company_name?: string;
   nip?: string;
-  isVerified: boolean;
-  registrationDate: Date;
+  is_verified: boolean;
+  auth_provider: string;
 }

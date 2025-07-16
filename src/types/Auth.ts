@@ -1,22 +1,13 @@
-export interface User {
-  id: number
-  email: string
-  firstName: string
-  lastName: string
-  isCompany: boolean
-  street: string
-  city: string
-  postalCode: string
-  country: string
-  companyName?: string
-  nip?: string
-  isVerified: boolean
-  authProvider: string
-  registrationDate: Date
-}
+// Import UserProfile from authService
+import { UserProfile } from '@/services/authService'
+
+// User is the same as UserProfile
+export type User = UserProfile
 
 export interface AuthFormData {
   email: string
+  phone: string
+  verificationCode: string
   firstName: string
   lastName: string
   isCompany: boolean
@@ -46,3 +37,7 @@ export interface OAuthResponse {
   message: string
   data?: any
 }
+
+export type AuthMode = 'login' | 'register'
+
+export type PhoneVerificationStep = 'phone' | 'code' | 'details' | 'complete'
