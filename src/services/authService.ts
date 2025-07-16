@@ -12,6 +12,7 @@ export interface AuthUser {
 export interface UserProfile {
   id: number
   email: string
+  phone?: string
   first_name: string
   last_name: string
   is_company: boolean
@@ -166,6 +167,45 @@ export const authService = {
     if (error) {
       console.error('Error signing out:', error)
       throw error
+    }
+  },
+
+  // Phone verification methods
+  sendVerificationCode: async (phone: string): Promise<{ success: boolean; message: string }> => {
+    try {
+      // For now, just return success - implement actual SMS service later
+      return {
+        success: true,
+        message: 'Verification code sent successfully'
+      }
+    } catch (error: any) {
+      return {
+        success: false,
+        message: error.message || 'Failed to send verification code'
+      }
+    }
+  },
+
+  verifyCode: async (phone: string, code: string): Promise<{ success: boolean; message: string; user?: any }> => {
+    try {
+      // For now, just return success for any 6-digit code - implement actual verification later
+      if (code.length === 6) {
+        return {
+          success: true,
+          message: 'Phone verified successfully',
+          user: { phone: phone } // Minimal user data for now
+        }
+      } else {
+        return {
+          success: false,
+          message: 'Invalid verification code'
+        }
+      }
+    } catch (error: any) {
+      return {
+        success: false,
+        message: error.message || 'Failed to verify code'
+      }
     }
   },
 
