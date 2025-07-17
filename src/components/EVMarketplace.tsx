@@ -1,4 +1,8 @@
+'use client'
+
 import React, { useState, useEffect } from 'react';
+import GoogleOAuthDebug from './auth/GoogleOAuthDebug';
+import OAuthHandler from './auth/OAuthHandler';
 import Script from 'next/script';
 import { Search, Filter, Car, Battery, Zap, MapPin, Phone, Mail, Heart, Star, ChevronDown, Menu, X, ArrowRight, Sparkles, User, Shield, Building, CheckCircle, AlertCircle } from 'lucide-react';
 
@@ -177,14 +181,62 @@ export default function EVMarketplace() {
     }
   };
 
-  // Simple OAuth simulation
-  const handleOAuthAuth = (provider: string) => {
-    const email = `user@${provider}.com`;
-    alert(`Logowanie przez ${provider}`);
-    setTimeout(() => {
-      handleAuthSuccess(email);
-    }, 1000);
+  // Real OAuth implementation
+  const handleOAuthAuth = async (provider: string) => {
+    if (provider === 'Google') {
+      try {
+        console.log('Starting Google OAuth...')
+        const { oauthService } = await import('../services/oauthService')
+        const result = await oauthService.signInWithGoogle()
+        
+        if (!result.success) {
+          console.error('OAuth failed:', result.message)
+          alert(`Błąd OAuth: ${result.message}`)
+        }
+        // If successful, the redirect will happen automatically
+        // The callback will be handled by OAuthHandler
+      } catch (error) {
+        console.error('OAuth error:', error)
+        alert('Błąd podczas logowania przez Google')
+      }
+    }
   };
+
+  const handleOAuthSuccess = (user: any) => {
+    console.log('OAuth authentication successful:', user)
+    
+    // Set the current user from OAuth data
+    const oauthUser = {
+      id: user.id,
+      email: user.email,
+      firstName: user.user_metadata?.full_name?.split(' ')[0] || user.user_metadata?.name?.split(' ')[0] || 'User',
+      lastName: user.user_metadata?.full_name?.split(' ').slice(1).join(' ') || user.user_metadata?.name?.split(' ').slice(1).join(' ') || '',
+      phone: user.user_metadata?.phone || '',
+      city: '',
+      isCompany: false,
+      companyName: '',
+      nip: '',
+      street: '',
+      postalCode: '',
+      country: 'Polska',
+      isVerified: true,
+      registrationDate: new Date()
+    }
+    
+    setCurrentUser(oauthUser)
+    setShowAuthModal(false)
+    setAuthStep('auth')
+    
+    // Show success message
+    alert('Pomyślnie zalogowano przez Google!')
+  }
+
+  const handleOAuthError = (error: string) => {
+    console.error('OAuth authentication failed:', error)
+    alert(`Błąd OAuth: ${error}`)
+    // Don't show registration form on OAuth error
+    setAuthStep('auth')
+  }
 
   const handleAuthSuccess = (email: string) => {
     setAuthenticatedEmail(email);
@@ -1481,7 +1533,13 @@ export default function EVMarketplace() {
   };
 
   return (
-    <div style={{
+    <>
+      <GoogleOAuthDebug />
+      <OAuthHandler
+        onAuthSuccess={handleOAuthSuccess}
+        onAuthError={handleOAuthError}
+      />
+      <div style={{
       minHeight: '100vh',
       background: 'linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%)',
       fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
@@ -1497,5 +1555,6 @@ export default function EVMarketplace() {
       <AuthModal />
       <CookieBanner />
     </div>
+    </>
   );
 }

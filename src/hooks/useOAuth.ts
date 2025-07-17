@@ -13,31 +13,36 @@ export const useOAuth = () => {
   })
 
   const signInWithGoogle = useCallback(async (): Promise<boolean> => {
-    setState(prev => ({ 
-      ...prev, 
-      isLoading: true, 
-      error: null 
+    setState(prev => ({
+      ...prev,
+      isLoading: true,
+      error: null
     }))
 
     try {
+      console.log('Starting Google OAuth flow...')
       const result = await oauthService.signInWithGoogle()
       
       if (result.success) {
-        // OAuth redirect will happen automatically
+        console.log('OAuth initiated successfully')
+        // Keep loading state as redirect will happen
+        // Don't set loading to false here as the page will redirect
         return true
       } else {
-        setState(prev => ({ 
-          ...prev, 
-          error: result.message, 
-          isLoading: false 
+        console.error('OAuth failed:', result.message)
+        setState(prev => ({
+          ...prev,
+          error: `Google OAuth failed: ${result.message}`,
+          isLoading: false
         }))
         return false
       }
     } catch (error: any) {
-      setState(prev => ({ 
-        ...prev, 
-        error: 'Błąd podczas logowania przez Google', 
-        isLoading: false 
+      console.error('OAuth hook error:', error)
+      setState(prev => ({
+        ...prev,
+        error: `Błąd podczas logowania przez Google: ${error.message}`,
+        isLoading: false
       }))
       return false
     }
