@@ -20,12 +20,12 @@ interface FormData {
 }
 
 interface RegistrationFormProps {
-  phone: string
+  email?: string
   onRegistrationComplete: () => void
 }
 
 export const RegistrationForm: React.FC<RegistrationFormProps> = ({
-  phone,
+  email = '',
   onRegistrationComplete
 }) => {
   const { refreshProfile } = useAuth()
@@ -68,7 +68,6 @@ export const RegistrationForm: React.FC<RegistrationFormProps> = ({
     try {
       // Create user profile in Supabase
       await authService.createUserProfile({
-        phone: phone,
         email: formData.email,
         first_name: formData.firstName,
         last_name: formData.lastName,
@@ -79,7 +78,7 @@ export const RegistrationForm: React.FC<RegistrationFormProps> = ({
         country: 'Poland',
         company_name: formData.isCompany ? formData.companyName : undefined,
         nip: formData.isCompany ? formData.nip : undefined,
-        auth_provider: 'phone'
+        auth_provider: 'email'
       })
 
       // Refresh the user profile in context
@@ -104,7 +103,7 @@ export const RegistrationForm: React.FC<RegistrationFormProps> = ({
           Uzupełnij swoje dane
         </h2>
         <p style={{ color: '#6b7280' }}>
-          Aby zakończyć rejestrację dla numeru {phone}
+          Aby zakończyć rejestrację dla {email || 'Twojego konta'}
         </p>
       </div>
 

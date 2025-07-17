@@ -3,10 +3,6 @@ export const validateEmail = (email: string): boolean => {
   return emailRegex.test(email);
 };
 
-export const validatePhone = (phone: string): boolean => {
-  const phoneRegex = /^\+48\d{9}$/;
-  return phoneRegex.test(phone.replace(/\s/g, ''));
-};
 
 export const validateNIP = (nip: string): boolean => {
   const nipRegex = /^\d{10}$/;

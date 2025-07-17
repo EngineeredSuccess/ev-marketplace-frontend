@@ -1,6 +1,6 @@
 import { useState, useCallback } from 'react';
 import { User } from '../types/User';
-import { AuthFormData, AuthMode, PhoneVerificationStep } from '../types/Auth';
+import { AuthFormData, AuthMode } from '../types/Auth';
 import { authService } from '../services/authService';
 import { validateRegistrationForm } from '../utils/validation';
 
@@ -9,13 +9,10 @@ export const useAuth = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [authMode, setAuthMode] = useState<AuthMode>('login');
-  const [phoneVerificationStep, setPhoneVerificationStep] = useState<PhoneVerificationStep>('phone');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const [authFormData, setAuthFormData] = useState<AuthFormData>({
-    phone: '',
-    verificationCode: '',
     email: '',
     firstName: '',
     lastName: '',
@@ -36,71 +33,10 @@ export const useAuth = () => {
       window.dataLayer.push({
         event: 'auth_action',
         auth_action: action,
-        auth_method: method || 'phone'
+        auth_method: method || 'email'
       });
     }
   }, []);
-
-  const sendVerificationCode = useCallback(async () => {
-    if (!authFormData.phone) {
-      setError('Numer telefonu jest wymagany');
-      return;
-    }
-
-    setLoading(true);
-    setError(null);
-    
-    try {
-      const result = await authService.sendVerificationCode(authFormData.phone);
-      if (result.success) {
-        setPhoneVerificationStep('code');
-        trackAuthEvent('verification_code_sent');
-      } else {
-        setError(result.message || 'Błąd podczas wysyłania kodu');
-      }
-    } catch (err) {
-      setError('Błąd podczas wysyłania kodu weryfikacyjnego');
-    } finally {
-      setLoading(false);
-    }
-  }, [authFormData.phone, trackAuthEvent]);
-
-  const verifyCode = useCallback(async () => {
-    if (!authFormData.verificationCode) {
-      setError('Kod weryfikacyjny jest wymagany');
-      return;
-    }
-
-    setLoading(true);
-    setError(null);
-
-    try {
-      const result = await authService.verifyCode(authFormData.phone, authFormData.verificationCode);
-      
-      if (result.success) {
-        if (result.user && authMode === 'login') {
-          // User exists, log them in
-          setCurrentUser(result.user);
-          setIsAuthenticated(true);
-          setShowAuthModal(false);
-          setPhoneVerificationStep('phone');
-          trackAuthEvent('login_success');
-        } else if (authMode === 'register') {
-          // New user, proceed to details form
-          setPhoneVerificationStep('details');
-          trackAuthEvent('verification_success');
-        }
-      } else {
-        setError(result.message || 'Nieprawidłowy kod weryfikacyjny');
-        trackAuthEvent('verification_failed');
-      }
-    } catch (err) {
-      setError('Błąd podczas weryfikacji kodu');
-      trackAuthEvent('verification_failed');
-    } finally {
-      setLoading(false);
-    }
-  }, [authFormData.phone, authFormData.verificationCode, authMode, trackAuthEvent]);
 
   const completeRegistration = useCallback(async () => {
     if (!validateRegistrationForm(authFormData)) {
@@ -118,13 +54,10 @@ export const useAuth = () => {
         setCurrentUser(result.user);
         setIsAuthenticated(true);
         setShowAuthModal(false);
-        setPhoneVerificationStep('phone');
         trackAuthEvent('registration_complete', authFormData.isCompany ? 'company' : 'individual');
         
         // Reset form
         setAuthFormData({
-          phone: '',
-          verificationCode: '',
           email: '',
           firstName: '',
           lastName: '',
@@ -152,14 +85,11 @@ export const useAuth = () => {
     setCurrentUser(null);
     setIsAuthenticated(false);
     setShowAuthModal(false);
-    setPhoneVerificationStep('phone');
     setError(null);
     trackAuthEvent('logout');
     
     // Reset form
     setAuthFormData({
-      phone: '',
-      verificationCode: '',
       email: '',
       firstName: '',
       lastName: '',
@@ -183,7 +113,6 @@ export const useAuth = () => {
 
   const closeAuthModal = useCallback(() => {
     setShowAuthModal(false);
-    setPhoneVerificationStep('phone');
     setError(null);
   }, []);
 
@@ -198,21 +127,17 @@ export const useAuth = () => {
     isAuthenticated,
     showAuthModal,
     authMode,
-    phoneVerificationStep,
     loading,
     error,
     authFormData,
     
     // Actions
-    sendVerificationCode,
-    verifyCode,
     completeRegistration,
     logout,
     openAuthModal,
     closeAuthModal,
     updateAuthFormData,
     setAuthMode,
-    setPhoneVerificationStep,
     trackAuthEvent
   };
 };

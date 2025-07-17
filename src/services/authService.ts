@@ -11,7 +11,6 @@ export interface AuthUser {
 
 export interface UserProfile {
   id: number
-  phone: string
   email: string
   first_name: string
   last_name: string
@@ -128,7 +127,6 @@ export const authService = {
       const authProvider = user.app_metadata?.provider || 'email'
 
       const profile = await authService.createUserProfile({
-        phone: userData.phone || '',
         email: userData.email || user.email || '',
         first_name: userData.firstName,
         last_name: userData.lastName,
@@ -169,48 +167,6 @@ export const authService = {
       console.error('Error signing out:', error)
       throw error
     }
-  },
-
-  // Send verification code (placeholder - implement with your SMS service)
-  sendVerificationCode: async (phone: string): Promise<{ success: boolean; message: string }> => {
-    // This is a placeholder implementation
-    // In a real app, you would integrate with an SMS service like Twilio
-    console.log(`Sending verification code to ${phone}`)
-    
-    // Simulate API call
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        resolve({
-          success: true,
-          message: 'Kod weryfikacyjny został wysłany'
-        })
-      }, 1000)
-    })
-  },
-
-  // Verify code (placeholder - implement with your verification logic)
-  verifyCode: async (phone: string, code: string): Promise<{ success: boolean; message: string; user?: any }> => {
-    // This is a placeholder implementation
-    // In a real app, you would verify the code with your SMS service
-    console.log(`Verifying code ${code} for phone ${phone}`)
-    
-    // Simulate verification
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        if (code === '123456') { // Mock verification code
-          resolve({
-            success: true,
-            message: 'Kod zweryfikowany pomyślnie',
-            user: null // Return null for new users, user object for existing users
-          })
-        } else {
-          resolve({
-            success: false,
-            message: 'Nieprawidłowy kod weryfikacyjny'
-          })
-        }
-      }, 1000)
-    })
   },
 
   // Listen to auth changes

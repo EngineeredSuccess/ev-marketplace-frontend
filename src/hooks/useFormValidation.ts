@@ -1,10 +1,9 @@
 import { useState, useCallback, useMemo } from 'react';
-import { validateEmail, validatePhone, validateNIP, validatePostalCode, validateRequired } from '../utils/validation';
+import { validateEmail, validateNIP, validatePostalCode, validateRequired } from '../utils/validation';
 
 export interface ValidationRule {
   required?: boolean;
   email?: boolean;
-  phone?: boolean;
   nip?: boolean;
   postalCode?: boolean;
   minLength?: number;
@@ -54,10 +53,6 @@ export const useFormValidation = <T extends Record<string, any>>(
       return 'Nieprawidłowy format adresu email';
     }
 
-    // Phone validation
-    if (rule.phone && !validatePhone(String(value))) {
-      return 'Nieprawidłowy format numeru telefonu';
-    }
 
     // NIP validation
     if (rule.nip && !validateNIP(String(value))) {
@@ -212,7 +207,6 @@ export const useFormValidation = <T extends Record<string, any>>(
 // Common validation rules
 export const commonValidationRules = {
   email: { required: true, email: true },
-  phone: { required: true, phone: true },
   firstName: { required: true, minLength: 2, maxLength: 50 },
   lastName: { required: true, minLength: 2, maxLength: 50 },
   city: { required: true, minLength: 2, maxLength: 100 },
