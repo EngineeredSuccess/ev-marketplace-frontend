@@ -68,7 +68,7 @@ export default function OAuthHandler({ onAuthSuccess, onAuthError }: OAuthHandle
 
     // Listen for auth state changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
+      async (event: any, session: any) => {
         console.log('Auth state change:', event, session)
         
         if (event === 'SIGNED_IN' && session?.user) {

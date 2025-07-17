@@ -11,6 +11,8 @@ export const oauthService = {
   signInWithGoogle: async (): Promise<OAuthResponse> => {
     try {
       console.log('Initiating Google OAuth...')
+      console.log('Current origin:', window.location.origin)
+      console.log('Supabase URL:', process.env.NEXT_PUBLIC_SUPABASE_URL)
       
       const { data, error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
@@ -29,7 +31,7 @@ export const oauthService = {
         console.error('OAuth error:', error)
         return {
           success: false,
-          message: `Google OAuth error: ${error.message}`
+          message: `Google OAuth error: ${error.message}. Please check Supabase OAuth configuration.`
         }
       }
 
@@ -45,15 +47,14 @@ export const oauthService = {
       }
 
       return {
-        success: true,
-        message: 'Przekierowanie do Google...',
-        data
+        success: false,
+        message: 'No redirect URL received. Please check OAuth configuration in Supabase dashboard.'
       }
     } catch (error: any) {
       console.error('OAuth service error:', error)
       return {
         success: false,
-        message: error.message || 'Błąd podczas logowania przez Google'
+        message: error.message || 'Błąd podczas logowania przez Google. Sprawdź konfigurację OAuth.'
       }
     }
   },
@@ -61,6 +62,9 @@ export const oauthService = {
   // Sign in with Apple
   signInWithApple: async (): Promise<OAuthResponse> => {
     try {
+      console.log('Initiating Apple OAuth...')
+      console.log('Current origin:', window.location.origin)
+      
       const { data, error } = await supabase.auth.signInWithOAuth({
         provider: 'apple',
         options: {
@@ -68,22 +72,36 @@ export const oauthService = {
         },
       })
 
+      console.log('Apple OAuth response:', { data, error })
+
       if (error) {
+        console.error('Apple OAuth error:', error)
         return {
           success: false,
-          message: error.message
+          message: `Apple OAuth error: ${error.message}. Please check Supabase OAuth configuration.`
+        }
+      }
+
+      // Check if we got a URL for redirect
+      if (data?.url) {
+        console.log('Redirecting to Apple:', data.url)
+        window.location.href = data.url
+        return {
+          success: true,
+          message: 'Przekierowanie do Apple...',
+          data
         }
       }
 
       return {
-        success: true,
-        message: 'Przekierowanie do Apple...',
-        data
+        success: false,
+        message: 'No redirect URL received. Please check Apple OAuth configuration in Supabase dashboard.'
       }
     } catch (error: any) {
+      console.error('Apple OAuth service error:', error)
       return {
         success: false,
-        message: error.message || 'Błąd podczas logowania przez Apple'
+        message: error.message || 'Błąd podczas logowania przez Apple. Sprawdź konfigurację OAuth.'
       }
     }
   }
