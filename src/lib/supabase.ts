@@ -6,21 +6,42 @@ const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
 // Create a function to get the Supabase client
 export const getSupabaseClient = () => {
   if (!supabaseUrl || !supabaseAnonKey) {
-    throw new Error('Missing Supabase environment variables')
+    console.error('Missing Supabase environment variables:', {
+      url: supabaseUrl ? 'present' : 'missing',
+      key: supabaseAnonKey ? 'present' : 'missing'
+    })
+    throw new Error('Missing Supabase environment variables. Please check your Vercel environment configuration.')
   }
   return createClient(supabaseUrl, supabaseAnonKey)
 }
 
-// Export the client for backward compatibility, but only create it when needed
+// Create a mock client for when environment variables are missing
+const createMockClient = () => ({
+  auth: {
+    signInWithOAuth: () => Promise.resolve({ data: null, error: { message: 'Supabase not configured' } }),
+    signInWithOtp: () => Promise.resolve({ error: { message: 'Supabase not configured' } }),
+    getUser: () => Promise.resolve({ data: { user: null }, error: null }),
+    onAuthStateChange: () => ({ data: { subscription: { unsubscribe: () => {} } } }),
+    signOut: () => Promise.resolve({ error: null })
+  },
+  from: () => ({
+    select: () => ({ eq: () => ({ single: () => Promise.resolve({ data: null, error: { message: 'Supabase not configured' } }) }) }),
+    insert: () => ({ select: () => ({ single: () => Promise.resolve({ data: null, error: { message: 'Supabase not configured' } }) }) }),
+    update: () => ({ eq: () => ({ select: () => ({ single: () => Promise.resolve({ data: null, error: { message: 'Supabase not configured' } }) }) }) })
+  })
+})
+
+// Export the client for backward compatibility
 export const supabase = (() => {
   try {
     return getSupabaseClient()
   } catch (error) {
-    // During build time, return a mock client to prevent build failures
+    // During build time or when env vars are missing, return a mock client
     if (typeof window === 'undefined') {
       console.warn('Supabase client not available during build time')
       return null as any
     }
-    throw error
+    console.warn('Supabase environment variables not configured, using mock client')
+    return createMockClient() as any
   }
 })()
