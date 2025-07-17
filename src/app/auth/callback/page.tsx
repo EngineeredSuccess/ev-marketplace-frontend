@@ -14,20 +14,21 @@ export default function AuthCallback() {
         
         if (error) {
           console.error('Auth error:', error)
-          router.push('/auth/login?error=auth_failed')
+          router.push('/?error=auth_failed')
           return
         }
 
         if (data.session) {
-          // User is authenticated, redirect to home or dashboard
+          // User is authenticated, redirect to home page
+          // The home page will handle showing registration modal if profile is incomplete
           router.push('/')
         } else {
-          // No session, redirect to login
-          router.push('/auth/login')
+          // No session, redirect to home with error
+          router.push('/?error=no_session')
         }
       } catch (error) {
         console.error('Callback error:', error)
-        router.push('/auth/login?error=callback_failed')
+        router.push('/?error=callback_failed')
       }
     }
 

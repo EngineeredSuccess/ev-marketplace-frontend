@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { User, Building } from 'lucide-react'
 import { useAuth } from '@/contexts/AuthContext'
 import { authService } from '@/services/authService'
@@ -27,7 +27,7 @@ export const RegistrationForm: React.FC<RegistrationFormProps> = ({
   phone,
   onRegistrationComplete
 }) => {
-  const { refreshProfile } = useAuth()
+  const { refreshProfile, user } = useAuth()
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   
@@ -47,6 +47,31 @@ export const RegistrationForm: React.FC<RegistrationFormProps> = ({
   const updateFormData = (updates: Partial<FormData>) => {
     setFormData(prev => ({ ...prev, ...updates }))
   }
+
+  // Determine auth provider based on user data
+  const getAuthProvider = (): string => {
+    if (!user) return 'email'
+    
+    // Check if user has OAuth identities
+    if (user.identities && user.identities.length > 0) {
+      const oauthIdentity = user.identities.find(identity => 
+        identity.provider === 'google' || identity.provider === 'apple'
+      )
+      if (oauthIdentity) {
+        return oauthIdentity.provider
+      }
+    }
+    
+    // Default to email if no OAuth provider found
+    return 'email'
+  }
+
+  // Pre-fill email from authenticated user
+  useEffect(() => {
+    if (user?.email && !formData.email) {
+      setFormData(prev => ({ ...prev, email: user.email || '' }))
+    }
+  }, [user, formData.email])
 
   const isFormValid =
     formData.email &&
@@ -77,7 +102,7 @@ export const RegistrationForm: React.FC<RegistrationFormProps> = ({
         country: 'Poland',
         company_name: formData.isCompany ? formData.companyName : undefined,
         nip: formData.isCompany ? formData.nip : undefined,
-        auth_provider: 'email'
+        auth_provider: getAuthProvider()
       })
 
       // Refresh the user profile in context
