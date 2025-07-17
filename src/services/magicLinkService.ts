@@ -9,10 +9,15 @@ export const magicLinkService = {
   // Send magic link to email
   sendMagicLink: async (email: string): Promise<MagicLinkResponse> => {
     try {
+      // Get the origin URL safely for both client and server environments
+      const origin = typeof window !== 'undefined' 
+        ? window.location.origin 
+        : process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'
+      
       const { error } = await supabase.auth.signInWithOtp({
         email,
         options: {
-          emailRedirectTo: `${window.location.origin}/auth/callback`,
+          emailRedirectTo: `${origin}/auth/callback`,
         },
       })
 
