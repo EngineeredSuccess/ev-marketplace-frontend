@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import OAuthHandler from './auth/OAuthHandler';
+import SupabaseDebug from './auth/SupabaseDebug';
 import Script from 'next/script';
 import { Search, Filter, Car, Battery, Zap, MapPin, Phone, Mail, Heart, Star, ChevronDown, Menu, X, ArrowRight, Sparkles, User, Shield, Building, CheckCircle, AlertCircle } from 'lucide-react';
 
@@ -1533,6 +1534,7 @@ export default function EVMarketplace() {
 
   return (
     <>
+      <SupabaseDebug />
       <OAuthHandler
         onAuthSuccess={handleOAuthSuccess}
         onAuthError={handleOAuthError}
