@@ -226,8 +226,8 @@ export default function EVMarketplace() {
     setShowAuthModal(false)
     setAuthStep('auth')
     
-    // Show success message
-    alert('Pomyślnie zalogowano przez Google!')
+    // Success message will be handled by the navigation component showing the user's name
+    console.log('OAuth login completed successfully for:', oauthUser.email)
   }
 
   const handleOAuthError = (error: string) => {

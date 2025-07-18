@@ -10,6 +10,7 @@ interface OAuthHandlerProps {
 
 export default function OAuthHandler({ onAuthSuccess, onAuthError }: OAuthHandlerProps) {
   const [isChecking, setIsChecking] = useState(true)
+  const [hasHandledAuth, setHasHandledAuth] = useState(false)
 
   useEffect(() => {
     const checkAuthStatus = async () => {
@@ -28,8 +29,9 @@ export default function OAuthHandler({ onAuthSuccess, onAuthError }: OAuthHandle
           if (error) {
             console.error('Error getting session after OAuth:', error)
             onAuthError(`OAuth session error: ${error.message}`)
-          } else if (data.session && data.session.user) {
+          } else if (data.session && data.session.user && !hasHandledAuth) {
             console.log('OAuth user authenticated:', data.session.user)
+            setHasHandledAuth(true)
             onAuthSuccess(data.session.user)
             
             // Clean up URL params
@@ -51,8 +53,9 @@ export default function OAuthHandler({ onAuthSuccess, onAuthError }: OAuthHandle
           // Check if user is already authenticated
           const { data, error } = await supabase.auth.getSession()
           
-          if (!error && data.session && data.session.user) {
+          if (!error && data.session && data.session.user && !hasHandledAuth) {
             console.log('User already authenticated:', data.session.user)
+            setHasHandledAuth(true)
             onAuthSuccess(data.session.user)
           }
         }
@@ -71,11 +74,13 @@ export default function OAuthHandler({ onAuthSuccess, onAuthError }: OAuthHandle
       async (event: any, session: any) => {
         console.log('Auth state change:', event, session)
         
-        if (event === 'SIGNED_IN' && session?.user) {
+        if (event === 'SIGNED_IN' && session?.user && !hasHandledAuth) {
           console.log('User signed in via auth state change:', session.user)
+          setHasHandledAuth(true)
           onAuthSuccess(session.user)
         } else if (event === 'SIGNED_OUT') {
           console.log('User signed out')
+          setHasHandledAuth(false)
           // Handle sign out if needed
         }
       }
@@ -84,7 +89,7 @@ export default function OAuthHandler({ onAuthSuccess, onAuthError }: OAuthHandle
     return () => {
       subscription.unsubscribe()
     }
-  }, [onAuthSuccess, onAuthError])
+  }, [onAuthSuccess, onAuthError, hasHandledAuth])
 
   if (isChecking) {
     return (
