@@ -23,34 +23,67 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     // Get initial user
     const getInitialUser = async () => {
-      const { data: { user } } = await supabase.auth.getUser()
-      setUser(user)
-      
-      if (user) {
-        const profile = await authService.getUserProfile()
-        setProfile(profile)
+      try {
+        const { data: { user } } = await supabase.auth.getUser()
+        setUser(user)
+        
+        if (user) {
+          try {
+            const profile = await authService.getUserProfile()
+            setProfile(profile)
+          } catch (error) {
+            console.error('Error getting user profile:', error)
+            setProfile(null)
+          }
+        }
+      } catch (error) {
+        console.error('Error getting user:', error)
+        setUser(null)
+        setProfile(null)
+      } finally {
+        setLoading(false)
+        clearTimeout(timeoutId)
       }
-      
-      setLoading(false)
     }
 
     getInitialUser()
 
+    // Add a timeout to prevent stuck loading state
+    const timeoutId = setTimeout(() => {
+      console.warn('Auth loading timeout reached, clearing loading state')
+      setLoading(false)
+    }, 5000)
+
     // Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
-      setUser(session?.user || null)
-      
-      if (session?.user) {
-        const profile = await authService.getUserProfile()
-        setProfile(profile)
-      } else {
+      try {
+        setUser(session?.user || null)
+        
+        if (session?.user) {
+          try {
+            const profile = await authService.getUserProfile()
+            setProfile(profile)
+          } catch (error) {
+            console.error('Error getting user profile on auth change:', error)
+            setProfile(null)
+          }
+        } else {
+          setProfile(null)
+        }
+      } catch (error) {
+        console.error('Error handling auth state change:', error)
+        setUser(null)
         setProfile(null)
+      } finally {
+        setLoading(false)
+        clearTimeout(timeoutId)
       }
-      
-      setLoading(false)
     })
 
-    return () => subscription.unsubscribe()
+    return () => {
+      subscription.unsubscribe()
+      clearTimeout(timeoutId)
+    }
   }, [])
 
   const signOut = async () => {
