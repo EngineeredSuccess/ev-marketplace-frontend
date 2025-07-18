@@ -13,20 +13,43 @@ export default function AuthCallback() {
         console.log('Auth callback initiated...')
         console.log('Current URL:', window.location.href)
         console.log('URL params:', window.location.search)
+        console.log('URL hash:', window.location.hash)
         
-        // Handle the OAuth callback by exchanging the code for a session
+        // First, try to handle OAuth callback from URL (for tokens in hash)
+        const { data: sessionData, error: sessionError } = await supabase.auth.getSessionFromUrl()
+        console.log('Session from URL result:', { sessionData, sessionError })
+        
+        if (sessionError) {
+          console.error('Session from URL error:', sessionError)
+          router.push(`/?error=oauth_failed&message=${encodeURIComponent(sessionError.message)}`)
+          return
+        }
+
+        if (sessionData.session && sessionData.session.user) {
+          console.log('OAuth authentication successful from URL!')
+          console.log('User data:', sessionData.session.user)
+          
+          // Store user data in localStorage for the main app
+          localStorage.setItem('supabase_user', JSON.stringify(sessionData.session.user))
+          localStorage.setItem('supabase_session', JSON.stringify(sessionData.session))
+          
+          // Redirect to home with success flag
+          router.push('/?auth=oauth_success')
+          return
+        }
+
+        // Fallback: try to get existing session
         const { data, error } = await supabase.auth.getSession()
-        console.log('Session exchange result:', { data, error })
+        console.log('Fallback session result:', { data, error })
         
         if (error) {
           console.error('Session exchange error:', error)
-          // Redirect to home with error, but don't show registration form
           router.push(`/?error=oauth_failed&message=${encodeURIComponent(error.message)}`)
           return
         }
 
         if (data.session && data.session.user) {
-          console.log('OAuth authentication successful!')
+          console.log('OAuth authentication successful from existing session!')
           console.log('User data:', data.session.user)
           
           // Store user data in localStorage for the main app
