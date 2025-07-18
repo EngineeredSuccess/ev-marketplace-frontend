@@ -10,7 +10,7 @@ export interface AuthUser {
 }
 
 export interface UserProfile {
-  id: number
+  id: string
   email: string
   first_name: string
   last_name: string
@@ -61,7 +61,7 @@ export const authService = {
     const { data, error } = await supabase
       .from('users')
       .insert({
-        id: parseInt(user.id),
+        id: user.id,
         ...profileData,
         is_verified: true // Email/OAuth is already verified
       })
