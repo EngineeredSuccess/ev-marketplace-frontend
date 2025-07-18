@@ -8,23 +8,40 @@ export default function AuthCallback() {
   const router = useRouter()
 
   useEffect(() => {
-    const handleAuthCallback = async () => {
+    // Listen for auth state changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+      if (event === 'SIGNED_IN' && session) {
+        // User successfully signed in, redirect to home
+        router.push('/')
+      } else if (event === 'SIGNED_OUT' || !session) {
+        // No session or signed out, redirect to home with error
+        router.push('/?error=no_session')
+      }
+    })
+
+    // Also check current session immediately
+    const checkSession = async () => {
       try {
-        const { data, error } = await supabase.auth.getSession()
+        const { data: { session }, error } = await supabase.auth.getSession()
         
         if (error) {
-          console.error('Auth error:', error)
+          console.error('Session error:', error)
           router.push('/?error=auth_failed')
           return
         }
 
-        if (data.session) {
-          // User is authenticated, redirect to home page
-          // The home page will handle showing registration modal if profile is incomplete
+        if (session) {
           router.push('/')
         } else {
-          // No session, redirect to home with error
-          router.push('/?error=no_session')
+          // Wait a bit for OAuth callback to complete
+          setTimeout(async () => {
+            const { data: { session: retrySession } } = await supabase.auth.getSession()
+            if (retrySession) {
+              router.push('/')
+            } else {
+              router.push('/?error=no_session')
+            }
+          }, 2000)
         }
       } catch (error) {
         console.error('Callback error:', error)
@@ -32,7 +49,12 @@ export default function AuthCallback() {
       }
     }
 
-    handleAuthCallback()
+    checkSession()
+
+    // Cleanup subscription on unmount
+    return () => {
+      subscription.unsubscribe()
+    }
   }, [router])
 
   return (
