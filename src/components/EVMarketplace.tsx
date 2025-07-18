@@ -1,7 +1,8 @@
 'use client'
 
 import React, { useState, useEffect } from 'react';
-import OAuthHandler from './auth/OAuthHandler';
+import { useAuth } from '@/contexts/AuthContext';
+import { useRouter } from 'next/navigation';
 import Script from 'next/script';
 import { Search, Filter, Car, Battery, Zap, MapPin, Phone, Mail, Heart, Star, ChevronDown, Menu, X, ArrowRight, Sparkles, User, Shield, Building, CheckCircle, AlertCircle } from 'lucide-react';
 
@@ -130,12 +131,13 @@ const mockVehicles: Vehicle[] = [
 ];
 
 export default function EVMarketplace() {
+  const { user, profile, loading: authLoading } = useAuth();
+  const router = useRouter();
   const [vehicles] = useState<Vehicle[]>(mockVehicles);
   const [filteredVehicles, setFilteredVehicles] = useState<Vehicle[]>(mockVehicles);
   const [loading, setLoading] = useState(false);
   
   // Authentication state
-  const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [authMode, setAuthMode] = useState<'login' | 'register'>('login');
   const [authStep, setAuthStep] = useState<'auth' | 'details'>('auth');
@@ -145,6 +147,7 @@ export default function EVMarketplace() {
   const [selectedVehicle, setSelectedVehicle] = useState<Vehicle | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [showCookieBanner, setShowCookieBanner] = useState(true);
+  const [showUserDropdown, setShowUserDropdown] = useState(false);
   const [filters, setFilters] = useState<{[key: string]: string}>({
     make: 'Wszystkie',
     priceRange: 'Wszystkie',
@@ -203,37 +206,13 @@ export default function EVMarketplace() {
 
   const handleOAuthSuccess = (user: any) => {
     console.log('OAuth authentication successful:', user)
-    
-    // Set the current user from OAuth data
-    const oauthUser = {
-      id: user.id,
-      email: user.email,
-      firstName: user.user_metadata?.full_name?.split(' ')[0] || user.user_metadata?.name?.split(' ')[0] || 'User',
-      lastName: user.user_metadata?.full_name?.split(' ').slice(1).join(' ') || user.user_metadata?.name?.split(' ').slice(1).join(' ') || '',
-      phone: user.user_metadata?.phone || '',
-      city: '',
-      isCompany: false,
-      companyName: '',
-      nip: '',
-      street: '',
-      postalCode: '',
-      country: 'Polska',
-      isVerified: true,
-      registrationDate: new Date()
-    }
-    
-    setCurrentUser(oauthUser)
     setShowAuthModal(false)
     setAuthStep('auth')
-    
-    // Success message will be handled by the navigation component showing the user's name
-    console.log('OAuth login completed successfully for:', oauthUser.email)
   }
 
   const handleOAuthError = (error: string) => {
     console.error('OAuth authentication failed:', error)
     alert(`Błąd OAuth: ${error}`)
-    // Don't show registration form on OAuth error
     setAuthStep('auth')
   }
 
@@ -242,24 +221,8 @@ export default function EVMarketplace() {
     setAuthFormData(prev => ({ ...prev, email }));
     
     if (authMode === 'login') {
-      // For login, close modal and complete login
       setShowAuthModal(false);
-      setCurrentUser({
-        id: Date.now(),
-        email: email,
-        firstName: '',
-        lastName: '',
-        isCompany: false,
-        street: '',
-        city: '',
-        postalCode: '',
-        country: 'Polska',
-        phone: '',
-        isVerified: true,
-        registrationDate: new Date()
-      });
     } else {
-      // For registration, proceed to details step
       setAuthStep('details');
     }
   };
@@ -296,25 +259,6 @@ export default function EVMarketplace() {
     
     setTimeout(() => {
       setLoading(false);
-      
-      const newUser = {
-        id: Date.now(),
-        email: authFormData.email,
-        phone: authFormData.phone,
-        firstName: authFormData.firstName,
-        lastName: authFormData.lastName,
-        isCompany: authFormData.isCompany,
-        street: authFormData.street,
-        city: authFormData.city,
-        postalCode: authFormData.postalCode,
-        country: authFormData.country,
-        companyName: authFormData.isCompany ? authFormData.companyName : undefined,
-        nip: authFormData.isCompany ? authFormData.nip : undefined,
-        isVerified: true,
-        registrationDate: new Date()
-      };
-      
-      setCurrentUser(newUser);
       setShowAuthModal(false);
       setAuthStep('auth');
       
@@ -337,17 +281,19 @@ export default function EVMarketplace() {
     }, 2000);
   };
 
-  const logout = () => {
-    setCurrentUser(null);
+  const { signOut } = useAuth();
+  
+  const logout = async () => {
+    await signOut();
     setCurrentView('home');
   };
 
   const handleSellClick = () => {
-    if (!currentUser) {
+    if (!user) {
       setAuthMode('register');
       setShowAuthModal(true);
     } else {
-      setCurrentView('sell');
+      router.push('/sell');
     }
   };
 
@@ -801,6 +747,126 @@ export default function EVMarketplace() {
     );
   };
 
+  const UserDropdown = () => (
+    <div style={{ position: 'relative' }}>
+      <button
+        onClick={() => setShowUserDropdown(!showUserDropdown)}
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: '8px',
+          background: 'rgba(255, 255, 255, 0.1)',
+          color: 'white',
+          border: 'none',
+          padding: '8px 12px',
+          borderRadius: '8px',
+          fontWeight: '600',
+          cursor: 'pointer',
+          fontSize: '14px'
+        }}
+      >
+        <User style={{ height: '16px', width: '16px' }} />
+        <span>{profile?.first_name} {profile?.last_name}</span>
+        <ChevronDown style={{ height: '14px', width: '14px' }} />
+      </button>
+      
+      {showUserDropdown && (
+        <div style={{
+          position: 'absolute',
+          top: '100%',
+          right: '0',
+          marginTop: '8px',
+          background: 'white',
+          borderRadius: '12px',
+          boxShadow: '0 8px 32px rgba(0, 0, 0, 0.15)',
+          minWidth: '200px',
+          zIndex: 1000,
+          overflow: 'hidden'
+        }}>
+          <button
+            onClick={() => {
+              router.push('/account');
+              setShowUserDropdown(false);
+            }}
+            style={{
+              width: '100%',
+              padding: '12px 16px',
+              border: 'none',
+              background: 'transparent',
+              textAlign: 'left',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px',
+              fontSize: '14px',
+              color: '#374151',
+              transition: 'background-color 0.2s'
+            }}
+            onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#f3f4f6'}
+            onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
+          >
+            <User style={{ height: '16px', width: '16px' }} />
+            Ustawienia konta
+          </button>
+          
+          <button
+            onClick={() => {
+              router.push('/sell');
+              setShowUserDropdown(false);
+            }}
+            style={{
+              width: '100%',
+              padding: '12px 16px',
+              border: 'none',
+              background: 'transparent',
+              textAlign: 'left',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px',
+              fontSize: '14px',
+              color: '#374151',
+              transition: 'background-color 0.2s'
+            }}
+            onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#f3f4f6'}
+            onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
+          >
+            <Car style={{ height: '16px', width: '16px' }} />
+            Sprzedaj pojazd
+          </button>
+          
+          <div style={{ height: '1px', background: '#e5e7eb', margin: '4px 0' }} />
+          
+          <button
+            onClick={() => {
+              logout();
+              setShowUserDropdown(false);
+            }}
+            style={{
+              width: '100%',
+              padding: '12px 16px',
+              border: 'none',
+              background: 'transparent',
+              textAlign: 'left',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px',
+              fontSize: '14px',
+              color: '#dc2626',
+              transition: 'background-color 0.2s'
+            }}
+            onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#fef2f2'}
+            onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
+          >
+            <X style={{ height: '16px', width: '16px' }} />
+            Wyloguj się
+          </button>
+        </div>
+      )}
+    </div>
+  );
+
   const Navigation = () => (
     <nav style={{
       background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)'
@@ -835,6 +901,8 @@ export default function EVMarketplace() {
                 onClick={() => {
                   if (view === 'sell') {
                     handleSellClick();
+                  } else if (view === 'blog') {
+                    router.push('/blog');
                   } else {
                     setCurrentView(view);
                   }
@@ -846,14 +914,14 @@ export default function EVMarketplace() {
                   fontSize: '14px',
                   fontWeight: '500',
                   cursor: 'pointer',
-                  background: currentView === view 
-                    ? 'rgba(255, 255, 255, 0.2)' 
+                  background: currentView === view
+                    ? 'rgba(255, 255, 255, 0.2)'
                     : 'transparent',
                   color: 'white'
                 }}
               >
-                {view === 'home' ? 'Strona główna' : 
-                 view === 'browse' ? 'Przeglądaj pojazdy' : 
+                {view === 'home' ? 'Strona główna' :
+                 view === 'browse' ? 'Przeglądaj pojazdy' :
                  view === 'blog' ? 'Blog' :
                  'Sprzedaj pojazd'}
               </button>
@@ -861,29 +929,13 @@ export default function EVMarketplace() {
           </div>
 
           <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
-            {currentUser ? (
-              <>
-                <span style={{ color: 'white', fontSize: '14px' }}>
-                  {currentUser?.firstName} {currentUser?.lastName}
-                </span>
-                <button 
-                  onClick={logout}
-                  style={{
-                    background: 'transparent',
-                    color: 'white',
-                    border: '2px solid rgba(255, 255, 255, 0.3)',
-                    padding: '8px 16px',
-                    borderRadius: '8px',
-                    fontWeight: '600',
-                    cursor: 'pointer'
-                  }}
-                >
-                  Wyloguj
-                </button>
-              </>
+            {user ? (
+              <div style={{ position: 'relative' }}>
+                <UserDropdown />
+              </div>
             ) : (
               <>
-                <button 
+                <button
                   onClick={() => {
                     setAuthMode('login');
                     setShowAuthModal(true);
@@ -900,7 +952,7 @@ export default function EVMarketplace() {
                 >
                   Zaloguj się
                 </button>
-                <button 
+                <button
                   onClick={() => {
                     setAuthMode('register');
                     setShowAuthModal(true);
@@ -1410,7 +1462,7 @@ export default function EVMarketplace() {
   };
 
   const SellPage = () => {
-    if (!currentUser) {
+    if (!user) {
       return (
         <div style={{ maxWidth: '600px', margin: '0 auto', padding: '40px 20px', textAlign: 'center' }}>
           <div style={{
@@ -1533,10 +1585,6 @@ export default function EVMarketplace() {
 
   return (
     <>
-      <OAuthHandler
-        onAuthSuccess={handleOAuthSuccess}
-        onAuthError={handleOAuthError}
-      />
       <div style={{
       minHeight: '100vh',
       background: 'linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%)',
