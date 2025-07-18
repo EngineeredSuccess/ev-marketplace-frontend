@@ -899,10 +899,18 @@ export default function EVMarketplace() {
               <button
                 key={view}
                 onClick={() => {
+                  console.log('Navigation clicked:', view);
                   if (view === 'sell') {
                     handleSellClick();
                   } else if (view === 'blog') {
-                    router.push('/blog');
+                    console.log('Navigating to blog...');
+                    try {
+                      router.push('/blog');
+                    } catch (error) {
+                      console.error('Blog navigation error:', error);
+                      // Fallback: use window.location
+                      window.location.href = '/blog';
+                    }
                   } else {
                     setCurrentView(view);
                   }

@@ -15,6 +15,7 @@ export interface UserProfile {
   email: string
   first_name: string
   last_name: string
+  phone?: string
   is_company: boolean
   street: string
   city: string

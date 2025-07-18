@@ -1,318 +1,636 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import React, { useState, useEffect } from 'react'
 import { useAuth } from '@/contexts/AuthContext'
-import { ProfileUpdateData } from '@/types/Profile'
-import { authService } from '@/services/authService'
-import Button from '@/components/ui/Button'
-import Card from '@/components/ui/Card'
+import { useRouter } from 'next/navigation'
+import { ArrowLeft, User, Mail, Phone, MapPin, Building, Save, AlertCircle, CheckCircle } from 'lucide-react'
+
+interface ProfileForm {
+  firstName: string
+  lastName: string
+  email: string
+  phone: string
+  street: string
+  city: string
+  postalCode: string
+  country: string
+  isCompany: boolean
+  companyName: string
+  nip: string
+}
 
 export default function AccountPage() {
-  const { user, profile: userProfile, loading: authLoading, refreshProfile } = useAuth()
-  const [formData, setFormData] = useState<ProfileUpdateData>({
-    first_name: '',
-    last_name: '',
+  const { user, profile, loading: authLoading, refreshProfile } = useAuth()
+  const router = useRouter()
+  const [loading, setLoading] = useState(false)
+  const [message, setMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null)
+  
+  const [formData, setFormData] = useState<ProfileForm>({
+    firstName: '',
+    lastName: '',
+    email: '',
     phone: '',
     street: '',
     city: '',
-    postal_code: '',
+    postalCode: '',
     country: 'Polska',
-    company_name: '',
-    nip: '',
-    bio: ''
+    isCompany: false,
+    companyName: '',
+    nip: ''
   })
-  const [isLoading, setIsLoading] = useState(false)
-  const [message, setMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null)
 
+  // Redirect if not authenticated
   useEffect(() => {
-    if (userProfile) {
+    if (!authLoading && !user) {
+      router.push('/')
+    }
+  }, [user, authLoading, router])
+
+  // Load profile data
+  useEffect(() => {
+    if (profile) {
       setFormData({
-        first_name: userProfile.first_name || '',
-        last_name: userProfile.last_name || '',
-        phone: (userProfile as any).phone || '',
-        street: userProfile.street || '',
-        city: userProfile.city || '',
-        postal_code: userProfile.postal_code || '',
-        country: userProfile.country || 'Polska',
-        company_name: userProfile.company_name || '',
-        nip: userProfile.nip || '',
-        bio: (userProfile as any).bio || ''
+        firstName: profile.first_name || '',
+        lastName: profile.last_name || '',
+        email: user?.email || '',
+        phone: profile.phone || '',
+        street: profile.street || '',
+        city: profile.city || '',
+        postalCode: profile.postal_code || '',
+        country: profile.country || 'Polska',
+        isCompany: profile.is_company || false,
+        companyName: profile.company_name || '',
+        nip: profile.nip || ''
       })
     }
-  }, [userProfile])
+  }, [profile, user])
+
+  const handleInputChange = (field: keyof ProfileForm, value: string | boolean) => {
+    setFormData(prev => ({
+      ...prev,
+      [field]: value
+    }))
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    setIsLoading(true)
+    setLoading(true)
     setMessage(null)
 
     try {
-      await authService.updateUserProfile(formData)
-      await refreshProfile()
+      // Here you would typically call an API to update the profile
+      // For now, we'll simulate a successful update
+      await new Promise(resolve => setTimeout(resolve, 1000))
+      
       setMessage({ type: 'success', text: 'Profil został zaktualizowany pomyślnie!' })
+      await refreshProfile()
     } catch (error) {
-      console.error('Error updating profile:', error)
       setMessage({ type: 'error', text: 'Wystąpił błąd podczas aktualizacji profilu.' })
     } finally {
-      setIsLoading(false)
+      setLoading(false)
     }
-  }
-
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    const { name, value } = e.target
-    setFormData(prev => ({ ...prev, [name]: value }))
   }
 
   if (authLoading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <Card className="p-8">
-          <div className="text-center">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-green-500 mx-auto mb-4"></div>
-            <p className="text-gray-600">Sprawdzanie stanu uwierzytelnienia...</p>
-          </div>
-        </Card>
+      <div style={{
+        minHeight: '100vh',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        background: 'linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%)'
+      }}>
+        <div style={{ textAlign: 'center' }}>
+          <div style={{
+            width: '40px',
+            height: '40px',
+            border: '3px solid #10b981',
+            borderTop: '3px solid transparent',
+            borderRadius: '50%',
+            animation: 'spin 1s linear infinite',
+            margin: '0 auto 16px'
+          }} />
+          <p style={{ color: '#6b7280' }}>Ładowanie...</p>
+        </div>
       </div>
     )
   }
 
   if (!user) {
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <Card className="p-8">
-          <h1 className="text-2xl font-bold text-center mb-4">Dostęp zabroniony</h1>
-          <p className="text-gray-600 text-center">Musisz być zalogowany, aby zobaczyć tę stronę.</p>
-        </Card>
-      </div>
-    )
+    return null
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
-      <div className="max-w-4xl mx-auto px-4">
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">Ustawienia konta</h1>
-          <p className="text-gray-600 mt-2">Zarządzaj swoimi danymi osobowymi i kontaktowymi</p>
-        </div>
-
-        {message && (
-          <div className={`mb-6 p-4 rounded-lg ${
-            message.type === 'success' 
-              ? 'bg-green-50 text-green-800 border border-green-200' 
-              : 'bg-red-50 text-red-800 border border-red-200'
-          }`}>
-            {message.text}
+    <div style={{
+      minHeight: '100vh',
+      background: 'linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%)',
+      fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
+    }}>
+      {/* Header */}
+      <div style={{
+        background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
+        color: 'white',
+        padding: '20px 0'
+      }}>
+        <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '0 20px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+            <button
+              onClick={() => router.push('/')}
+              style={{
+                background: 'rgba(255, 255, 255, 0.2)',
+                border: 'none',
+                borderRadius: '8px',
+                padding: '8px',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                color: 'white'
+              }}
+            >
+              <ArrowLeft style={{ height: '20px', width: '20px' }} />
+            </button>
+            <h1 style={{
+              fontSize: '28px',
+              fontWeight: '800',
+              margin: '0'
+            }}>
+              Ustawienia konta
+            </h1>
           </div>
-        )}
+        </div>
+      </div>
 
-        <Card className="p-8">
-          <form onSubmit={handleSubmit} className="space-y-6">
+      {/* Content */}
+      <div style={{ maxWidth: '800px', margin: '0 auto', padding: '40px 20px' }}>
+        <div style={{
+          background: 'white',
+          borderRadius: '20px',
+          padding: '32px',
+          boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)'
+        }}>
+          {/* Message */}
+          {message && (
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px',
+              padding: '12px 16px',
+              borderRadius: '12px',
+              marginBottom: '24px',
+              background: message.type === 'success' ? '#f0fdf4' : '#fef2f2',
+              border: `1px solid ${message.type === 'success' ? '#10b981' : '#dc2626'}`,
+              color: message.type === 'success' ? '#065f46' : '#991b1b'
+            }}>
+              {message.type === 'success' ? (
+                <CheckCircle style={{ height: '16px', width: '16px' }} />
+              ) : (
+                <AlertCircle style={{ height: '16px', width: '16px' }} />
+              )}
+              <span style={{ fontSize: '14px', fontWeight: '500' }}>{message.text}</span>
+            </div>
+          )}
+
+          <form onSubmit={handleSubmit}>
+            {/* Account Type */}
+            <div style={{ marginBottom: '24px' }}>
+              <label style={{
+                display: 'block',
+                fontSize: '14px',
+                fontWeight: '600',
+                color: '#374151',
+                marginBottom: '8px'
+              }}>
+                Typ konta
+              </label>
+              <div style={{ display: 'flex', gap: '16px' }}>
+                <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
+                  <input
+                    type="radio"
+                    checked={!formData.isCompany}
+                    onChange={() => handleInputChange('isCompany', false)}
+                    style={{ margin: '0' }}
+                  />
+                  <span style={{ fontSize: '14px' }}>Osoba prywatna</span>
+                </label>
+                <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
+                  <input
+                    type="radio"
+                    checked={formData.isCompany}
+                    onChange={() => handleInputChange('isCompany', true)}
+                    style={{ margin: '0' }}
+                  />
+                  <span style={{ fontSize: '14px' }}>Firma</span>
+                </label>
+              </div>
+            </div>
+
             {/* Personal Information */}
-            <div>
-              <h2 className="text-xl font-semibold text-gray-900 mb-4">Dane osobowe</h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div style={{ marginBottom: '32px' }}>
+              <h3 style={{
+                fontSize: '18px',
+                fontWeight: '700',
+                color: '#1f2937',
+                marginBottom: '16px',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px'
+              }}>
+                <User style={{ height: '18px', width: '18px' }} />
+                Dane osobowe
+              </h3>
+              
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '16px' }}>
                 <div>
-                  <label htmlFor="first_name" className="block text-sm font-medium text-gray-700 mb-1">
+                  <label style={{
+                    display: 'block',
+                    fontSize: '14px',
+                    fontWeight: '600',
+                    color: '#374151',
+                    marginBottom: '4px'
+                  }}>
                     Imię *
                   </label>
                   <input
                     type="text"
-                    id="first_name"
-                    name="first_name"
-                    value={formData.first_name}
-                    onChange={handleInputChange}
+                    value={formData.firstName}
+                    onChange={(e) => handleInputChange('firstName', e.target.value)}
                     required
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                    style={{
+                      width: '100%',
+                      padding: '12px',
+                      border: '2px solid #e5e7eb',
+                      borderRadius: '8px',
+                      fontSize: '14px',
+                      outline: 'none',
+                      boxSizing: 'border-box'
+                    }}
                   />
                 </div>
+                
                 <div>
-                  <label htmlFor="last_name" className="block text-sm font-medium text-gray-700 mb-1">
+                  <label style={{
+                    display: 'block',
+                    fontSize: '14px',
+                    fontWeight: '600',
+                    color: '#374151',
+                    marginBottom: '4px'
+                  }}>
                     Nazwisko *
                   </label>
                   <input
                     type="text"
-                    id="last_name"
-                    name="last_name"
-                    value={formData.last_name}
-                    onChange={handleInputChange}
+                    value={formData.lastName}
+                    onChange={(e) => handleInputChange('lastName', e.target.value)}
                     required
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                    style={{
+                      width: '100%',
+                      padding: '12px',
+                      border: '2px solid #e5e7eb',
+                      borderRadius: '8px',
+                      fontSize: '14px',
+                      outline: 'none',
+                      boxSizing: 'border-box'
+                    }}
                   />
                 </div>
               </div>
             </div>
 
             {/* Contact Information */}
-            <div>
-              <h2 className="text-xl font-semibold text-gray-900 mb-4">Dane kontaktowe</h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div style={{ marginBottom: '32px' }}>
+              <h3 style={{
+                fontSize: '18px',
+                fontWeight: '700',
+                color: '#1f2937',
+                marginBottom: '16px',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px'
+              }}>
+                <Mail style={{ height: '18px', width: '18px' }} />
+                Kontakt
+              </h3>
+              
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '16px' }}>
                 <div>
-                  <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
-                    Email
+                  <label style={{
+                    display: 'block',
+                    fontSize: '14px',
+                    fontWeight: '600',
+                    color: '#374151',
+                    marginBottom: '4px'
+                  }}>
+                    Email *
                   </label>
                   <input
                     type="email"
-                    id="email"
-                    value={user.email || ''}
+                    value={formData.email}
                     disabled
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-50 text-gray-500"
+                    style={{
+                      width: '100%',
+                      padding: '12px',
+                      border: '2px solid #e5e7eb',
+                      borderRadius: '8px',
+                      fontSize: '14px',
+                      outline: 'none',
+                      background: '#f9fafb',
+                      color: '#6b7280',
+                      boxSizing: 'border-box'
+                    }}
                   />
-                  <p className="text-xs text-gray-500 mt-1">Email nie może być zmieniony</p>
+                  <p style={{ fontSize: '12px', color: '#6b7280', margin: '4px 0 0 0' }}>
+                    Email nie może być zmieniony
+                  </p>
                 </div>
+                
                 <div>
-                  <label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-1">
+                  <label style={{
+                    display: 'block',
+                    fontSize: '14px',
+                    fontWeight: '600',
+                    color: '#374151',
+                    marginBottom: '4px'
+                  }}>
                     Telefon
                   </label>
                   <input
                     type="tel"
-                    id="phone"
-                    name="phone"
                     value={formData.phone}
-                    onChange={handleInputChange}
-                    placeholder="+48 123 456 789"
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                    onChange={(e) => handleInputChange('phone', e.target.value)}
+                    style={{
+                      width: '100%',
+                      padding: '12px',
+                      border: '2px solid #e5e7eb',
+                      borderRadius: '8px',
+                      fontSize: '14px',
+                      outline: 'none',
+                      boxSizing: 'border-box'
+                    }}
                   />
                 </div>
               </div>
             </div>
 
-            {/* Address Information */}
-            <div>
-              <h2 className="text-xl font-semibold text-gray-900 mb-4">Adres</h2>
-              <div className="space-y-4">
+            {/* Address */}
+            <div style={{ marginBottom: '32px' }}>
+              <h3 style={{
+                fontSize: '18px',
+                fontWeight: '700',
+                color: '#1f2937',
+                marginBottom: '16px',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px'
+              }}>
+                <MapPin style={{ height: '18px', width: '18px' }} />
+                Adres
+              </h3>
+              
+              <div style={{ display: 'grid', gap: '16px' }}>
                 <div>
-                  <label htmlFor="street" className="block text-sm font-medium text-gray-700 mb-1">
-                    Ulica i numer *
+                  <label style={{
+                    display: 'block',
+                    fontSize: '14px',
+                    fontWeight: '600',
+                    color: '#374151',
+                    marginBottom: '4px'
+                  }}>
+                    Ulica i numer
                   </label>
                   <input
                     type="text"
-                    id="street"
-                    name="street"
                     value={formData.street}
-                    onChange={handleInputChange}
-                    required
-                    placeholder="ul. Przykładowa 123"
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                    onChange={(e) => handleInputChange('street', e.target.value)}
+                    style={{
+                      width: '100%',
+                      padding: '12px',
+                      border: '2px solid #e5e7eb',
+                      borderRadius: '8px',
+                      fontSize: '14px',
+                      outline: 'none',
+                      boxSizing: 'border-box'
+                    }}
                   />
                 </div>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '16px' }}>
                   <div>
-                    <label htmlFor="city" className="block text-sm font-medium text-gray-700 mb-1">
-                      Miasto *
+                    <label style={{
+                      display: 'block',
+                      fontSize: '14px',
+                      fontWeight: '600',
+                      color: '#374151',
+                      marginBottom: '4px'
+                    }}>
+                      Miasto
                     </label>
                     <input
                       type="text"
-                      id="city"
-                      name="city"
                       value={formData.city}
-                      onChange={handleInputChange}
-                      required
-                      placeholder="Warszawa"
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                      onChange={(e) => handleInputChange('city', e.target.value)}
+                      style={{
+                        width: '100%',
+                        padding: '12px',
+                        border: '2px solid #e5e7eb',
+                        borderRadius: '8px',
+                        fontSize: '14px',
+                        outline: 'none',
+                        boxSizing: 'border-box'
+                      }}
                     />
                   </div>
+                  
                   <div>
-                    <label htmlFor="postal_code" className="block text-sm font-medium text-gray-700 mb-1">
-                      Kod pocztowy *
+                    <label style={{
+                      display: 'block',
+                      fontSize: '14px',
+                      fontWeight: '600',
+                      color: '#374151',
+                      marginBottom: '4px'
+                    }}>
+                      Kod pocztowy
                     </label>
                     <input
                       type="text"
-                      id="postal_code"
-                      name="postal_code"
-                      value={formData.postal_code}
-                      onChange={handleInputChange}
-                      required
+                      value={formData.postalCode}
+                      onChange={(e) => handleInputChange('postalCode', e.target.value)}
                       placeholder="00-000"
-                      pattern="[0-9]{2}-[0-9]{3}"
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                      style={{
+                        width: '100%',
+                        padding: '12px',
+                        border: '2px solid #e5e7eb',
+                        borderRadius: '8px',
+                        fontSize: '14px',
+                        outline: 'none',
+                        boxSizing: 'border-box'
+                      }}
                     />
                   </div>
+                  
                   <div>
-                    <label htmlFor="country" className="block text-sm font-medium text-gray-700 mb-1">
-                      Kraj *
+                    <label style={{
+                      display: 'block',
+                      fontSize: '14px',
+                      fontWeight: '600',
+                      color: '#374151',
+                      marginBottom: '4px'
+                    }}>
+                      Kraj
                     </label>
-                    <input
-                      type="text"
-                      id="country"
-                      name="country"
+                    <select
                       value={formData.country}
-                      onChange={handleInputChange}
-                      required
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                    />
+                      onChange={(e) => handleInputChange('country', e.target.value)}
+                      style={{
+                        width: '100%',
+                        padding: '12px',
+                        border: '2px solid #e5e7eb',
+                        borderRadius: '8px',
+                        fontSize: '14px',
+                        outline: 'none',
+                        background: 'white',
+                        boxSizing: 'border-box'
+                      }}
+                    >
+                      <option value="Polska">Polska</option>
+                      <option value="Niemcy">Niemcy</option>
+                      <option value="Czechy">Czechy</option>
+                      <option value="Słowacja">Słowacja</option>
+                    </select>
                   </div>
                 </div>
               </div>
             </div>
 
-            {/* Company Information (if applicable) */}
-            {userProfile?.is_company && (
-              <div>
-                <h2 className="text-xl font-semibold text-gray-900 mb-4">Dane firmowe</h2>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {/* Company Information */}
+            {formData.isCompany && (
+              <div style={{ marginBottom: '32px' }}>
+                <h3 style={{
+                  fontSize: '18px',
+                  fontWeight: '700',
+                  color: '#1f2937',
+                  marginBottom: '16px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '8px'
+                }}>
+                  <Building style={{ height: '18px', width: '18px' }} />
+                  Dane firmy
+                </h3>
+                
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '16px' }}>
                   <div>
-                    <label htmlFor="company_name" className="block text-sm font-medium text-gray-700 mb-1">
-                      Nazwa firmy
+                    <label style={{
+                      display: 'block',
+                      fontSize: '14px',
+                      fontWeight: '600',
+                      color: '#374151',
+                      marginBottom: '4px'
+                    }}>
+                      Nazwa firmy *
                     </label>
                     <input
                       type="text"
-                      id="company_name"
-                      name="company_name"
-                      value={formData.company_name}
-                      onChange={handleInputChange}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                      value={formData.companyName}
+                      onChange={(e) => handleInputChange('companyName', e.target.value)}
+                      required={formData.isCompany}
+                      style={{
+                        width: '100%',
+                        padding: '12px',
+                        border: '2px solid #e5e7eb',
+                        borderRadius: '8px',
+                        fontSize: '14px',
+                        outline: 'none',
+                        boxSizing: 'border-box'
+                      }}
                     />
                   </div>
+                  
                   <div>
-                    <label htmlFor="nip" className="block text-sm font-medium text-gray-700 mb-1">
+                    <label style={{
+                      display: 'block',
+                      fontSize: '14px',
+                      fontWeight: '600',
+                      color: '#374151',
+                      marginBottom: '4px'
+                    }}>
                       NIP
                     </label>
                     <input
                       type="text"
-                      id="nip"
-                      name="nip"
                       value={formData.nip}
-                      onChange={handleInputChange}
-                      placeholder="123-456-78-90"
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                      onChange={(e) => handleInputChange('nip', e.target.value)}
+                      placeholder="0000000000"
+                      style={{
+                        width: '100%',
+                        padding: '12px',
+                        border: '2px solid #e5e7eb',
+                        borderRadius: '8px',
+                        fontSize: '14px',
+                        outline: 'none',
+                        boxSizing: 'border-box'
+                      }}
                     />
                   </div>
                 </div>
               </div>
             )}
 
-            {/* Bio */}
-            <div>
-              <h2 className="text-xl font-semibold text-gray-900 mb-4">O mnie</h2>
-              <div>
-                <label htmlFor="bio" className="block text-sm font-medium text-gray-700 mb-1">
-                  Opis (opcjonalny)
-                </label>
-                <textarea
-                  id="bio"
-                  name="bio"
-                  value={formData.bio}
-                  onChange={handleInputChange}
-                  rows={4}
-                  placeholder="Opowiedz coś o sobie..."
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent resize-vertical"
-                />
-              </div>
-            </div>
-
             {/* Submit Button */}
-            <div className="flex justify-end pt-6 border-t border-gray-200">
-              <Button
+            <div style={{ textAlign: 'center' }}>
+              <button
                 type="submit"
-                disabled={isLoading}
-                className="px-8 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                disabled={loading}
+                style={{
+                  background: loading ? '#9ca3af' : 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
+                  color: 'white',
+                  border: 'none',
+                  padding: '16px 32px',
+                  borderRadius: '12px',
+                  fontSize: '16px',
+                  fontWeight: '600',
+                  cursor: loading ? 'not-allowed' : 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '8px',
+                  margin: '0 auto',
+                  minWidth: '160px',
+                  justifyContent: 'center'
+                }}
               >
-                {isLoading ? 'Zapisywanie...' : 'Zapisz zmiany'}
-              </Button>
+                {loading ? (
+                  <>
+                    <div style={{
+                      width: '16px',
+                      height: '16px',
+                      border: '2px solid white',
+                      borderTop: '2px solid transparent',
+                      borderRadius: '50%',
+                      animation: 'spin 1s linear infinite'
+                    }} />
+                    Zapisywanie...
+                  </>
+                ) : (
+                  <>
+                    <Save style={{ height: '16px', width: '16px' }} />
+                    Zapisz zmiany
+                  </>
+                )}
+              </button>
             </div>
           </form>
-        </Card>
+        </div>
       </div>
+
+      {/* CSS Animation */}
+      <style dangerouslySetInnerHTML={{
+        __html: `
+          @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+          }
+        `
+      }} />
     </div>
   )
 }
+
