@@ -15,27 +15,43 @@ export default function AuthCallback() {
         console.log('URL params:', window.location.search)
         console.log('URL hash:', window.location.hash)
         
-        // First, try to handle OAuth callback from URL (for tokens in hash)
-        const { data: sessionData, error: sessionError } = await supabase.auth.getSessionFromUrl()
-        console.log('Session from URL result:', { sessionData, sessionError })
+        // Check if we have OAuth tokens in the URL hash
+        const hashParams = new URLSearchParams(window.location.hash.substring(1))
+        const accessToken = hashParams.get('access_token')
+        const refreshToken = hashParams.get('refresh_token')
         
-        if (sessionError) {
-          console.error('Session from URL error:', sessionError)
-          router.push(`/?error=oauth_failed&message=${encodeURIComponent(sessionError.message)}`)
-          return
-        }
+        if (accessToken) {
+          console.log('OAuth tokens found in URL hash')
+          
+          // Set the session using the tokens from the URL
+          const { data, error } = await supabase.auth.setSession({
+            access_token: accessToken,
+            refresh_token: refreshToken || ''
+          })
+          
+          console.log('Set session result:', { data, error })
+          
+          if (error) {
+            console.error('Error setting session from tokens:', error)
+            router.push(`/?error=oauth_failed&message=${encodeURIComponent(error.message)}`)
+            return
+          }
 
-        if (sessionData.session && sessionData.session.user) {
-          console.log('OAuth authentication successful from URL!')
-          console.log('User data:', sessionData.session.user)
-          
-          // Store user data in localStorage for the main app
-          localStorage.setItem('supabase_user', JSON.stringify(sessionData.session.user))
-          localStorage.setItem('supabase_session', JSON.stringify(sessionData.session))
-          
-          // Redirect to home with success flag
-          router.push('/?auth=oauth_success')
-          return
+          if (data.session && data.session.user) {
+            console.log('OAuth authentication successful from tokens!')
+            console.log('User data:', data.session.user)
+            
+            // Store user data in localStorage for the main app
+            localStorage.setItem('supabase_user', JSON.stringify(data.session.user))
+            localStorage.setItem('supabase_session', JSON.stringify(data.session))
+            
+            // Clean up URL hash
+            window.history.replaceState({}, document.title, window.location.pathname)
+            
+            // Redirect to home with success flag
+            router.push('/?auth=oauth_success')
+            return
+          }
         }
 
         // Fallback: try to get existing session
