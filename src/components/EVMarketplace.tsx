@@ -787,7 +787,7 @@ export default function EVMarketplace() {
                   if (view === 'sell') {
                     handleSellClick();
                   } else if (view === 'blog') {
-                    window.location.href = 'https://ivimarket.pl/blogs';
+                    window.location.href = 'https://ivimarket.pl/blog';
                   } else {
                     setCurrentView(view);
                   }
