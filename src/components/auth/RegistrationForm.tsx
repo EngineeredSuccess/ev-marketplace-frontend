@@ -19,7 +19,7 @@ interface FormData {
 }
 
 interface RegistrationFormProps {
-  phone: string
+  phone?: string
   onRegistrationComplete: () => void
 }
 
@@ -127,7 +127,7 @@ export const RegistrationForm: React.FC<RegistrationFormProps> = ({
           Uzupełnij swoje dane
         </h2>
         <p style={{ color: '#6b7280' }}>
-          Aby zakończyć rejestrację dla numeru {phone}
+          {phone ? `Aby zakończyć rejestrację dla numeru ${phone}` : 'Aby zakończyć rejestrację'}
         </p>
       </div>
 
