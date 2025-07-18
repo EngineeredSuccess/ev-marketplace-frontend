@@ -1,14 +1,15 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { useAuth } from '@/hooks/useAuth'
-import { UserProfile, ProfileUpdateData } from '@/types/Profile'
+import { useAuth } from '@/contexts/AuthContext'
+import { ProfileUpdateData } from '@/types/Profile'
+import { authService } from '@/services/authService'
 import Button from '@/components/ui/Button'
 import Card from '@/components/ui/Card'
 
 export default function AccountPage() {
-  const { currentUser, updateProfile } = useAuth()
-  const [profile, setProfile] = useState<ProfileUpdateData>({
+  const { user, profile: userProfile, loading: authLoading, refreshProfile } = useAuth()
+  const [formData, setFormData] = useState<ProfileUpdateData>({
     first_name: '',
     last_name: '',
     phone: '',
@@ -24,21 +25,21 @@ export default function AccountPage() {
   const [message, setMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null)
 
   useEffect(() => {
-    if (currentUser) {
-      setProfile({
-        first_name: currentUser.first_name || '',
-        last_name: currentUser.last_name || '',
-        phone: (currentUser as any).phone || '',
-        street: currentUser.street || '',
-        city: currentUser.city || '',
-        postal_code: currentUser.postal_code || '',
-        country: currentUser.country || 'Polska',
-        company_name: currentUser.company_name || '',
-        nip: currentUser.nip || '',
-        bio: (currentUser as any).bio || ''
+    if (userProfile) {
+      setFormData({
+        first_name: userProfile.first_name || '',
+        last_name: userProfile.last_name || '',
+        phone: (userProfile as any).phone || '',
+        street: userProfile.street || '',
+        city: userProfile.city || '',
+        postal_code: userProfile.postal_code || '',
+        country: userProfile.country || 'Polska',
+        company_name: userProfile.company_name || '',
+        nip: userProfile.nip || '',
+        bio: (userProfile as any).bio || ''
       })
     }
-  }, [currentUser])
+  }, [userProfile])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -46,9 +47,11 @@ export default function AccountPage() {
     setMessage(null)
 
     try {
-      await updateProfile(profile)
+      await authService.updateUserProfile(formData)
+      await refreshProfile()
       setMessage({ type: 'success', text: 'Profil został zaktualizowany pomyślnie!' })
     } catch (error) {
+      console.error('Error updating profile:', error)
       setMessage({ type: 'error', text: 'Wystąpił błąd podczas aktualizacji profilu.' })
     } finally {
       setIsLoading(false)
@@ -57,10 +60,23 @@ export default function AccountPage() {
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target
-    setProfile(prev => ({ ...prev, [name]: value }))
+    setFormData(prev => ({ ...prev, [name]: value }))
   }
 
-  if (!currentUser) {
+  if (authLoading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <Card className="p-8">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-green-500 mx-auto mb-4"></div>
+            <p className="text-gray-600">Sprawdzanie stanu uwierzytelnienia...</p>
+          </div>
+        </Card>
+      </div>
+    )
+  }
+
+  if (!user) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <Card className="p-8">
@@ -103,7 +119,7 @@ export default function AccountPage() {
                     type="text"
                     id="first_name"
                     name="first_name"
-                    value={profile.first_name}
+                    value={formData.first_name}
                     onChange={handleInputChange}
                     required
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
@@ -117,7 +133,7 @@ export default function AccountPage() {
                     type="text"
                     id="last_name"
                     name="last_name"
-                    value={profile.last_name}
+                    value={formData.last_name}
                     onChange={handleInputChange}
                     required
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
@@ -137,7 +153,7 @@ export default function AccountPage() {
                   <input
                     type="email"
                     id="email"
-                    value={currentUser.email}
+                    value={user.email || ''}
                     disabled
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-50 text-gray-500"
                   />
@@ -151,7 +167,7 @@ export default function AccountPage() {
                     type="tel"
                     id="phone"
                     name="phone"
-                    value={profile.phone}
+                    value={formData.phone}
                     onChange={handleInputChange}
                     placeholder="+48 123 456 789"
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
@@ -172,7 +188,7 @@ export default function AccountPage() {
                     type="text"
                     id="street"
                     name="street"
-                    value={profile.street}
+                    value={formData.street}
                     onChange={handleInputChange}
                     required
                     placeholder="ul. Przykładowa 123"
@@ -188,7 +204,7 @@ export default function AccountPage() {
                       type="text"
                       id="city"
                       name="city"
-                      value={profile.city}
+                      value={formData.city}
                       onChange={handleInputChange}
                       required
                       placeholder="Warszawa"
@@ -203,7 +219,7 @@ export default function AccountPage() {
                       type="text"
                       id="postal_code"
                       name="postal_code"
-                      value={profile.postal_code}
+                      value={formData.postal_code}
                       onChange={handleInputChange}
                       required
                       placeholder="00-000"
@@ -219,7 +235,7 @@ export default function AccountPage() {
                       type="text"
                       id="country"
                       name="country"
-                      value={profile.country}
+                      value={formData.country}
                       onChange={handleInputChange}
                       required
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
@@ -230,7 +246,7 @@ export default function AccountPage() {
             </div>
 
             {/* Company Information (if applicable) */}
-            {currentUser.is_company && (
+            {userProfile?.is_company && (
               <div>
                 <h2 className="text-xl font-semibold text-gray-900 mb-4">Dane firmowe</h2>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -242,7 +258,7 @@ export default function AccountPage() {
                       type="text"
                       id="company_name"
                       name="company_name"
-                      value={profile.company_name}
+                      value={formData.company_name}
                       onChange={handleInputChange}
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
                     />
@@ -255,7 +271,7 @@ export default function AccountPage() {
                       type="text"
                       id="nip"
                       name="nip"
-                      value={profile.nip}
+                      value={formData.nip}
                       onChange={handleInputChange}
                       placeholder="123-456-78-90"
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
@@ -275,7 +291,7 @@ export default function AccountPage() {
                 <textarea
                   id="bio"
                   name="bio"
-                  value={profile.bio}
+                  value={formData.bio}
                   onChange={handleInputChange}
                   rows={4}
                   placeholder="Opowiedz coś o sobie..."

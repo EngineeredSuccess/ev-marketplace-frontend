@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { useAuth } from '@/hooks/useAuth'
+import { useAuth } from '@/contexts/AuthContext'
 import { vehicleService, VehicleListingData } from '@/services/vehicleService'
 import Button from '@/components/ui/Button'
 import Card from '@/components/ui/Card'
@@ -30,7 +30,7 @@ interface VehicleFormData {
 }
 
 export default function SellPage() {
-  const { currentUser } = useAuth()
+  const { user, loading: authLoading } = useAuth()
   const [formData, setFormData] = useState<VehicleFormData>({
     make: '',
     model: '',
@@ -140,7 +140,20 @@ export default function SellPage() {
     }
   }
 
-  if (!currentUser) {
+  if (authLoading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <Card className="p-8">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-green-500 mx-auto mb-4"></div>
+            <p className="text-gray-600">Sprawdzanie stanu uwierzytelnienia...</p>
+          </div>
+        </Card>
+      </div>
+    )
+  }
+
+  if (!user) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <Card className="p-8">
