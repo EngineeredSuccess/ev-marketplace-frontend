@@ -1,6 +1,7 @@
 import { useState, useCallback } from 'react';
 import { User } from '../types/User';
 import { AuthFormData, AuthMode } from '../types/Auth';
+import { ProfileUpdateData } from '../types/Profile';
 import { authService } from '../services/authService';
 import { validateRegistrationForm } from '../utils/validation';
 
@@ -105,6 +106,33 @@ export const useAuth = () => {
     });
   }, [trackAuthEvent]);
 
+  const updateProfile = useCallback(async (profileData: ProfileUpdateData) => {
+    if (!currentUser) {
+      throw new Error('User not authenticated');
+    }
+
+    setLoading(true);
+    setError(null);
+
+    try {
+      const result = await authService.updateUserProfile(profileData);
+      
+      if (result) {
+        setCurrentUser(result);
+        trackAuthEvent('profile_updated');
+        return result;
+      } else {
+        throw new Error('Failed to update profile');
+      }
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Failed to update profile';
+      setError(errorMessage);
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  }, [currentUser, trackAuthEvent]);
+
   const openAuthModal = useCallback((mode: AuthMode) => {
     setAuthMode(mode);
     setShowAuthModal(true);
@@ -137,6 +165,7 @@ export const useAuth = () => {
     openAuthModal,
     closeAuthModal,
     updateAuthFormData,
+    updateProfile,
     setAuthMode,
     trackAuthEvent
   };
