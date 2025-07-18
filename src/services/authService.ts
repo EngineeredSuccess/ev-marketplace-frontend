@@ -11,6 +11,7 @@ export interface AuthUser {
 
 export interface UserProfile {
   id: number
+  auth_user_id: string
   email: string
   first_name: string
   last_name: string
@@ -41,7 +42,7 @@ export const authService = {
     const { data, error } = await supabase
       .from('users')
       .select('*')
-      .eq('id', user.id)
+      .eq('auth_user_id', user.id)
       .single()
 
     if (error) {
@@ -53,7 +54,7 @@ export const authService = {
   },
 
   // Create user profile
-  createUserProfile: async (profileData: Omit<UserProfile, 'id' | 'is_verified'>): Promise<UserProfile | null> => {
+  createUserProfile: async (profileData: Omit<UserProfile, 'id' | 'auth_user_id' | 'is_verified'>): Promise<UserProfile | null> => {
     const { data: { user } } = await supabase.auth.getUser()
     
     if (!user) throw new Error('No authenticated user')
@@ -61,7 +62,7 @@ export const authService = {
     const { data, error } = await supabase
       .from('users')
       .insert({
-        id: parseInt(user.id),
+        auth_user_id: user.id, // Store the UUID as auth_user_id
         ...profileData,
         is_verified: true // Email/OAuth is already verified
       })
@@ -85,7 +86,7 @@ export const authService = {
     const { data, error } = await supabase
       .from('users')
       .update(updates)
-      .eq('id', user.id)
+      .eq('auth_user_id', user.id)
       .select()
       .single()
 
