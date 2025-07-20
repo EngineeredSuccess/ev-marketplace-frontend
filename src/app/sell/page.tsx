@@ -1,10 +1,11 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useAuth } from '@/contexts/AuthContext'
 import { useRouter } from 'next/navigation'
 import { vehicleService, VehicleListingData } from '@/services/vehicleService'
-import { ArrowLeft, Car, Battery, Zap, MapPin, Upload, X, CheckCircle, AlertCircle, User } from 'lucide-react'
+import { authService } from '@/services/authService'
+import { ArrowLeft, Car, Battery, Zap, MapPin, Upload, X, CheckCircle, AlertCircle, User, UserPlus } from 'lucide-react'
 
 interface VehicleFormData {
   make: string
@@ -32,6 +33,8 @@ interface VehicleFormData {
 export default function SellPage() {
   const { user, loading: authLoading } = useAuth()
   const router = useRouter()
+  const [userProfile, setUserProfile] = useState<any>(null)
+  const [profileLoading, setProfileLoading] = useState(true)
   const [formData, setFormData] = useState<VehicleFormData>({
     make: '',
     model: '',
@@ -56,6 +59,27 @@ export default function SellPage() {
   })
   const [isLoading, setIsLoading] = useState(false)
   const [message, setMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null)
+
+  // Check if user has a profile
+  useEffect(() => {
+    const checkUserProfile = async () => {
+      if (user && !authLoading) {
+        try {
+          const profile = await authService.getUserProfile()
+          setUserProfile(profile)
+        } catch (error) {
+          console.error('Error checking user profile:', error)
+          setUserProfile(null)
+        } finally {
+          setProfileLoading(false)
+        }
+      } else if (!authLoading) {
+        setProfileLoading(false)
+      }
+    }
+
+    checkUserProfile()
+  }, [user, authLoading])
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value, type } = e.target
@@ -145,7 +169,7 @@ export default function SellPage() {
     }
   }
 
-  if (authLoading) {
+  if (authLoading || profileLoading) {
     return (
       <div style={{
         minHeight: '100vh',
@@ -175,7 +199,7 @@ export default function SellPage() {
             margin: '0 auto 24px'
           }} />
           <p style={{ color: '#6b7280', fontSize: '16px', margin: '0' }}>
-            Sprawdzanie stanu uwierzytelnienia...
+            {authLoading ? 'Sprawdzanie stanu uwierzytelnienia...' : 'Sprawdzanie profilu użytkownika...'}
           </p>
         </div>
       </div>
@@ -316,6 +340,149 @@ export default function SellPage() {
                 }}
               >
                 Zarejestruj się
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  // User is authenticated but doesn't have a profile
+  if (user && !userProfile) {
+    return (
+      <div style={{
+        minHeight: '100vh',
+        background: 'linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%)',
+        fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
+      }}>
+        {/* Header */}
+        <div style={{
+          background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
+          color: 'white',
+          padding: '20px 0'
+        }}>
+          <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '0 20px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+              <button
+                onClick={() => router.push('/')}
+                style={{
+                  background: 'rgba(255, 255, 255, 0.2)',
+                  border: 'none',
+                  borderRadius: '8px',
+                  padding: '8px',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  color: 'white'
+                }}
+              >
+                <ArrowLeft style={{ height: '20px', width: '20px' }} />
+              </button>
+              <h1 style={{
+                fontSize: '28px',
+                fontWeight: '800',
+                margin: '0'
+              }}>
+                Sprzedaj pojazd
+              </h1>
+            </div>
+          </div>
+        </div>
+
+        {/* Content */}
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          minHeight: 'calc(100vh - 80px)',
+          padding: '40px 20px'
+        }}>
+          <div style={{
+            background: 'white',
+            borderRadius: '20px',
+            padding: '40px',
+            boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)',
+            textAlign: 'center',
+            maxWidth: '500px',
+            width: '100%'
+          }}>
+            <div style={{
+              width: '80px',
+              height: '80px',
+              background: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)',
+              borderRadius: '50%',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              margin: '0 auto 24px'
+            }}>
+              <UserPlus style={{ height: '40px', width: '40px', color: 'white' }} />
+            </div>
+            
+            <h2 style={{
+              fontSize: '24px',
+              fontWeight: '700',
+              color: '#1f2937',
+              marginBottom: '16px'
+            }}>
+              Uzupełnij swój profil
+            </h2>
+            
+            <p style={{
+              color: '#6b7280',
+              fontSize: '16px',
+              marginBottom: '32px',
+              lineHeight: '1.5'
+            }}>
+              Aby dodać ogłoszenie sprzedaży pojazdu, musisz najpierw uzupełnić swój profil użytkownika. To pomoże kupcom skontaktować się z Tobą.
+            </p>
+            
+            <div style={{ display: 'flex', gap: '12px', justifyContent: 'center', flexWrap: 'wrap' }}>
+              <button
+                onClick={() => router.push('/account')}
+                style={{
+                  background: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)',
+                  color: 'white',
+                  border: 'none',
+                  padding: '12px 24px',
+                  borderRadius: '12px',
+                  fontSize: '16px',
+                  fontWeight: '600',
+                  cursor: 'pointer',
+                  transition: 'transform 0.2s',
+                  minWidth: '180px'
+                }}
+                onMouseEnter={(e) => e.currentTarget.style.transform = 'translateY(-2px)'}
+                onMouseLeave={(e) => e.currentTarget.style.transform = 'translateY(0)'}
+              >
+                Uzupełnij profil
+              </button>
+              
+              <button
+                onClick={() => router.push('/')}
+                style={{
+                  background: 'white',
+                  color: '#f59e0b',
+                  border: '2px solid #f59e0b',
+                  padding: '12px 24px',
+                  borderRadius: '12px',
+                  fontSize: '16px',
+                  fontWeight: '600',
+                  cursor: 'pointer',
+                  transition: 'all 0.2s',
+                  minWidth: '120px'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.background = '#f59e0b'
+                  e.currentTarget.style.color = 'white'
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.background = 'white'
+                  e.currentTarget.style.color = '#f59e0b'
+                }}
+              >
+                Powrót
               </button>
             </div>
           </div>
@@ -1191,4 +1358,3 @@ export default function SellPage() {
     </div>
   )
 }
-
