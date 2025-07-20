@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react'
 import { useAuth } from '@/contexts/AuthContext'
 import { useRouter } from 'next/navigation'
+import { authService } from '@/services/authService'
 import { ArrowLeft, User, Mail, Phone, MapPin, Building, Save, AlertCircle, CheckCircle } from 'lucide-react'
 
 interface ProfileForm {
@@ -78,14 +79,42 @@ export default function AccountPage() {
     setMessage(null)
 
     try {
-      // Here you would typically call an API to update the profile
-      // For now, we'll simulate a successful update
-      await new Promise(resolve => setTimeout(resolve, 1000))
+      // Check if profile exists, if not create it, otherwise update it
+      const currentProfile = await authService.getUserProfile()
       
-      setMessage({ type: 'success', text: 'Profil został zaktualizowany pomyślnie!' })
-      await refreshProfile()
-    } catch (error) {
-      setMessage({ type: 'error', text: 'Wystąpił błąd podczas aktualizacji profilu.' })
+      const profileData = {
+        first_name: formData.firstName,
+        last_name: formData.lastName,
+        email: formData.email,
+        phone: formData.phone,
+        street: formData.street,
+        city: formData.city,
+        postal_code: formData.postalCode,
+        country: formData.country,
+        is_company: formData.isCompany,
+        company_name: formData.isCompany ? formData.companyName : undefined,
+        nip: formData.isCompany ? formData.nip : undefined,
+        auth_provider: user?.app_metadata?.provider || 'email'
+      }
+
+      let result
+      if (currentProfile) {
+        // Update existing profile
+        result = await authService.updateUserProfile(profileData)
+      } else {
+        // Create new profile
+        result = await authService.createUserProfile(profileData)
+      }
+
+      if (result) {
+        setMessage({ type: 'success', text: 'Profil został zaktualizowany pomyślnie!' })
+        await refreshProfile() // Refresh the profile in the auth context
+      } else {
+        setMessage({ type: 'error', text: 'Wystąpił błąd podczas zapisywania profilu.' })
+      }
+    } catch (error: any) {
+      console.error('Profile save error:', error)
+      setMessage({ type: 'error', text: error.message || 'Wystąpił błąd podczas aktualizacji profilu.' })
     } finally {
       setLoading(false)
     }
@@ -633,4 +662,3 @@ export default function AccountPage() {
     </div>
   )
 }
-

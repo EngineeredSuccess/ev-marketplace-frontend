@@ -4,7 +4,6 @@ import { useState, useEffect } from 'react'
 import { useAuth } from '@/contexts/AuthContext'
 import { useRouter } from 'next/navigation'
 import { vehicleService, VehicleListingData } from '@/services/vehicleService'
-import { authService } from '@/services/authService'
 import { ArrowLeft, Car, Battery, Zap, MapPin, Upload, X, CheckCircle, AlertCircle, User, UserPlus } from 'lucide-react'
 
 interface VehicleFormData {
@@ -31,7 +30,7 @@ interface VehicleFormData {
 }
 
 export default function SellPage() {
-  const { user, loading: authLoading } = useAuth()
+  const { user, profile, loading: authLoading } = useAuth()
   const router = useRouter()
   const [userProfile, setUserProfile] = useState<any>(null)
   const [profileLoading, setProfileLoading] = useState(true)
@@ -60,26 +59,13 @@ export default function SellPage() {
   const [isLoading, setIsLoading] = useState(false)
   const [message, setMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null)
 
-  // Check if user has a profile
+  // Check if user has a profile - use profile from AuthContext
   useEffect(() => {
-    const checkUserProfile = async () => {
-      if (user && !authLoading) {
-        try {
-          const profile = await authService.getUserProfile()
-          setUserProfile(profile)
-        } catch (error) {
-          console.error('Error checking user profile:', error)
-          setUserProfile(null)
-        } finally {
-          setProfileLoading(false)
-        }
-      } else if (!authLoading) {
-        setProfileLoading(false)
-      }
+    if (!authLoading) {
+      setUserProfile(profile) // Use profile from AuthContext
+      setProfileLoading(false)
     }
-
-    checkUserProfile()
-  }, [user, authLoading])
+  }, [profile, authLoading])
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value, type } = e.target
