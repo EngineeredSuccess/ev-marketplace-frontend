@@ -1,10 +1,10 @@
 'use client'
 
 import React, { useState, useEffect } from 'react'
-import { useAuth } from '@/contexts/AuthContext'
 import { useRouter } from 'next/navigation'
+import { ArrowLeft, User, Mail, Phone, MapPin, Building, Save, CheckCircle, AlertCircle } from 'lucide-react'
+import { useAuth } from '@/contexts/AuthContext'
 import { authService } from '@/services/authService'
-import { ArrowLeft, User, Mail, Phone, MapPin, Building, Save, AlertCircle, CheckCircle } from 'lucide-react'
 
 interface ProfileForm {
   firstName: string
@@ -24,8 +24,7 @@ export default function AccountPage() {
   const { user, profile, loading: authLoading, refreshProfile } = useAuth()
   const router = useRouter()
   const [loading, setLoading] = useState(false)
-  const [message, setMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null)
-  
+  const [message, setMessage] = useState('')
   const [formData, setFormData] = useState<ProfileForm>({
     firstName: '',
     lastName: '',
@@ -40,20 +39,17 @@ export default function AccountPage() {
     nip: ''
   })
 
-  // Redirect if not authenticated
   useEffect(() => {
     if (!authLoading && !user) {
       router.push('/')
+      return
     }
-  }, [user, authLoading, router])
 
-  // Load profile data
-  useEffect(() => {
     if (profile) {
       setFormData({
         firstName: profile.first_name || '',
         lastName: profile.last_name || '',
-        email: user?.email || '',
+        email: profile.email || '',
         phone: profile.phone || '',
         street: profile.street || '',
         city: profile.city || '',
@@ -64,23 +60,15 @@ export default function AccountPage() {
         nip: profile.nip || ''
       })
     }
-  }, [profile, user])
-
-  const handleInputChange = (field: keyof ProfileForm, value: string | boolean) => {
-    setFormData(prev => ({
-      ...prev,
-      [field]: value
-    }))
-  }
+  }, [user, profile, authLoading, router])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoading(true)
-    setMessage(null)
+    setMessage('')
 
     try {
-      // Check if profile exists, if not create it, otherwise update it
-      const currentProfile = await authService.getUserProfile()
+      console.log('Attempting to save profile:', formData)
       
       const profileData = {
         first_name: formData.firstName,
@@ -92,55 +80,38 @@ export default function AccountPage() {
         postal_code: formData.postalCode,
         country: formData.country,
         is_company: formData.isCompany,
-        company_name: formData.isCompany ? formData.companyName : undefined,
-        nip: formData.isCompany ? formData.nip : undefined,
-        auth_provider: user?.app_metadata?.provider || 'email'
+        company_name: formData.companyName,
+        nip: formData.nip
       }
 
-      let result
-      if (currentProfile) {
-        // Update existing profile
-        result = await authService.updateUserProfile(profileData)
-      } else {
-        // Create new profile
-        result = await authService.createUserProfile(profileData)
-      }
-
-      if (result) {
-        setMessage({ type: 'success', text: 'Profil został zaktualizowany pomyślnie!' })
-        await refreshProfile() // Refresh the profile in the auth context
-      } else {
-        setMessage({ type: 'error', text: 'Wystąpił błąd podczas zapisywania profilu.' })
-      }
-    } catch (error: any) {
-      console.error('Profile save error:', error)
-      setMessage({ type: 'error', text: error.message || 'Wystąpił błąd podczas aktualizacji profilu.' })
+      console.log('Sending to authService:', profileData)
+      const result = await authService.updateUserProfile(profileData)
+      console.log('AuthService result:', result)
+      
+      await refreshProfile()
+      console.log('Profile refreshed')
+      
+      setMessage('Profil został zaktualizowany pomyślnie!')
+    } catch (error) {
+      console.error('Error saving profile:', error)
+      setMessage('Błąd podczas zapisywania profilu. Spróbuj ponownie.')
     } finally {
       setLoading(false)
     }
   }
 
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    const { name, value, type } = e.target
+    setFormData(prev => ({
+      ...prev,
+      [name]: type === 'checkbox' ? (e.target as HTMLInputElement).checked : value
+    }))
+  }
+
   if (authLoading) {
     return (
-      <div style={{
-        minHeight: '100vh',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        background: 'linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%)'
-      }}>
-        <div style={{ textAlign: 'center' }}>
-          <div style={{
-            width: '40px',
-            height: '40px',
-            border: '3px solid #10b981',
-            borderTop: '3px solid transparent',
-            borderRadius: '50%',
-            animation: 'spin 1s linear infinite',
-            margin: '0 auto 16px'
-          }} />
-          <p style={{ color: '#6b7280' }}>Ładowanie...</p>
-        </div>
+      <div className="min-h-screen bg-gradient-to-br from-green-500 to-green-600 flex items-center justify-center">
+        <div className="text-white text-lg">Ładowanie...</div>
       </div>
     )
   }
@@ -150,375 +121,194 @@ export default function AccountPage() {
   }
 
   return (
-    <div style={{
-      minHeight: '100vh',
-      background: 'linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%)',
-      fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
-    }}>
+    <div className="min-h-screen bg-gradient-to-br from-green-500 to-green-600">
       {/* Header */}
-      <div style={{
-        background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
-        color: 'white',
-        padding: '20px 0'
-      }}>
-        <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '0 20px' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+      <div className="bg-gradient-to-br from-green-500 to-green-600 py-6 text-white">
+        <div className="max-w-6xl mx-auto px-4">
+          <div className="flex items-center gap-4">
             <button
               onClick={() => router.push('/')}
-              style={{
-                background: 'rgba(255, 255, 255, 0.2)',
-                border: 'none',
-                borderRadius: '8px',
-                padding: '8px',
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                color: 'white'
-              }}
+              className="bg-white/20 hover:bg-white/30 p-2 rounded-lg transition-colors"
             >
-              <ArrowLeft style={{ height: '20px', width: '20px' }} />
+              <ArrowLeft className="w-5 h-5" />
             </button>
-            <h1 style={{
-              fontSize: '28px',
-              fontWeight: '800',
-              margin: '0'
-            }}>
-              Ustawienia konta
-            </h1>
+            <h1 className="text-2xl font-bold">Ustawienia konta</h1>
           </div>
         </div>
       </div>
 
       {/* Content */}
-      <div style={{ maxWidth: '800px', margin: '0 auto', padding: '40px 20px' }}>
-        <div style={{
-          background: 'white',
-          borderRadius: '20px',
-          padding: '32px',
-          boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)'
-        }}>
-          {/* Message */}
+      <div className="py-8 px-4 max-w-4xl mx-auto">
+        <div className="bg-white rounded-xl shadow-lg p-8">
           {message && (
-            <div style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '8px',
-              padding: '12px 16px',
-              borderRadius: '12px',
-              marginBottom: '24px',
-              background: message.type === 'success' ? '#f0fdf4' : '#fef2f2',
-              border: `1px solid ${message.type === 'success' ? '#10b981' : '#dc2626'}`,
-              color: message.type === 'success' ? '#065f46' : '#991b1b'
-            }}>
-              {message.type === 'success' ? (
-                <CheckCircle style={{ height: '16px', width: '16px' }} />
+            <div className={`p-4 rounded-lg mb-6 flex items-center gap-3 ${
+              message.includes('pomyślnie') 
+                ? 'bg-green-50 border border-green-200 text-green-800' 
+                : 'bg-red-50 border border-red-200 text-red-800'
+            }`}>
+              {message.includes('pomyślnie') ? (
+                <CheckCircle className="w-5 h-5" />
               ) : (
-                <AlertCircle style={{ height: '16px', width: '16px' }} />
+                <AlertCircle className="w-5 h-5" />
               )}
-              <span style={{ fontSize: '14px', fontWeight: '500' }}>{message.text}</span>
+              {message}
             </div>
           )}
 
-          <form onSubmit={handleSubmit}>
+          <form onSubmit={handleSubmit} className="space-y-8">
             {/* Account Type */}
-            <div style={{ marginBottom: '24px' }}>
-              <label style={{
-                display: 'block',
-                fontSize: '14px',
-                fontWeight: '600',
-                color: '#374151',
-                marginBottom: '8px'
-              }}>
-                Typ konta
-              </label>
-              <div style={{ display: 'flex', gap: '16px' }}>
-                <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
+            <div>
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">Typ konta</h3>
+              <div className="flex gap-6">
+                <label className="flex items-center gap-2 cursor-pointer">
                   <input
                     type="radio"
+                    name="isCompany"
                     checked={!formData.isCompany}
-                    onChange={() => handleInputChange('isCompany', false)}
-                    style={{ margin: '0' }}
+                    onChange={() => setFormData(prev => ({ ...prev, isCompany: false }))}
+                    className="text-green-600 focus:ring-green-500"
                   />
-                  <span style={{ fontSize: '14px' }}>Osoba prywatna</span>
+                  <span className="text-gray-700">Osoba prywatna</span>
                 </label>
-                <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
+                <label className="flex items-center gap-2 cursor-pointer">
                   <input
                     type="radio"
+                    name="isCompany"
                     checked={formData.isCompany}
-                    onChange={() => handleInputChange('isCompany', true)}
-                    style={{ margin: '0' }}
+                    onChange={() => setFormData(prev => ({ ...prev, isCompany: true }))}
+                    className="text-green-600 focus:ring-green-500"
                   />
-                  <span style={{ fontSize: '14px' }}>Firma</span>
+                  <span className="text-gray-700">Firma</span>
                 </label>
               </div>
             </div>
 
             {/* Personal Information */}
-            <div style={{ marginBottom: '32px' }}>
-              <h3 style={{
-                fontSize: '18px',
-                fontWeight: '700',
-                color: '#1f2937',
-                marginBottom: '16px',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '8px'
-              }}>
-                <User style={{ height: '18px', width: '18px' }} />
+            <div>
+              <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                <User className="w-5 h-5" />
                 Dane osobowe
               </h3>
-              
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '16px' }}>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label style={{
-                    display: 'block',
-                    fontSize: '14px',
-                    fontWeight: '600',
-                    color: '#374151',
-                    marginBottom: '4px'
-                  }}>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
                     Imię *
                   </label>
                   <input
                     type="text"
+                    name="firstName"
                     value={formData.firstName}
-                    onChange={(e) => handleInputChange('firstName', e.target.value)}
+                    onChange={handleInputChange}
                     required
-                    style={{
-                      width: '100%',
-                      padding: '12px',
-                      border: '2px solid #e5e7eb',
-                      borderRadius: '8px',
-                      fontSize: '14px',
-                      outline: 'none',
-                      boxSizing: 'border-box'
-                    }}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition-colors"
                   />
                 </div>
-                
                 <div>
-                  <label style={{
-                    display: 'block',
-                    fontSize: '14px',
-                    fontWeight: '600',
-                    color: '#374151',
-                    marginBottom: '4px'
-                  }}>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
                     Nazwisko *
                   </label>
                   <input
                     type="text"
+                    name="lastName"
                     value={formData.lastName}
-                    onChange={(e) => handleInputChange('lastName', e.target.value)}
+                    onChange={handleInputChange}
                     required
-                    style={{
-                      width: '100%',
-                      padding: '12px',
-                      border: '2px solid #e5e7eb',
-                      borderRadius: '8px',
-                      fontSize: '14px',
-                      outline: 'none',
-                      boxSizing: 'border-box'
-                    }}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition-colors"
                   />
                 </div>
               </div>
             </div>
 
             {/* Contact Information */}
-            <div style={{ marginBottom: '32px' }}>
-              <h3 style={{
-                fontSize: '18px',
-                fontWeight: '700',
-                color: '#1f2937',
-                marginBottom: '16px',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '8px'
-              }}>
-                <Mail style={{ height: '18px', width: '18px' }} />
+            <div>
+              <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                <Mail className="w-5 h-5" />
                 Kontakt
               </h3>
-              
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '16px' }}>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label style={{
-                    display: 'block',
-                    fontSize: '14px',
-                    fontWeight: '600',
-                    color: '#374151',
-                    marginBottom: '4px'
-                  }}>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
                     Email *
                   </label>
                   <input
                     type="email"
+                    name="email"
                     value={formData.email}
+                    onChange={handleInputChange}
+                    required
                     disabled
-                    style={{
-                      width: '100%',
-                      padding: '12px',
-                      border: '2px solid #e5e7eb',
-                      borderRadius: '8px',
-                      fontSize: '14px',
-                      outline: 'none',
-                      background: '#f9fafb',
-                      color: '#6b7280',
-                      boxSizing: 'border-box'
-                    }}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-50 text-gray-500 cursor-not-allowed"
                   />
-                  <p style={{ fontSize: '12px', color: '#6b7280', margin: '4px 0 0 0' }}>
-                    Email nie może być zmieniony
-                  </p>
+                  <p className="text-sm text-gray-500 mt-1">Email nie może być zmieniony</p>
                 </div>
-                
                 <div>
-                  <label style={{
-                    display: 'block',
-                    fontSize: '14px',
-                    fontWeight: '600',
-                    color: '#374151',
-                    marginBottom: '4px'
-                  }}>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
                     Telefon
                   </label>
                   <input
                     type="tel"
+                    name="phone"
                     value={formData.phone}
-                    onChange={(e) => handleInputChange('phone', e.target.value)}
-                    style={{
-                      width: '100%',
-                      padding: '12px',
-                      border: '2px solid #e5e7eb',
-                      borderRadius: '8px',
-                      fontSize: '14px',
-                      outline: 'none',
-                      boxSizing: 'border-box'
-                    }}
+                    onChange={handleInputChange}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition-colors"
                   />
                 </div>
               </div>
             </div>
 
             {/* Address */}
-            <div style={{ marginBottom: '32px' }}>
-              <h3 style={{
-                fontSize: '18px',
-                fontWeight: '700',
-                color: '#1f2937',
-                marginBottom: '16px',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '8px'
-              }}>
-                <MapPin style={{ height: '18px', width: '18px' }} />
+            <div>
+              <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                <MapPin className="w-5 h-5" />
                 Adres
               </h3>
-              
-              <div style={{ display: 'grid', gap: '16px' }}>
+              <div className="space-y-4">
                 <div>
-                  <label style={{
-                    display: 'block',
-                    fontSize: '14px',
-                    fontWeight: '600',
-                    color: '#374151',
-                    marginBottom: '4px'
-                  }}>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
                     Ulica i numer
                   </label>
                   <input
                     type="text"
+                    name="street"
                     value={formData.street}
-                    onChange={(e) => handleInputChange('street', e.target.value)}
-                    style={{
-                      width: '100%',
-                      padding: '12px',
-                      border: '2px solid #e5e7eb',
-                      borderRadius: '8px',
-                      fontSize: '14px',
-                      outline: 'none',
-                      boxSizing: 'border-box'
-                    }}
+                    onChange={handleInputChange}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition-colors"
                   />
                 </div>
-                
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '16px' }}>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <div>
-                    <label style={{
-                      display: 'block',
-                      fontSize: '14px',
-                      fontWeight: '600',
-                      color: '#374151',
-                      marginBottom: '4px'
-                    }}>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
                       Miasto
                     </label>
                     <input
                       type="text"
+                      name="city"
                       value={formData.city}
-                      onChange={(e) => handleInputChange('city', e.target.value)}
-                      style={{
-                        width: '100%',
-                        padding: '12px',
-                        border: '2px solid #e5e7eb',
-                        borderRadius: '8px',
-                        fontSize: '14px',
-                        outline: 'none',
-                        boxSizing: 'border-box'
-                      }}
+                      onChange={handleInputChange}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition-colors"
                     />
                   </div>
-                  
                   <div>
-                    <label style={{
-                      display: 'block',
-                      fontSize: '14px',
-                      fontWeight: '600',
-                      color: '#374151',
-                      marginBottom: '4px'
-                    }}>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
                       Kod pocztowy
                     </label>
                     <input
                       type="text"
+                      name="postalCode"
                       value={formData.postalCode}
-                      onChange={(e) => handleInputChange('postalCode', e.target.value)}
-                      placeholder="00-000"
-                      style={{
-                        width: '100%',
-                        padding: '12px',
-                        border: '2px solid #e5e7eb',
-                        borderRadius: '8px',
-                        fontSize: '14px',
-                        outline: 'none',
-                        boxSizing: 'border-box'
-                      }}
+                      onChange={handleInputChange}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition-colors"
                     />
                   </div>
-                  
                   <div>
-                    <label style={{
-                      display: 'block',
-                      fontSize: '14px',
-                      fontWeight: '600',
-                      color: '#374151',
-                      marginBottom: '4px'
-                    }}>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
                       Kraj
                     </label>
                     <select
+                      name="country"
                       value={formData.country}
-                      onChange={(e) => handleInputChange('country', e.target.value)}
-                      style={{
-                        width: '100%',
-                        padding: '12px',
-                        border: '2px solid #e5e7eb',
-                        borderRadius: '8px',
-                        fontSize: '14px',
-                        outline: 'none',
-                        background: 'white',
-                        boxSizing: 'border-box'
-                      }}
+                      onChange={handleInputChange}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition-colors bg-white"
                     >
                       <option value="Polska">Polska</option>
                       <option value="Niemcy">Niemcy</option>
@@ -532,72 +322,34 @@ export default function AccountPage() {
 
             {/* Company Information */}
             {formData.isCompany && (
-              <div style={{ marginBottom: '32px' }}>
-                <h3 style={{
-                  fontSize: '18px',
-                  fontWeight: '700',
-                  color: '#1f2937',
-                  marginBottom: '16px',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '8px'
-                }}>
-                  <Building style={{ height: '18px', width: '18px' }} />
+              <div>
+                <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                  <Building className="w-5 h-5" />
                   Dane firmy
                 </h3>
-                
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '16px' }}>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <label style={{
-                      display: 'block',
-                      fontSize: '14px',
-                      fontWeight: '600',
-                      color: '#374151',
-                      marginBottom: '4px'
-                    }}>
-                      Nazwa firmy *
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Nazwa firmy
                     </label>
                     <input
                       type="text"
+                      name="companyName"
                       value={formData.companyName}
-                      onChange={(e) => handleInputChange('companyName', e.target.value)}
-                      required={formData.isCompany}
-                      style={{
-                        width: '100%',
-                        padding: '12px',
-                        border: '2px solid #e5e7eb',
-                        borderRadius: '8px',
-                        fontSize: '14px',
-                        outline: 'none',
-                        boxSizing: 'border-box'
-                      }}
+                      onChange={handleInputChange}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition-colors"
                     />
                   </div>
-                  
                   <div>
-                    <label style={{
-                      display: 'block',
-                      fontSize: '14px',
-                      fontWeight: '600',
-                      color: '#374151',
-                      marginBottom: '4px'
-                    }}>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
                       NIP
                     </label>
                     <input
                       type="text"
+                      name="nip"
                       value={formData.nip}
-                      onChange={(e) => handleInputChange('nip', e.target.value)}
-                      placeholder="0000000000"
-                      style={{
-                        width: '100%',
-                        padding: '12px',
-                        border: '2px solid #e5e7eb',
-                        borderRadius: '8px',
-                        fontSize: '14px',
-                        outline: 'none',
-                        boxSizing: 'border-box'
-                      }}
+                      onChange={handleInputChange}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition-colors"
                     />
                   </div>
                 </div>
@@ -605,60 +357,30 @@ export default function AccountPage() {
             )}
 
             {/* Submit Button */}
-            <div style={{ textAlign: 'center' }}>
-              <button
-                type="submit"
-                disabled={loading}
-                style={{
-                  background: loading ? '#9ca3af' : 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
-                  color: 'white',
-                  border: 'none',
-                  padding: '16px 32px',
-                  borderRadius: '12px',
-                  fontSize: '16px',
-                  fontWeight: '600',
-                  cursor: loading ? 'not-allowed' : 'pointer',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '8px',
-                  margin: '0 auto',
-                  minWidth: '160px',
-                  justifyContent: 'center'
-                }}
-              >
-                {loading ? (
-                  <>
-                    <div style={{
-                      width: '16px',
-                      height: '16px',
-                      border: '2px solid white',
-                      borderTop: '2px solid transparent',
-                      borderRadius: '50%',
-                      animation: 'spin 1s linear infinite'
-                    }} />
-                    Zapisywanie...
-                  </>
-                ) : (
-                  <>
-                    <Save style={{ height: '16px', width: '16px' }} />
-                    Zapisz zmiany
-                  </>
-                )}
-              </button>
-            </div>
+            <button
+              type="submit"
+              disabled={loading}
+              className={`w-full py-3 px-4 rounded-lg font-semibold text-white transition-colors flex items-center justify-center gap-2 ${
+                loading 
+                  ? 'bg-gray-400 cursor-not-allowed' 
+                  : 'bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700'
+              }`}
+            >
+              {loading ? (
+                <>
+                  <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                  Zapisywanie...
+                </>
+              ) : (
+                <>
+                  <Save className="w-5 h-5" />
+                  Zapisz zmiany
+                </>
+              )}
+            </button>
           </form>
         </div>
       </div>
-
-      {/* CSS Animation */}
-      <style dangerouslySetInnerHTML={{
-        __html: `
-          @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-          }
-        `
-      }} />
     </div>
   )
 }
