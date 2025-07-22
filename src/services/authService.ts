@@ -65,8 +65,8 @@ export const authService = {
   // Get current user
   getCurrentUser: async (): Promise<AuthUser | null> => {
     try {
-      const { data: { user } } = await withTimeout(supabase.auth.getUser(), 5000)
-      return user
+      const result = await withTimeout(supabase.auth.getUser(), 5000)
+      return result.data.user
     } catch (error) {
       console.error('Error getting current user:', error)
       return null
@@ -76,7 +76,8 @@ export const authService = {
   // Get user profile from database with timeout and retry
   getUserProfile: async (): Promise<UserProfile | null> => {
     try {
-      const { data: { user } } = await withTimeout(supabase.auth.getUser(), 5000)
+      const result = await withTimeout(supabase.auth.getUser(), 5000)
+      const user = result.data.user
       
       if (!user) {
         console.log('No authenticated user found')
@@ -132,7 +133,8 @@ export const authService = {
   // Create user profile
   createUserProfile: async (profileData: Omit<UserProfile, 'id' | 'auth_user_id' | 'is_verified'>): Promise<UserProfile | null> => {
     try {
-      const { data: { user } } = await withTimeout(supabase.auth.getUser(), 5000)
+      const result = await withTimeout(supabase.auth.getUser(), 5000)
+      const user = result.data.user
       
       if (!user) throw new Error('No authenticated user')
 
@@ -175,7 +177,8 @@ export const authService = {
   // Update user profile
   updateUserProfile: async (updates: Partial<UserProfile>): Promise<UserProfile | null> => {
     try {
-      const { data: { user } } = await withTimeout(supabase.auth.getUser(), 5000)
+      const result = await withTimeout(supabase.auth.getUser(), 5000)
+      const user = result.data.user
       
       if (!user) throw new Error('No authenticated user')
 
@@ -229,7 +232,8 @@ export const authService = {
   // Register user (create profile after authentication)
   registerUser: async (userData: any) => {
     try {
-      const { data: { user } } = await withTimeout(supabase.auth.getUser(), 5000)
+      const result = await withTimeout(supabase.auth.getUser(), 5000)
+      const user = result.data.user
       
       if (!user) {
         return {
