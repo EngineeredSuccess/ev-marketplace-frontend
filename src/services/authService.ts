@@ -27,76 +27,189 @@ export interface UserProfile {
   auth_provider: string
 }
 
+// Utility function to add timeout to promises
+const withTimeout = <T>(promise: Promise<T>, timeoutMs: number = 10000): Promise<T> => {
+  return Promise.race([
+    promise,
+    new Promise<T>((_, reject) => 
+      setTimeout(() => reject(new Error('Operation timed out')), timeoutMs)
+    )
+  ])
+}
+
+// Utility function for retry logic
+const withRetry = async <T>(
+  operation: () => Promise<T>, 
+  maxRetries: number = 3,
+  delay: number = 1000
+): Promise<T> => {
+  let lastError: Error
+  
+  for (let attempt = 1; attempt <= maxRetries; attempt++) {
+    try {
+      return await operation()
+    } catch (error) {
+      lastError = error as Error
+      console.warn(`Attempt ${attempt} failed:`, error)
+      
+      if (attempt < maxRetries) {
+        await new Promise(resolve => setTimeout(resolve, delay * attempt))
+      }
+    }
+  }
+  
+  throw lastError!
+}
+
 export const authService = {
   // Get current user
   getCurrentUser: async (): Promise<AuthUser | null> => {
-    const { data: { user } } = await supabase.auth.getUser()
-    return user
-  },
-
-  // Get user profile from database
-  getUserProfile: async (): Promise<UserProfile | null> => {
-    const { data: { user } } = await supabase.auth.getUser()
-    
-    if (!user) return null
-
-    const { data, error } = await supabase
-      .from('users')
-      .select('*')
-      .eq('auth_user_id', user.id)
-      .single()
-
-    if (error) {
-      console.error('Error fetching user profile:', error)
+    try {
+      const { data: { user } } = await withTimeout(supabase.auth.getUser(), 5000)
+      return user
+    } catch (error) {
+      console.error('Error getting current user:', error)
       return null
     }
+  },
 
-    return data
+  // Get user profile from database with timeout and retry
+  getUserProfile: async (): Promise<UserProfile | null> => {
+    try {
+      const { data: { user } } = await withTimeout(supabase.auth.getUser(), 5000)
+      
+      if (!user) {
+        console.log('No authenticated user found')
+        return null
+      }
+
+      console.log('Fetching profile for user:', user.id)
+
+      const profileOperation = async () => {
+        const { data, error } = await supabase
+          .from('users')
+          .select('*')
+          .eq('auth_user_id', user.id)
+          .single()
+
+        if (error) {
+          if (error.code === 'PGRST116') {
+            // No profile found - this is expected for new users
+            console.log('No profile found for user:', user.id)
+            return null
+          }
+          throw error
+        }
+
+        return data
+      }
+
+      const profile = await withRetry(
+        () => withTimeout(profileOperation(), 8000),
+        2, // Max 2 retries
+        2000 // 2 second delay between retries
+      )
+
+      console.log('Profile fetched successfully:', profile ? 'found' : 'not found')
+      return profile
+
+    } catch (error) {
+      console.error('Error fetching user profile:', error)
+      
+      // Don't throw error - return null to allow app to continue
+      if (error instanceof Error) {
+        if (error.message.includes('timed out')) {
+          console.error('Profile fetch timed out - continuing without profile')
+        } else if (error.message.includes('network')) {
+          console.error('Network error - continuing without profile')
+        }
+      }
+      
+      return null
+    }
   },
 
   // Create user profile
   createUserProfile: async (profileData: Omit<UserProfile, 'id' | 'auth_user_id' | 'is_verified'>): Promise<UserProfile | null> => {
-    const { data: { user } } = await supabase.auth.getUser()
-    
-    if (!user) throw new Error('No authenticated user')
+    try {
+      const { data: { user } } = await withTimeout(supabase.auth.getUser(), 5000)
+      
+      if (!user) throw new Error('No authenticated user')
 
-    const { data, error } = await supabase
-      .from('users')
-      .insert({
-        auth_user_id: user.id, // Store the UUID as auth_user_id
-        ...profileData,
-        is_verified: true // Email/OAuth is already verified
-      })
-      .select()
-      .single()
+      console.log('Creating profile for user:', user.id)
 
-    if (error) {
+      const createOperation = async () => {
+        const { data, error } = await supabase
+          .from('users')
+          .insert({
+            auth_user_id: user.id, // Store the UUID as auth_user_id
+            ...profileData,
+            is_verified: true // Email/OAuth is already verified
+          })
+          .select()
+          .single()
+
+        if (error) {
+          console.error('Database error creating profile:', error)
+          throw error
+        }
+
+        return data
+      }
+
+      const profile = await withRetry(
+        () => withTimeout(createOperation(), 10000),
+        2,
+        2000
+      )
+
+      console.log('Profile created successfully:', profile.id)
+      return profile
+
+    } catch (error) {
       console.error('Error creating user profile:', error)
       throw error
     }
-
-    return data
   },
 
   // Update user profile
   updateUserProfile: async (updates: Partial<UserProfile>): Promise<UserProfile | null> => {
-    const { data: { user } } = await supabase.auth.getUser()
-    
-    if (!user) throw new Error('No authenticated user')
+    try {
+      const { data: { user } } = await withTimeout(supabase.auth.getUser(), 5000)
+      
+      if (!user) throw new Error('No authenticated user')
 
-    const { data, error } = await supabase
-      .from('users')
-      .update(updates)
-      .eq('auth_user_id', user.id)
-      .select()
-      .single()
+      console.log('Updating profile for user:', user.id)
 
-    if (error) {
+      const updateOperation = async () => {
+        const { data, error } = await supabase
+          .from('users')
+          .update(updates)
+          .eq('auth_user_id', user.id)
+          .select()
+          .single()
+
+        if (error) {
+          console.error('Database error updating profile:', error)
+          throw error
+        }
+
+        return data
+      }
+
+      const profile = await withRetry(
+        () => withTimeout(updateOperation(), 10000),
+        2,
+        2000
+      )
+
+      console.log('Profile updated successfully')
+      return profile
+
+    } catch (error) {
       console.error('Error updating user profile:', error)
       throw error
     }
-
-    return data
   },
 
   // Magic link authentication
@@ -116,7 +229,7 @@ export const authService = {
   // Register user (create profile after authentication)
   registerUser: async (userData: any) => {
     try {
-      const { data: { user } } = await supabase.auth.getUser()
+      const { data: { user } } = await withTimeout(supabase.auth.getUser(), 5000)
       
       if (!user) {
         return {
@@ -155,6 +268,7 @@ export const authService = {
         }
       }
     } catch (error: any) {
+      console.error('Registration error:', error)
       return {
         success: false,
         message: error.message || 'Registration failed'
@@ -164,9 +278,15 @@ export const authService = {
 
   // Sign out
   signOut: async (): Promise<void> => {
-    const { error } = await supabase.auth.signOut()
-    if (error) {
-      console.error('Error signing out:', error)
+    try {
+      const { error } = await withTimeout(supabase.auth.signOut(), 5000)
+      if (error) {
+        console.error('Error signing out:', error)
+        throw error
+      }
+      console.log('Successfully signed out')
+    } catch (error) {
+      console.error('Sign out failed:', error)
       throw error
     }
   },
@@ -174,6 +294,7 @@ export const authService = {
   // Listen to auth changes
   onAuthStateChange: (callback: (user: AuthUser | null) => void) => {
     return supabase.auth.onAuthStateChange((event: any, session: any) => {
+      console.log('Auth state changed:', event, session?.user?.id || 'no user')
       callback(session?.user || null)
     })
   }
