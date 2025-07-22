@@ -27,16 +27,6 @@ export interface UserProfile {
   auth_provider: string
 }
 
-// Utility function to add timeout to promises
-const withTimeout = <T>(promise: Promise<T>, timeoutMs: number = 10000): Promise<T> => {
-  return Promise.race([
-    promise,
-    new Promise<T>((_, reject) => 
-      setTimeout(() => reject(new Error('Operation timed out')), timeoutMs)
-    )
-  ])
-}
-
 // Utility function for retry logic
 const withRetry = async <T>(
   operation: () => Promise<T>, 
@@ -65,8 +55,8 @@ export const authService = {
   // Get current user
   getCurrentUser: async (): Promise<AuthUser | null> => {
     try {
-      const result = await withTimeout(supabase.auth.getUser(), 5000)
-      return result.data.user
+      const { data: { user } } = await supabase.auth.getUser()
+      return user
     } catch (error) {
       console.error('Error getting current user:', error)
       return null
@@ -76,8 +66,7 @@ export const authService = {
   // Get user profile from database with timeout and retry
   getUserProfile: async (): Promise<UserProfile | null> => {
     try {
-      const result = await withTimeout(supabase.auth.getUser(), 5000)
-      const user = result.data.user
+      const { data: { user } } = await supabase.auth.getUser()
       
       if (!user) {
         console.log('No authenticated user found')
@@ -106,7 +95,7 @@ export const authService = {
       }
 
       const profile = await withRetry(
-        () => withTimeout(profileOperation(), 8000),
+        profileOperation,
         2, // Max 2 retries
         2000 // 2 second delay between retries
       )
@@ -133,8 +122,7 @@ export const authService = {
   // Create user profile
   createUserProfile: async (profileData: Omit<UserProfile, 'id' | 'auth_user_id' | 'is_verified'>): Promise<UserProfile | null> => {
     try {
-      const result = await withTimeout(supabase.auth.getUser(), 5000)
-      const user = result.data.user
+      const { data: { user } } = await supabase.auth.getUser()
       
       if (!user) throw new Error('No authenticated user')
 
@@ -160,7 +148,7 @@ export const authService = {
       }
 
       const profile = await withRetry(
-        () => withTimeout(createOperation(), 10000),
+        createOperation,
         2,
         2000
       )
@@ -177,8 +165,7 @@ export const authService = {
   // Update user profile
   updateUserProfile: async (updates: Partial<UserProfile>): Promise<UserProfile | null> => {
     try {
-      const result = await withTimeout(supabase.auth.getUser(), 5000)
-      const user = result.data.user
+      const { data: { user } } = await supabase.auth.getUser()
       
       if (!user) throw new Error('No authenticated user')
 
@@ -201,7 +188,7 @@ export const authService = {
       }
 
       const profile = await withRetry(
-        () => withTimeout(updateOperation(), 10000),
+        updateOperation,
         2,
         2000
       )
@@ -232,8 +219,7 @@ export const authService = {
   // Register user (create profile after authentication)
   registerUser: async (userData: any) => {
     try {
-      const result = await withTimeout(supabase.auth.getUser(), 5000)
-      const user = result.data.user
+      const { data: { user } } = await supabase.auth.getUser()
       
       if (!user) {
         return {
@@ -283,7 +269,7 @@ export const authService = {
   // Sign out
   signOut: async (): Promise<void> => {
     try {
-      const { error } = await withTimeout(supabase.auth.signOut(), 5000)
+      const { error } = await supabase.auth.signOut()
       if (error) {
         console.error('Error signing out:', error)
         throw error
