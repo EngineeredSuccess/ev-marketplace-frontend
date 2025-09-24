@@ -325,11 +325,7 @@ export const BlogPage: React.FC<BlogPageProps> = ({ onViewChange }) => {
             </div>
             
             <div 
-              style={{ 
-                color: '#4b5563', 
-                fontSize: '16px', 
-                lineHeight: '1.7' 
-              }}
+              className="blog-content"
               dangerouslySetInnerHTML={{ __html: selectedPost.content }}
             />
             

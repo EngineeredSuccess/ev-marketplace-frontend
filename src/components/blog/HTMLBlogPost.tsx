@@ -15,7 +15,7 @@ const HTMLBlogPost: React.FC<HTMLBlogPostProps> = ({ post }) => {
     if (post.slug === 'geely-ex5-elektryczny-suv-polska-premiera-2025') {
       // Geely EX5 content
       htmlContent = `
-        <div class="html-blog-container">
+        <div class="blog-content">
           <div class="key-benefits">
             <p><strong>Elektryczna rewolucja dociera do Polski!</strong> Geely EX5 to nowy elektryczny SUV, który już w Q3 2025 roku będzie dostępny na polskim rynku. Dzięki partnerstwu z <strong>Jameel Motors</strong>, klienci otrzymają nowoczesny pojazd z premium wyposażeniem w konkurencyjnej cenie od <strong>129 000 zł</strong> po dofinansowaniu.</p>
             
@@ -114,7 +114,7 @@ const HTMLBlogPost: React.FC<HTMLBlogPostProps> = ({ post }) => {
     } else if (post.slug === 'byd-dolphin-surf-elektryczny-maluch') {
       // BYD Dolphin content - using the provided HTML content
       htmlContent = `
-        <div class="html-blog-container">
+        <div class="blog-content">
           <header>
             <p class="lead">Fiat 126p, znany jako „Maluch", to ikona polskiej motoryzacji. Przystępny cenowo i prosty w konstrukcji, zmotoryzował miliony Polaków. Dziś, w erze transformacji energetycznej, pytanie brzmi: czy <strong>BYD Dolphin Surf</strong>, tani elektryczny kompakt segmentu B, może odegrać podobną rolę dla elektromobilności w Polsce?</p>
           </header>
@@ -184,7 +184,7 @@ const HTMLBlogPost: React.FC<HTMLBlogPostProps> = ({ post }) => {
     } else if (post.slug === 'tesla-model-3-test-2024') {
       // Tesla Model 3 content
       htmlContent = `
-        <div class="html-blog-container">
+        <div class="blog-content">
           <div class="key-benefits">
             <p><strong>Tesla Model 3 – najbardziej rozpoznawalny elektryczny sedan na świecie!</strong> Sprawdziliśmy najnowszą wersję w polskich warunkach. Zasięg 420 km, zaawansowana technologia i doskonały komfort jazdy. Czy to najlepszy elektryczny sedan dostępny w Polsce?</p>
             
@@ -373,7 +373,7 @@ const HTMLBlogPost: React.FC<HTMLBlogPostProps> = ({ post }) => {
     } else if (post.slug === 'jak-ladowac-pojazd-elektryczny-w-domu') {
       // Home charging guide content
       htmlContent = `
-        <div class="html-blog-container">
+        <div class="blog-content">
           <div class="key-benefits">
             <p><strong>Ładowanie w domu to podstawa wygodnego użytkowania pojazdu elektrycznego!</strong> Praktyczny poradnik instalacji wallboxa i optymalizacji kosztów ładowania w domu. Wallbox 11 kW, oszczędności do 4000 zł rocznie, najlepsze modele 2025.</p>
             
@@ -630,7 +630,7 @@ const HTMLBlogPost: React.FC<HTMLBlogPostProps> = ({ post }) => {
     } else if (post.slug === 'stacje-ladowania-w-polsce-2025') {
       // Charging stations content
       htmlContent = `
-        <div class="html-blog-container">
+        <div class="blog-content">
           <div class="key-benefits">
             <p><strong>Kompletny przewodnik po stacjach ładowania w Polsce 2025!</strong> Mapa ponad 3000 punktów ładowania, koszty, aplikacje i praktyczne porady dla kierowców pojazdów elektrycznych. Wszystko, co musisz wiedzieć o infrastrukturze ładowania EV w Polsce.</p>
             
@@ -865,7 +865,7 @@ const HTMLBlogPost: React.FC<HTMLBlogPostProps> = ({ post }) => {
     } else {
       // Default fallback for other HTML posts
       htmlContent = `
-        <div class="html-blog-container">
+        <div class="blog-content">
           <p>To jest artykuł HTML: <strong>${post.title}</strong></p>
           <p>${post.excerpt}</p>
           <p><em>Zawartość tego artykułu zostanie załadowana z pliku HTML.</em></p>

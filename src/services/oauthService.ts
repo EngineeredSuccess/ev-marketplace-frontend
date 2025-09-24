@@ -25,7 +25,8 @@ export const oauthService = {
         },
       })
 
-      console.log('OAuth response:', { data, error })
+      console.log("OAuth data:", data)
+      console.error("OAuth error:", error)
 
       if (error) {
         console.error('OAuth error:', error)
