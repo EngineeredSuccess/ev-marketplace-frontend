@@ -36,7 +36,125 @@ interface VehicleStructuredDataProps {
   url: string
 }
 
+/**
+ * Komponent BlogPostStructuredData - generuje dane strukturalne Schema.org dla artykułów blogowych
+ * 
+ * Implementuje schemat BlogPosting zgodnie z wytycznymi Schema.org i Google Rich Results
+ * Zawiera wszystkie wymagane i zalecane pola dla optymalnego SEO
+ * 
+ * Umiejscowienie: Kod JSON-LD jest automatycznie renderowany w DOM i może być umieszczony
+ * zarówno w <head> jak i na początku <body>. W Next.js renderuje się w miejscu użycia komponentu.
+ * 
+ * @param title - Tytuł artykułu (wymagane)
+ * @param description - Opis/excerpt artykułu (wymagane)
+ * @param author - Imię i nazwisko autora (wymagane)
+ * @param publishedAt - Data publikacji w formacie ISO 8601 (wymagane)
+ * @param modifiedAt - Data ostatniej modyfikacji w formacie ISO 8601 (opcjonalne)
+ * @param image - URL do głównego obrazu artykułu (zalecane, min. 1200x675px)
+ * @param url - Pełny URL do artykułu (wymagane)
+ * @param readingTime - Szacowany czas czytania w minutach (opcjonalne)
+ * @param tags - Tablica tagów/słów kluczowych (opcjonalne)
+ */
 export function BlogPostStructuredData({
+  title,
+  description,
+  author,
+  publishedAt,
+  modifiedAt,
+  image,
+  url,
+  readingTime,
+  tags
+}: BlogPostStructuredDataProps) {
+  // Główny schemat BlogPosting zgodny z Schema.org
+  const structuredData = {
+    "@context": "https://schema.org",
+    "@type": "BlogPosting",
+    
+    // Podstawowe informacje o artykule
+    "headline": title,
+    "description": description,
+    "url": url,
+    
+    // Informacje o autorze jako obiekt Person (wymagane przez Google)
+    "author": {
+      "@type": "Person",
+      "name": author,
+      "url": "https://ivimarket.pl/about"
+    },
+    
+    // Informacje o wydawcy (wymagane przez Google Rich Results)
+    "publisher": {
+      "@type": "Organization",
+      "name": "iViMarket",
+      "url": "https://ivimarket.pl",
+      "logo": {
+        "@type": "ImageObject",
+        "url": "https://ivimarket.pl/logo.png",
+        "width": 600,
+        "height": 60
+      }
+    },
+    
+    // Daty publikacji i modyfikacji (wymagane)
+    "datePublished": publishedAt,
+    "dateModified": modifiedAt || publishedAt,
+    
+    // MainEntityOfPage - wskazuje główną stronę artykułu (wymagane)
+    "mainEntityOfPage": {
+      "@type": "WebPage",
+      "@id": url
+    },
+    
+    // Obraz artykułu (zalecane dla Rich Results, minimum 1200x675px)
+    ...(image && {
+      "image": {
+        "@type": "ImageObject",
+        "url": image,
+        "width": 1200,
+        "height": 630
+      }
+    }),
+    
+    // Dodatkowe metadane SEO
+    "keywords": tags.join(", "),
+    "wordCount": readingTime * 200, // Przybliżona liczba słów (200 słów/min)
+    "timeRequired": `PT${readingTime}M`, // Format ISO 8601 Duration (np. PT10M = 10 minut)
+    "inLanguage": "pl-PL",
+    
+    // Kontekst tematyczny artykułu
+    "about": {
+      "@type": "Thing",
+      "name": "Pojazdy elektryczne"
+    },
+    
+    // Kategoria artykułu
+    "articleSection": "Blog o pojazdach elektrycznych",
+    
+    // Typ treści
+    "genre": "Artykuł informacyjny"
+  }
+
+  return (
+    <script
+      type="application/ld+json"
+      dangerouslySetInnerHTML={{
+        __html: JSON.stringify(structuredData, null, 2)
+      }}
+    />
+  )
+}
+
+/**
+ * Alternatywny komponent z użyciem typu Article
+ * 
+ * Article to bardziej ogólny schemat niż BlogPosting i może być używany zamiennie.
+ * BlogPosting jest preferowany dla treści blogowych, ale Article jest bardziej uniwersalny.
+ * 
+ * Użyj tego komponentu dla artykułów, które nie są stricte blogowymi postami,
+ * np. artykuły informacyjne, poradniki, analizy rynkowe.
+ */
+export function ArticleStructuredData({
   title,
   description,
   author,
@@ -49,36 +167,52 @@ export function BlogPostStructuredData({
 }: BlogPostStructuredDataProps) {
   const structuredData = {
     "@context": "https://schema.org",
-    "@type": "BlogPosting",
+    "@type": "Article",
+    
     "headline": title,
     "description": description,
+    "url": url,
+    
     "author": {
       "@type": "Person",
-      "name": author
+      "name": author,
+      "url": "https://ivimarket.pl/about"
     },
+    
     "publisher": {
       "@type": "Organization",
-      "name": "ivimarket.pl",
+      "name": "iViMarket",
+      "url": "https://ivimarket.pl",
       "logo": {
         "@type": "ImageObject",
-        "url": "https://ivimarket.pl/logo.png"
+        "url": "https://ivimarket.pl/logo.png",
+        "width": 600,
+        "height": 60
       }
     },
+    
     "datePublished": publishedAt,
     "dateModified": modifiedAt || publishedAt,
+    
     "mainEntityOfPage": {
       "@type": "WebPage",
       "@id": url
     },
-    "url": url,
-    "image": image ? {
-      "@type": "ImageObject",
-      "url": image
-    } : undefined,
+    
+    ...(image && {
+      "image": {
+        "@type": "ImageObject",
+        "url": image,
+        "width": 1200,
+        "height": 630
+      }
+    }),
+    
     "keywords": tags.join(", "),
-    "wordCount": readingTime * 200, // Approximate words based on reading time
+    "wordCount": readingTime * 200,
     "timeRequired": `PT${readingTime}M`,
     "inLanguage": "pl-PL",
+    
     "about": {
       "@type": "Thing",
       "name": "Pojazdy elektryczne"
@@ -203,21 +337,25 @@ export function OrganizationStructuredData() {
   const structuredData = {
     "@context": "https://schema.org",
     "@type": "Organization",
-    "name": "ivimarket.pl",
+    "name": "iViMarket",
+    "alternateName": "ivimarket.pl",
     "description": "Marketplace pojazdów elektrycznych w Polsce",
     "url": "https://ivimarket.pl",
     "logo": "https://ivimarket.pl/logo.png",
     "contactPoint": {
       "@type": "ContactPoint",
       "contactType": "customer service",
-      "availableLanguage": "Polish"
+      "availableLanguage": ["Polish", "pl"]
     },
     "address": {
       "@type": "PostalAddress",
       "addressCountry": "PL"
     },
     "sameAs": [
-      // Add social media links when available
+      // Dodaj linki do mediów społecznościowych gdy będą dostępne
+      // "https://www.facebook.com/ivimarket",
+      // "https://twitter.com/ivimarket",
+      // "https://www.linkedin.com/company/ivimarket"
     ]
   }
 
