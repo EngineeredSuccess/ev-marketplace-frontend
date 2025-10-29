@@ -390,3 +390,49 @@ export function BreadcrumbStructuredData({ items }: { items: Array<{ name: strin
     />
   )
 }
+
+export function PersonStructuredData({
+  name,
+  jobTitle,
+  description,
+  url,
+  image,
+  sameAs = []
+}: {
+  name: string
+  jobTitle: string
+  description: string
+  url: string
+  image?: string
+  sameAs?: string[]
+}) {
+  const structuredData = {
+    "@context": "https://schema.org",
+    "@type": "Person",
+    "name": name,
+    "jobTitle": jobTitle,
+    "description": description,
+    "url": url,
+    ...(image && {
+      "image": {
+        "@type": "ImageObject",
+        "url": image
+      }
+    }),
+    "sameAs": sameAs,
+    "worksFor": {
+      "@type": "Organization",
+      "name": "iViMarket",
+      "url": "https://ivimarket.pl"
+    }
+  }
+
+  return (
+    <script
+      type="application/ld+json"
+      dangerouslySetInnerHTML={{
+        __html: JSON.stringify(structuredData, null, 2)
+      }}
+    />
+  )
+}
