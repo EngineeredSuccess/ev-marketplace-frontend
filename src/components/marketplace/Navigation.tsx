@@ -197,7 +197,7 @@ export const Navigation: React.FC<NavigationProps> = ({
             gap: '32px',
             flexWrap: 'wrap'
           }}>
-            {['home', 'browse', 'blog', 'sell'].map((view) => (
+            {['home', 'browse', 'blog', 'about', 'sell'].map((view) => (
               <button
                 key={view}
                 onClick={() => {
@@ -205,6 +205,8 @@ export const Navigation: React.FC<NavigationProps> = ({
                     router.push('/sell');
                   } else if (view === 'blog') {
                     router.push('/blog');
+                  } else if (view === 'about') {
+                    router.push('/about');
                   } else {
                     onViewChange(view);
                   }
@@ -227,6 +229,7 @@ export const Navigation: React.FC<NavigationProps> = ({
                 {view === 'home' ? 'Strona główna' : 
                  view === 'browse' ? 'Przeglądaj pojazdy' : 
                  view === 'blog' ? 'Blog' :
+                 view === 'about' ? 'O Nas' :
                  'Sprzedaj pojazd'}
               </button>
             ))}
