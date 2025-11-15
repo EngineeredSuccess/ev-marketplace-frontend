@@ -28,286 +28,136 @@ interface PublishResponse {
 // Markdown to HTML converter (simple version)
 function markdownToHtml(markdown: string): string {
   let html = markdown;
-
-  // 1. Inline formatting (najpierw bold, potem italic żeby uniknąć konfliktów)
-  html = html.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');  // Bold: **tekst**
-  html = html.replace(/\*(.*?)\*/g, '<em>$1</em>');              // Italic: *tekst*
-  html = html.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2">$1</a>');  // Links
   
-  // 2. Headers (od najdłuższych do najkrótszych)
-  html = html.replace(/^### (.*$)/gim, '<h3>$1</h3>');
-  html = html.replace(/^## (.*$)/gim, '<h2>$1</h2>');
-  html = html.replace(/^# (.*$)/gim, '<h1>$1</h1>');
+  // 1. Inline formatting
+  html = html.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
+  html = html.replace(/\*([^*]+)\*/g, '<em>$1</em>');
   
-  // 3. Lists - najpierw zamień items, potem grupuj
-  html = html.replace(/^- (.+)$/gm, '<li>$1</li>');
-  // Grupuj kolejne <li> w jeden <ul>
-  html = html.replace(/(<li>.*?<\/li>\n?)+/g, (match) => {
-    return '<ul>' + match + '</ul>';
+  // 2. Headers
+  html = html.replace(/^### (.+)$/gm, '<h3>$1</h3>');
+  html = html.replace(/^## (.+)$/gm, '<h2>$1</h2>');
+  html = html.replace(/^# (.+)$/gm, '<h1>$1</h1>');
+  
+  // 3. Links
+  html = html.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2">$1</a>');
+  
+  // 4. Lists
+  html = html.replace(/^\- (.+)$/gm, '<li>$1</li>');
+  html = html.replace(/(<li>.*<\/li>)/s, '<ul>$1</ul>');
+  
+  // 5. Paragraphs
+  const lines = html.split('\n');
+  const processedLines = lines.map(line => {
+    const trimmed = line.trim();
+    if (trimmed && !trimmed.match(/^<[^>]+>/)) {
+      return `<p>${trimmed}</p>`;
+    }
+    return line;
   });
   
-  // 4. Paragraphs - podziel na bloki po podwójnym \n
-  const blocks = html.split(/\n\n+/);
-  html = blocks.map(block => {
-    // Nie zawijaj w <p> jeśli to już header, lista, lub pusty blok
-    if (block.match(/^<h[1-6]>|^<ul>|^<\/ul>|^\s*$/)) {
-      return block;
-    }
-    // Zamień pojedyncze \n na <br>
-    return '<p>' + block.replace(/\n/g, '<br>') + '</p>';
-  }).join('\n');
-  
-  // 5. Cleanup
-  html = html.replace(/<\/ul>\n<ul>/g, '');  // Połącz sąsiadujące listy
-  html = html.replace(/\n+/g, '\n');         // Usuń nadmiarowe newline'y
-  
-  return html.trim();
-}
-
-// Generate HTML file content
-function generateHtmlContent(title: string, content: string): string {
-  const htmlContent = markdownToHtml(content)
-  
-  return `<!DOCTYPE html>
-<html lang="pl">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>${title}</title>
-</head>
-<body>
-    ${htmlContent}
-</body>
-</html>`
-}
-
-// Calculate reading time
-function calculateReadingTime(content: string): number {
-  const wordsPerMinute = 200
-  const wordCount = content.split(/\s+/).length
-  return Math.ceil(wordCount / wordsPerMinute)
-}
-
-// Generate slug from title if not provided
-function generateSlug(title: string): string {
-  return title
-    .toLowerCase()
-    .replace(/[^a-z0-9\s-]/g, '')
-    .replace(/\s+/g, '-')
-    .replace(/-+/g, '-')
-    .trim()
-}
-
-// Helper function to create or update a file on GitHub
-async function upsertFile(
-  octokit: Octokit,
-  {
-    owner,
-    repo,
-    path,
-    content,
-    message,
-    branch = 'main',
-  }: {
-    owner: string
-    repo: string
-    path: string
-    content: string
-    message: string
-    branch?: string
-  }
-) {
-  let sha: string | undefined
-
-  try {
-    const res = await octokit.repos.getContent({
-      owner,
-      repo,
-      path,
-      ref: branch,
-    })
-
-    if (!Array.isArray(res.data) && 'sha' in res.data) {
-      sha = res.data.sha
-    }
-  } catch (error: any) {
-    // If 404, file doesn't exist - create without sha
-    if (error.status !== 404) {
-      throw error
-    }
-  }
-
-  await octokit.repos.createOrUpdateFileContents({
-    owner,
-    repo,
-    path,
-    message,
-    content: Buffer.from(content).toString('base64'),
-    branch,
-    ...(sha ? { sha } : {}),
-  })
+  html = processedLines.join('\n');
+  return html;
 }
 
 export async function POST(request: NextRequest) {
   try {
-    // 1. Verify API Key
-    const apiKey = request.headers.get('x-api-key')
-    const validApiKey = process.env.BLOG_API_KEY
-    
-    if (!apiKey || !validApiKey || apiKey !== validApiKey) {
-      return NextResponse.json(
-        { success: false, error: 'Unauthorized: Invalid API Key' },
-        { status: 401 }
-      )
-    }
-
-    // 2. Parse request body
     const data: BlogPostData = await request.json()
     
-    // 3. Validate required fields
-    if (!data.title || !data.content || !data.category) {
-      return NextResponse.json(
-        { success: false, error: 'Missing required fields: title, content, category' },
-        { status: 400 }
-      )
+    if (!data.title || !data.slug || !data.content) {
+      return NextResponse.json({
+        success: false,
+        error: 'Missing required fields: title, slug, or content'
+      } as PublishResponse, { status: 400 })
     }
 
-    // 4. Generate slug if not provided
-    const slug = data.slug || generateSlug(data.title)
-    
-    // 5. Calculate reading time
-    const readingTime = calculateReadingTime(data.content)
-    
-    // 6. Generate HTML content
-    const htmlContent = generateHtmlContent(data.title, data.content)
-    
-    // 7. Prepare blog post metadata
-    const publishedAt = new Date().toISOString().split('T')[0]
-    
-    const blogPostEntry = `  {
-    slug: '${slug}',
-    title: '${data.title.replace(/'/g, "\'")}',
-    excerpt: '${data.excerpt.replace(/'/g, "\'")}',
-    content: '',
-    contentType: 'html' as const,
-    htmlFile: '/src/posts/${slug}.html',
-    author: '${data.author || 'iViMarket'}',
-    publishedAt: '${publishedAt}',
-    updatedAt: '${publishedAt}',
-    category: '${data.category}',
-    tags: [${data.tags.map(tag => `'${tag}'`).join(', ')}],
-    readingTime: ${readingTime},
-    featured: ${data.featured || false},
-    seo: {
-      metaTitle: '${data.seo?.metaTitle || data.title}',
-      metaDescription: '${data.seo?.metaDescription || data.excerpt}',
-      ogImage: '${data.seo?.ogImage || 'https://images.unsplash.com/photo-1593941707882-a5bac6861d75?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80'}'
-    }
-  }`
-
-    // 8. Initialize Octokit (GitHub API client)
     const octokit = new Octokit({
       auth: process.env.GITHUB_TOKEN
     })
 
     const owner = process.env.GITHUB_OWNER || 'EngineeredSuccess'
     const repo = process.env.GITHUB_REPO || 'ev-marketplace-frontend'
-    const branch = 'main'
+    const branch = process.env.GITHUB_BRANCH || 'main'
 
-    // 9. Get current blog.ts file
-    const blogTsPath = 'src/lib/blog.ts'
-    let blogTsContent = ''
+    // KLUCZOWA ZMIANA: Tworzymy OBA pliki
     
+    // 1. Create Markdown file
+    const mdPath = `posts/${data.slug}.md`
+    const mdContent = `---
+title: ${data.title}
+slug: ${data.slug}
+excerpt: ${data.excerpt}
+author: ${data.author}
+category: ${data.category}
+tags: ${data.tags.join(', ')}
+featured: ${data.featured || false}
+date: ${new Date().toISOString()}
+${data.seo ? `seo:
+  metaTitle: ${data.seo.metaTitle || ''}
+  metaDescription: ${data.seo.metaDescription || ''}
+  ogImage: ${data.seo.ogImage || ''}` : ''}
+---
+
+${data.content}
+`
+
+    // 2. Create HTML file (AUTOMATYCZNIE)
+    const htmlPath = `posts/${data.slug}.html`
+    const htmlContent = markdownToHtml(data.content)
+
+    // Get current file SHAs if they exist (for updates)
+    let mdSha: string | undefined
+    let htmlSha: string | undefined
+
     try {
-      const { data: fileData } = await octokit.repos.getContent({
-        owner,
-        repo,
-        path: blogTsPath,
-        ref: branch
+      const mdFile = await octokit.repos.getContent({
+        owner, repo, path: mdPath, ref: branch
       })
-      
-      if ('content' in fileData) {
-        blogTsContent = Buffer.from(fileData.content, 'base64').toString('utf-8')
+      if ('sha' in mdFile.data) {
+        mdSha = mdFile.data.sha
       }
-    } catch (error) {
-      return NextResponse.json(
-        { success: false, error: 'Failed to fetch blog.ts from GitHub' },
-        { status: 500 }
-      )
-    }
+    } catch (error) {}
 
-    // 10. Insert new blog post entry into blog.ts
-    const insertMarker = "const mockBlogPostsData: Array<Omit<BlogPost, 'publishedAt' | 'updatedAt'> & {"
-    const insertPosition = blogTsContent.indexOf(insertMarker)
-    
-    if (insertPosition === -1) {
-      return NextResponse.json(
-        { success: false, error: 'Could not find insertion point in blog.ts' },
-        { status: 500 }
-      )
-    }
-    
-    const arrayStart = blogTsContent.indexOf('[', insertPosition)
-    const updatedBlogTs = 
-      blogTsContent.slice(0, arrayStart + 1) + 
-      '\n' + blogPostEntry + ',' +
-      blogTsContent.slice(arrayStart + 1)
-
-    // 11. Create/Update files on GitHub using upsertFile
     try {
-      // Create/Update HTML file
-      await upsertFile(octokit, {
-        owner,
-        repo,
-        path: `src/posts/${slug}.html`,
-        content: htmlContent,
-        message: `feat: Add new blog post "${data.title}"`,
-        branch
+      const htmlFile = await octokit.repos.getContent({
+        owner, repo, path: htmlPath, ref: branch
       })
-
-      // Update blog.ts
-      await upsertFile(octokit, {
-        owner,
-        repo,
-        path: blogTsPath,
-        content: updatedBlogTs,
-        message: `feat: Add metadata for blog post "${data.title}"`,
-        branch
-      })
-
-      // 12. Trigger Vercel deployment (optional - Vercel auto-deploys on push)
-      if (process.env.VERCEL_DEPLOY_HOOK) {
-        await fetch(process.env.VERCEL_DEPLOY_HOOK, { method: 'POST' })
+      if ('sha' in htmlFile.data) {
+        htmlSha = htmlFile.data.sha
       }
+    } catch (error) {}
 
-      return NextResponse.json<PublishResponse>({
-        success: true,
-        message: `Blog post "${data.title}" published successfully!`,
-        slug
-      })
+    // Create or update BOTH files
+    const mdResult = await octokit.repos.createOrUpdateFileContents({
+      owner, repo, path: mdPath,
+      message: mdSha ? `Update blog post: ${data.title}` : `Publish new blog post: ${data.title}`,
+      content: Buffer.from(mdContent).toString('base64'),
+      branch,
+      ...(mdSha && { sha: mdSha })
+    })
 
-    } catch (error: any) {
-      console.error('GitHub API Error:', error)
-      return NextResponse.json(
-        { success: false, error: `GitHub API error: ${error.message}` },
-        { status: 500 }
-      )
-    }
+    const htmlResult = await octokit.repos.createOrUpdateFileContents({
+      owner, repo, path: htmlPath,
+      message: htmlSha ? `Update blog post HTML: ${data.title}` : `Publish new blog post HTML: ${data.title}`,
+      content: Buffer.from(htmlContent).toString('base64'),
+      branch,
+      ...(htmlSha && { sha: htmlSha })
+    })
 
-  } catch (error: any) {
-    console.error('Publish Post Error:', error)
-    return NextResponse.json(
-      { success: false, error: error.message || 'Internal server error' },
-      { status: 500 }
-    )
+    return NextResponse.json({
+      success: true,
+      message: mdSha ? `Blog post updated successfully: ${data.title}` : `Blog post published successfully: ${data.title}`,
+      slug: data.slug,
+      files: {
+        markdown: mdResult.data.content?.html_url,
+        html: htmlResult.data.content?.html_url
+      }
+    } as PublishResponse & { files: { markdown?: string, html?: string } })
+
+  } catch (error) {
+    console.error('Error publishing blog post:', error)
+    return NextResponse.json({
+      success: false,
+      error: error instanceof Error ? error.message : 'Unknown error occurred'
+    } as PublishResponse, { status: 500 })
   }
-}
-
-// Health check endpoint
-export async function GET() {
-  return NextResponse.json({
-    status: 'ok',
-    message: 'Blog Automation API is running',
-    version: '1.0.0'
-  })
 }
