@@ -28,28 +28,20 @@ interface PublishResponse {
 // Markdown to HTML converter (simple version)
 function markdownToHtml(markdown: string): string {
   return markdown
-    // Headers
-    .replace(/^### (.*$)/gim, '<h3>$1</h3>')
-    .replace(/^## (.*$)/gim, '<h2>$1</h2>')
-    .replace(/^# (.*$)/gim, '<h1>$1</h1>')
-    // Bold: **tekst**
-    .replace(/**(.*?)**/g, '<strong>$1</strong>')
-    // Italic: *tekst*
-    .replace(/*(.*?)*/g, '<em>$1</em>')
-    // Links: [tekst](url)
-    .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2">$1</a>')
-    // Line breaks
-    .replace(/\n\n/g, '</p><p>')
-    .replace(/\n/g, '<br>')
-    // Wrap in paragraphs
-    .replace(/^(.+)$/gm, '<p>$1</p>')
-    // Clean up
-    .replace(/<p><\/p>/g, '')
-    .replace(/<p><h([1-6])>/g, '<h$1>')
-    .replace(/<\/h([1-6])><\/p>/g, '</h$1>')
-    // Lists
-    .replace(/^- (.+)$/gm, '<li>$1</li>')
-    .replace(/(<li>.*<\/li>)/g, '<ul>$1</ul>')
+    .replace(/^### (.*$)/gim, '<h3>$1</h3>')  // Headers H3
+    .replace(/^## (.*$)/gim, '<h2>$1</h2>')   // Headers H2
+    .replace(/^# (.*$)/gim, '<h1>$1</h1>')    // Headers H1
+    .replace(/**(.*?)**/g, '<strong>$1</strong>')  // Bold: **tekst**
+    .replace(/*(.*?)*/g, '<em>$1</em>')              // Italic: *tekst*
+    .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2">$1</a>')  // Links
+    .replace(/\n\n/g, '</p><p>')   // Paragraph breaks
+    .replace(/\n/g, '<br>')        // Line breaks
+    .replace(/^(.+)$/gm, '<p>$1</p>')  // Wrap in <p>
+    .replace(/<p><\/p>/g, '')                          // Clean empty <p>
+    .replace(/<p><h([1-6])>/g, '<h$1>')                // Fix <p><h1>
+    .replace(/<\/h([1-6])><\/p>/g, '</h$1>')           // Fix </h1></p>
+    .replace(/^- (.+)$/gm, '<li>$1</li>')              // List items
+    .replace(/(<li>.*<\/li>)/g, '<ul>$1</ul>')         // Wrap in <ul>
 }
 
 // Generate HTML file content
