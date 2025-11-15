@@ -76,6 +76,55 @@ function calculateReadingTime(content: string): number {
   return Math.ceil(wordCount / wordsPerMinute)
 }
 
+async function upsertFile(
+  octokit: any,
+  {
+    owner,
+    repo,
+    path,
+    content,
+    message,
+    branch = 'main',
+  }: {
+    owner: string
+    repo: string
+    path: string
+    content: string
+    message: string
+    branch?: string
+  }
+) {
+  let sha: string | undefined
+
+  try {
+    const res = await octokit.repos.getContent({
+      owner,
+      repo,
+      path,
+      ref: branch,
+    })
+
+    if (!Array.isArray(res.data)) {
+      sha = res.data.sha
+    }
+  } catch (error: any) {
+    // jeśli 404, to plik nie istnieje – tworzymy bez sha
+    if (error.status !== 404) {
+      throw error
+    }
+  }
+
+  await octokit.repos.createOrUpdateFileContents({
+    owner,
+    repo,
+    path,
+    message,
+    content: Buffer.from(content).toString('base64'),
+    branch,
+    ...(sha ? { sha } : {}), // sha tylko gdy istnieje
+  })
+}
+
 // Generate slug from title if not provided
 function generateSlug(title: string): string {
   return title
@@ -196,25 +245,21 @@ export async function POST(request: NextRequest) {
     // 11. Create/Update files on GitHub
     try {
       // Create HTML file
-      await octokit.repos.createOrUpdateFileContents({
-        owner,
-        repo,
-        path: `src/posts/${slug}.html`,
-        message: `feat: Add new blog post "${data.title}"`,
-        content: Buffer.from(htmlContent).toString('base64'),
-        branch
-      })
+       await upsertFile(octokit, {
+       owner,
+       repo,
+       path: 'src/lib/blog.ts',
+       content: updatedBlogFile,   // cały tekst blog.ts po dopisaniu nowego posta
+       message: `Add blog post: ${title}`,
+    })
 
-      // Update blog.ts
-      await octokit.repos.createOrUpdateFileContents({
-        owner,
-        repo,
-        path: blogTsPath,
-        message: `feat: Add metadata for blog post "${data.title}"`,
-        content: Buffer.from(updatedBlogTs).toString('base64'),
-        sha: blogTsSha,
-        branch
-      })
+       await upsertFile(octokit, {
+       owner,
+       repo,
+       path: `src/posts/${slug}.html`,
+       content: htmlContent,       // wygenerowany HTML artykułu
+       message: `Add blog HTML for: ${title}`,
+    })
 
       // 12. Trigger Vercel deployment (optional - Vercel auto-deploys on push)
       if (process.env.VERCEL_DEPLOY_HOOK) {
