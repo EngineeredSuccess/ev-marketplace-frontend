@@ -6,13 +6,52 @@ import Link from 'next/link';
 function extractMetadata(htmlContent: string, slug: string) {
   // Extract title from first h1
   const titleMatch = htmlContent.match(/<h1[^>]*>(.*?)<\/h1>/i);
-  const title = titleMatch ? titleMatch[1].replace(/<[^>]+>/g, '') : 'Bez tytułu';
+  let rawTitle = titleMatch ? titleMatch[1] : 'Bez tytułu';
   
-  // Extract first paragraph as excerpt
-  const paragraphMatch = htmlContent.match(/<p[^>]*>(.*?)<\/p>/i);
-  const excerpt = paragraphMatch 
-    ? paragraphMatch[1].replace(/<[^>]+>/g, '').substring(0, 160) + '...'
-    : 'Przeczytaj więcej...';
+  // Clean up the title - take only the first line before any ### or newlines
+  rawTitle = rawTitle.split('###')[0].trim();
+  rawTitle = rawTitle.split('\n')[0].trim();
+  
+  // Remove HTML tags from title
+  const title = rawTitle.replace(/<[^>]+>/g, '').trim();
+  
+  // Extract excerpt - look for text after the title, before first ###
+  let excerpt = '';
+  const contentAfterTitle = htmlContent.replace(/<h1[^>]*>.*?<\/h1>/i, '');
+  
+  // Try to find first paragraph or text content
+  const paragraphMatch = contentAfterTitle.match(/<p[^>]*>(.*?)<\/p>/i);
+  if (paragraphMatch) {
+    excerpt = paragraphMatch[1];
+  } else {
+    // If no <p> tag, try to extract plain text
+    const textMatch = contentAfterTitle.match(/>\s*([^<]+)/);
+    if (textMatch) {
+      excerpt = textMatch[1];
+    }
+  }
+  
+  // Clean excerpt - remove HTML tags and Markdown syntax
+  excerpt = excerpt.replace(/<[^>]+>/g, '');
+  excerpt = excerpt.replace(/###/g, '');
+  excerpt = excerpt.trim();
+  
+  // Limit excerpt to first 2-3 sentences or 200 characters
+  const sentences = excerpt.match(/[^.!?]+[.!?]+/g);
+  if (sentences && sentences.length > 0) {
+    excerpt = sentences.slice(0, 2).join(' ');
+  }
+  
+  if (excerpt.length > 200) {
+    excerpt = excerpt.substring(0, 200).trim() + '...';
+  } else if (excerpt.length > 0 && !excerpt.endsWith('...')) {
+    excerpt = excerpt + '...';
+  }
+  
+  // If excerpt is still empty, use a default
+  if (!excerpt || excerpt.length < 10) {
+    excerpt = 'Przeczytaj więcej o tym artykule...';
+  }
   
   // Extract first image if available
   const imageMatch = htmlContent.match(/<img[^>]+src="([^">]+)"/i);
