@@ -225,7 +225,7 @@ export async function POST(request: NextRequest) {
     }
 
     // 10. Insert new blog post entry into blog.ts
-    const insertMarker = 'const mockBlogPostsData: Array<Omit<BlogPost, 'publishedAt' | 'updatedAt'> & {'
+    const insertMarker = "const mockBlogPostsData: Array<Omit<BlogPost, 'publishedAt' | 'updatedAt'> & {"
     const insertPosition = blogTsContent.indexOf(insertMarker)
     
     if (insertPosition === -1) {
