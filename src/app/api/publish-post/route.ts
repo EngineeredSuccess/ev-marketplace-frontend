@@ -27,21 +27,41 @@ interface PublishResponse {
 
 // Markdown to HTML converter (simple version)
 function markdownToHtml(markdown: string): string {
-  return markdown
-    .replace(/^### (.*$)/gim, '<h3>$1</h3>')  // Headers H3
-    .replace(/^## (.*$)/gim, '<h2>$1</h2>')   // Headers H2
-    .replace(/^# (.*$)/gim, '<h1>$1</h1>')    // Headers H1
-    .replace(/**(.*?)**/g, '<strong>$1</strong>')  // Bold: **tekst**
-    .replace(/*(.*?)*/g, '<em>$1</em>')              // Italic: *tekst*
-    .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2">$1</a>')  // Links
-    .replace(/\n\n/g, '</p><p>')   // Paragraph breaks
-    .replace(/\n/g, '<br>')        // Line breaks
-    .replace(/^(.+)$/gm, '<p>$1</p>')  // Wrap in <p>
-    .replace(/<p><\/p>/g, '')                          // Clean empty <p>
-    .replace(/<p><h([1-6])>/g, '<h$1>')                // Fix <p><h1>
-    .replace(/<\/h([1-6])><\/p>/g, '</h$1>')           // Fix </h1></p>
-    .replace(/^- (.+)$/gm, '<li>$1</li>')              // List items
-    .replace(/(<li>.*<\/li>)/g, '<ul>$1</ul>')         // Wrap in <ul>
+  let html = markdown;
+
+  // 1. Inline formatting (najpierw bold, potem italic żeby uniknąć konfliktów)
+  html = html.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');  // Bold: **tekst**
+  html = html.replace(/\*(.*?)\*/g, '<em>$1</em>');              // Italic: *tekst*
+  html = html.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2">$1</a>');  // Links
+  
+  // 2. Headers (od najdłuższych do najkrótszych)
+  html = html.replace(/^### (.*$)/gim, '<h3>$1</h3>');
+  html = html.replace(/^## (.*$)/gim, '<h2>$1</h2>');
+  html = html.replace(/^# (.*$)/gim, '<h1>$1</h1>');
+  
+  // 3. Lists - najpierw zamień items, potem grupuj
+  html = html.replace(/^- (.+)$/gm, '<li>$1</li>');
+  // Grupuj kolejne <li> w jeden <ul>
+  html = html.replace(/(<li>.*?<\/li>\n?)+/g, (match) => {
+    return '<ul>' + match + '</ul>';
+  });
+  
+  // 4. Paragraphs - podziel na bloki po podwójnym \n
+  const blocks = html.split(/\n\n+/);
+  html = blocks.map(block => {
+    // Nie zawijaj w <p> jeśli to już header, lista, lub pusty blok
+    if (block.match(/^<h[1-6]>|^<ul>|^<\/ul>|^\s*$/)) {
+      return block;
+    }
+    // Zamień pojedyncze \n na <br>
+    return '<p>' + block.replace(/\n/g, '<br>') + '</p>';
+  }).join('\n');
+  
+  // 5. Cleanup
+  html = html.replace(/<\/ul>\n<ul>/g, '');  // Połącz sąsiadujące listy
+  html = html.replace(/\n+/g, '\n');         // Usuń nadmiarowe newline'y
+  
+  return html.trim();
 }
 
 // Generate HTML file content
