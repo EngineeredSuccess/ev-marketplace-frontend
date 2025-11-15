@@ -33,9 +33,9 @@ function markdownToHtml(markdown: string): string {
     .replace(/^## (.*$)/gim, '<h2>$1</h2>')
     .replace(/^# (.*$)/gim, '<h1>$1</h1>')
     // Bold
-    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+    .replace(/**(.*?)**/g, '<strong>$1</strong>')
     // Italic
-    .replace(/\*(.*?)\*/g, '<em>$1</em>')
+    .replace(/*(.*?)*/g, '<em>$1</em>')
     // Links
     .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2">$1</a>')
     // Line breaks
@@ -76,8 +76,19 @@ function calculateReadingTime(content: string): number {
   return Math.ceil(wordCount / wordsPerMinute)
 }
 
+// Generate slug from title if not provided
+function generateSlug(title: string): string {
+  return title
+    .toLowerCase()
+    .replace(/[^a-z0-9\s-]/g, '')
+    .replace(/\s+/g, '-')
+    .replace(/-+/g, '-')
+    .trim()
+}
+
+// Helper function to create or update a file on GitHub
 async function upsertFile(
-  octokit: any,
+  octokit: Octokit,
   {
     owner,
     repo,
@@ -104,11 +115,11 @@ async function upsertFile(
       ref: branch,
     })
 
-    if (!Array.isArray(res.data)) {
+    if (!Array.isArray(res.data) && 'sha' in res.data) {
       sha = res.data.sha
     }
   } catch (error: any) {
-    // jeśli 404, to plik nie istnieje – tworzymy bez sha
+    // If 404, file doesn't exist - create without sha
     if (error.status !== 404) {
       throw error
     }
@@ -121,18 +132,8 @@ async function upsertFile(
     message,
     content: Buffer.from(content).toString('base64'),
     branch,
-    ...(sha ? { sha } : {}), // sha tylko gdy istnieje
+    ...(sha ? { sha } : {}),
   })
-}
-
-// Generate slug from title if not provided
-function generateSlug(title: string): string {
-  return title
-    .toLowerCase()
-    .replace(/[^a-z0-9\s-]/g, '')
-    .replace(/\s+/g, '-')
-    .replace(/-+/g, '-')
-    .trim()
 }
 
 export async function POST(request: NextRequest) {
@@ -173,8 +174,8 @@ export async function POST(request: NextRequest) {
     
     const blogPostEntry = `  {
     slug: '${slug}',
-    title: '${data.title.replace(/'/g, "\\'")}',
-    excerpt: '${data.excerpt.replace(/'/g, "\\'")}',
+    title: '${data.title.replace(/'/g, "\'")}',
+    excerpt: '${data.excerpt.replace(/'/g, "\'")}',
     content: '',
     contentType: 'html' as const,
     htmlFile: '/src/posts/${slug}.html',
@@ -204,7 +205,6 @@ export async function POST(request: NextRequest) {
     // 9. Get current blog.ts file
     const blogTsPath = 'src/lib/blog.ts'
     let blogTsContent = ''
-    let blogTsSha = ''
     
     try {
       const { data: fileData } = await octokit.repos.getContent({
@@ -216,7 +216,6 @@ export async function POST(request: NextRequest) {
       
       if ('content' in fileData) {
         blogTsContent = Buffer.from(fileData.content, 'base64').toString('utf-8')
-        blogTsSha = fileData.sha
       }
     } catch (error) {
       return NextResponse.json(
@@ -226,7 +225,7 @@ export async function POST(request: NextRequest) {
     }
 
     // 10. Insert new blog post entry into blog.ts
-    const insertMarker = 'const mockBlogPostsData: Array<Omit<BlogPost, \'publishedAt\' | \'updatedAt\'> & {'
+    const insertMarker = 'const mockBlogPostsData: Array<Omit<BlogPost, 'publishedAt' | 'updatedAt'> & {'
     const insertPosition = blogTsContent.indexOf(insertMarker)
     
     if (insertPosition === -1) {
@@ -242,24 +241,27 @@ export async function POST(request: NextRequest) {
       '\n' + blogPostEntry + ',' +
       blogTsContent.slice(arrayStart + 1)
 
-    // 11. Create/Update files on GitHub
+    // 11. Create/Update files on GitHub using upsertFile
     try {
-      // Create HTML file
-       await upsertFile(octokit, {
-       owner,
-       repo,
-       path: 'src/lib/blog.ts',
-       content: updatedBlogFile,   // cały tekst blog.ts po dopisaniu nowego posta
-       message: `Add blog post: ${title}`,
-    })
+      // Create/Update HTML file
+      await upsertFile(octokit, {
+        owner,
+        repo,
+        path: `src/posts/${slug}.html`,
+        content: htmlContent,
+        message: `feat: Add new blog post "${data.title}"`,
+        branch
+      })
 
-       await upsertFile(octokit, {
-       owner,
-       repo,
-       path: `src/posts/${slug}.html`,
-       content: htmlContent,       // wygenerowany HTML artykułu
-       message: `Add blog HTML for: ${title}`,
-    })
+      // Update blog.ts
+      await upsertFile(octokit, {
+        owner,
+        repo,
+        path: blogTsPath,
+        content: updatedBlogTs,
+        message: `feat: Add metadata for blog post "${data.title}"`,
+        branch
+      })
 
       // 12. Trigger Vercel deployment (optional - Vercel auto-deploys on push)
       if (process.env.VERCEL_DEPLOY_HOOK) {
