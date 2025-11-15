@@ -1,24 +1,43 @@
-import Link from 'next/link'
-import { ArrowLeft } from 'lucide-react'
-
-export default function BlogPostNotFound() {
-  return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-      <div className="text-center">
-        <h1 className="text-4xl font-bold text-gray-900 mb-4">
-          Artykuł nie znaleziony
-        </h1>
-        <p className="text-gray-600 mb-8">
-          Przepraszamy, ale artykuł o podanym adresie nie istnieje.
-        </p>
-        <Link 
-          href="/blog"
-          className="inline-flex items-center px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
-        >
-          <ArrowLeft className="w-4 h-4 mr-2" />
-          Powrót do bloga
-        </Link>
-      </div>
-    </div>
-  )
+export default function NotFound() {
+return (
+<div style={{
+minHeight: ‘100vh’,
+background: ‘linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%)’,
+display: ‘flex’,
+alignItems: ‘center’,
+justifyContent: ‘center’,
+padding: ‘20px’
+}}>
+<div style={{
+background: ‘white’,
+borderRadius: ‘20px’,
+padding: ‘60px 40px’,
+textAlign: ‘center’,
+maxWidth: ‘500px’,
+boxShadow: ‘0 8px 32px rgba(0, 0, 0, 0.1)’
+}}>
+<h1 style={{ fontSize: ‘48px’, marginBottom: ‘16px’ }}>404</h1>
+<h2 style={{ fontSize: ‘24px’, color: ‘#1f2937’, marginBottom: ‘16px’ }}>
+Post nie znaleziony
+</h2>
+<p style={{ color: ‘#6b7280’, marginBottom: ‘32px’ }}>
+Przepraszamy, ale ten artykuł nie istnieje lub został usunięty.
+</p>
+<a
+href=”/blog”
+style={{
+display: ‘inline-block’,
+padding: ‘12px 24px’,
+background: ‘#10b981’,
+color: ‘white’,
+borderRadius: ‘8px’,
+textDecoration: ‘none’,
+fontWeight: ‘600’
+}}
+>
+← Powrót do bloga
+</a>
+</div>
+</div>
+);
 }
