@@ -1,7 +1,6 @@
 import { notFound } from 'next/navigation';
 import fs from 'fs';
 import path from 'path';
-import matter from 'gray-matter';
 import type { Metadata } from 'next';
 import Link from 'next/link';
 
@@ -23,95 +22,52 @@ export async function generateStaticParams() {
   }
 }
 
-// Helper: read .md and .html for a post, but be tolerant to missing/legacy frontmatter
-function getPostData(slug: string) {
+// Helper: read only .html for a post
+function getPostHtml(slug: string) {
   const postsDirectory = path.join(process.cwd(), 'posts');
-  const mdPath = path.join(postsDirectory, `${slug}.md`);
   const htmlPath = path.join(postsDirectory, `${slug}.html`);
 
-  let frontmatter: any = {};
-  let htmlContent = '';
-
-  // Try to read .md for frontmatter (only if it has proper frontmatter delimiters)
-  if (fs.existsSync(mdPath)) {
-    const mdFile = fs.readFileSync(mdPath, 'utf8');
-
-    if (mdFile.trim().startsWith('---')) {
-      // Proper frontmatter, safe to parse
-      const parsed = matter(mdFile);
-      frontmatter = parsed.data ?? {};
-    } else {
-      // Legacy MD without frontmatter – do not parse as YAML
-      frontmatter = {};
-    }
-  }
-
-  // Read .html for content (required)
-  if (fs.existsSync(htmlPath)) {
-    htmlContent = fs.readFileSync(htmlPath, 'utf8');
-  } else {
+  if (!fs.existsSync(htmlPath)) {
     return null;
   }
 
-  // If we still have no title in frontmatter, try to extract from HTML
-  if (!frontmatter.title && htmlContent) {
-    const titleMatch = htmlContent.match(/<h1[^>]*>(.*?)<\/h1>/i);
-    if (titleMatch) {
-      frontmatter.title = titleMatch[1].replace(/<[^>]+>/g, '').trim();
-    }
-  }
-
-  // Same for excerpt / description
-  if (!frontmatter.excerpt && htmlContent) {
-    const descMatch = htmlContent.match(/<p[^>]*>(.*?)<\/p>/i);
-    if (descMatch) {
-      frontmatter.excerpt = descMatch[1]
-        .replace(/<[^>]+>/g, '')
-        .trim()
-        .substring(0, 160);
-    }
-  }
-
-  return { frontmatter, htmlContent };
+  const htmlContent = fs.readFileSync(htmlPath, 'utf8');
+  return htmlContent;
 }
 
-// Generate metadata for SEO
+// Generate metadata for SEO – tylko z HTML
 export async function generateMetadata({
   params,
 }: {
   params: { slug: string };
 }): Promise<Metadata> {
   const { slug } = params;
-  const postData = getPostData(slug);
+  const htmlContent = getPostHtml(slug);
 
-  if (!postData) {
+  if (!htmlContent) {
     return {
       title: 'Post nie znaleziony | iVi Market',
       description: 'Ten post nie został znaleziony',
     };
   }
 
-  const { frontmatter, htmlContent } = postData;
-
   const title =
-    frontmatter.title ||
-    frontmatter.seo?.metaTitle ||
-    // fallback from HTML if needed
-    (htmlContent.match(/<h1[^>]*>(.*?)<\/h1>/i)?.[1].replace(/<[^>]+>/g, '').trim() ??
-      'iVi Market Blog');
+    htmlContent
+      .match(/<h1[^>]*>(.*?)<\/h1>/i)?.[1]
+      .replace(/<[^>]+>/g, '')
+      .trim() ?? 'iVi Market Blog';
 
   const description =
-    frontmatter.excerpt ||
-    frontmatter.seo?.metaDescription ||
-    // fallback from HTML
-    (htmlContent
+    htmlContent
       .match(/<p[^>]*>(.*?)<\/p>/i)?.[1]
       .replace(/<[^>]+>/g, '')
       .trim()
       .substring(0, 160) ??
-      'Artykuły o samochodach elektrycznych w Polsce');
+    'Artykuły o samochodach elektrycznych w Polsce';
 
-  const ogImage = frontmatter.ogImage || frontmatter.seo?.ogImage;
+  // Spróbuj wyciągnąć pierwszy <img> jako og:image (fallback)
+  const imageMatch = htmlContent.match(/<img[^>]+src="([^">]+)"/i);
+  const ogImage = imageMatch ? imageMatch[1] : undefined;
 
   return {
     title: `${title} | iVi Market`,
@@ -128,19 +84,21 @@ export async function generateMetadata({
 // The actual page component
 export default function BlogPost({ params }: { params: { slug: string } }) {
   const { slug } = params;
-  const postData = getPostData(slug);
+  const htmlContent = getPostHtml(slug);
 
-  if (!postData) {
+  if (!htmlContent) {
     notFound();
   }
 
-  const { frontmatter, htmlContent } = postData;
+  // Hero image: pierwszy <img> z treści, jeśli jest
+  const imageMatch = htmlContent!.match(/<img[^>]+src="([^">]+)"/i);
+  const heroImage = imageMatch ? imageMatch[1] : undefined;
 
-  const heroImage = frontmatter.ogImage || frontmatter.seo?.ogImage;
   const title =
-    frontmatter.title ||
-    (htmlContent.match(/<h1[^>]*>(.*?)<\/h1>/i)?.[1].replace(/<[^>]+>/g, '').trim() ??
-      'Bez tytułu');
+    htmlContent!
+      .match(/<h1[^>]*>(.*?)<\/h1>/i)?.[1]
+      .replace(/<[^>]+>/g, '')
+      .trim() ?? 'Bez tytułu';
 
   return (
     <main className="max-w-4xl mx-auto px-4 py-8">
@@ -176,7 +134,7 @@ export default function BlogPost({ params }: { params: { slug: string } }) {
           prose-ul:list-disc prose-ul:pl-6
           prose-li:text-gray-700
           prose-img:rounded-xl prose-img:shadow-md"
-        dangerouslySetInnerHTML={{ __html: htmlContent }}
+        dangerouslySetInnerHTML={{ __html: htmlContent! }}
       />
 
       {/* Share section */}
