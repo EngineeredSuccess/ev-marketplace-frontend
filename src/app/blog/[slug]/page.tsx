@@ -7,13 +7,16 @@ import Link from 'next/link';
 // This tells Next.js to generate static pages for all blog posts at build time
 export async function generateStaticParams() {
   const postsDirectory = path.join(process.cwd(), 'posts');
+  
   try {
     if (!fs.existsSync(postsDirectory)) {
       return [];
     }
+    
     const filenames = fs.readdirSync(postsDirectory);
-    const htmlFiles = filenames.filter((filename) => filename.endsWith('.html'));
-    return htmlFiles.map((filename) => ({
+    const htmlFiles = filenames.filter(filename => filename.endsWith('.html'));
+    
+    return htmlFiles.map(filename => ({
       slug: filename.replace('.html', ''),
     }));
   } catch (error) {
@@ -22,137 +25,168 @@ export async function generateStaticParams() {
   }
 }
 
-// Helper: read only .html for a post
-function getPostHtml(slug: string) {
-  const postsDirectory = path.join(process.cwd(), 'posts');
-  const htmlPath = path.join(postsDirectory, `${slug}.html`);
-
-  if (!fs.existsSync(htmlPath)) {
-    return null;
-  }
-
-  const htmlContent = fs.readFileSync(htmlPath, 'utf8');
-  return htmlContent;
-}
-
-// Generate metadata for SEO – tylko z HTML
-export async function generateMetadata({
-  params,
-}: {
-  params: { slug: string };
-}): Promise<Metadata> {
+// Generate metadata for SEO
+export async function generateMetadata({ params }: { params: { slug: string } }): Promise<Metadata> {
   const { slug } = params;
-  const htmlContent = getPostHtml(slug);
-
-  if (!htmlContent) {
+  const postsDirectory = path.join(process.cwd(), 'posts');
+  const filePath = path.join(postsDirectory, `${slug}.html`);
+  
+  try {
+    const htmlContent = fs.readFileSync(filePath, 'utf8');
+    
+    // Extract title from HTML (look for first h1)
+    const titleMatch = htmlContent.match(/<h1[^>]*>(.*?)<\/h1>/i);
+    const title = titleMatch ? titleMatch[1].replace(/<[^>]+>/g, '') : 'iVi Market Blog';
+    
+    // Extract description (look for first p tag)
+    const descMatch = htmlContent.match(/<p[^>]*>(.*?)<\/p>/i);
+    const description = descMatch 
+      ? descMatch[1].replace(/<[^>]+>/g, '').substring(0, 160) 
+      : 'Artykuły o samochodach elektrycznych w Polsce';
+    
+    // Extract first image for og:image
+    const imageMatch = htmlContent.match(/<img[^>]+src="([^">]+)"/i);
+    const ogImage = imageMatch ? imageMatch[1] : undefined;
+    
     return {
-      title: 'Post nie znaleziony | iVi Market',
-      description: 'Ten post nie został znaleziony',
-    };
-  }
-
-  const title =
-    htmlContent
-      .match(/<h1[^>]*>(.*?)<\/h1>/i)?.[1]
-      .replace(/<[^>]+>/g, '')
-      .trim() ?? 'iVi Market Blog';
-
-  const description =
-    htmlContent
-      .match(/<p[^>]*>(.*?)<\/p>/i)?.[1]
-      .replace(/<[^>]+>/g, '')
-      .trim()
-      .substring(0, 160) ??
-    'Artykuły o samochodach elektrycznych w Polsce';
-
-  // Spróbuj wyciągnąć pierwszy <img> jako og:image (fallback)
-  const imageMatch = htmlContent.match(/<img[^>]+src="([^">]+)"/i);
-  const ogImage = imageMatch ? imageMatch[1] : undefined;
-
-  return {
-    title: `${title} | iVi Market`,
-    description,
-    openGraph: {
       title: `${title} | iVi Market`,
       description,
-      type: 'article',
-      ...(ogImage && { images: [ogImage] }),
-    },
-  };
+      openGraph: {
+        title: `${title} | iVi Market`,
+        description,
+        type: 'article',
+        ...(ogImage && { images: [ogImage] }),
+      },
+    };
+  } catch (error) {
+    return {
+      title: 'iVi Market Blog',
+      description: 'Artykuły o samochodach elektrycznych w Polsce',
+    };
+  }
 }
 
 // The actual page component
 export default function BlogPost({ params }: { params: { slug: string } }) {
   const { slug } = params;
-  const htmlContent = getPostHtml(slug);
-
-  if (!htmlContent) {
+  const postsDirectory = path.join(process.cwd(), 'posts');
+  const filePath = path.join(postsDirectory, `${slug}.html`);
+  
+  // Check if file exists
+  if (!fs.existsSync(filePath)) {
     notFound();
   }
-
-  // Hero image: pierwszy <img> z treści, jeśli jest
-  const imageMatch = htmlContent!.match(/<img[^>]+src="([^">]+)"/i);
+  
+  // Read the HTML file
+  const htmlContent = fs.readFileSync(filePath, 'utf8');
+  
+  // Extract hero image (first image in content)
+  const imageMatch = htmlContent.match(/<img[^>]+src="([^">]+)"/i);
   const heroImage = imageMatch ? imageMatch[1] : undefined;
-
-  const title =
-    htmlContent!
-      .match(/<h1[^>]*>(.*?)<\/h1>/i)?.[1]
-      .replace(/<[^>]+>/g, '')
-      .trim() ?? 'Bez tytułu';
-
+  
+  // Extract title for hero image alt text
+  const titleMatch = htmlContent.match(/<h1[^>]*>(.*?)<\/h1>/i);
+  const title = titleMatch ? titleMatch[1].replace(/<[^>]+>/g, '') : 'Blog post';
+  
   return (
-    <main className="max-w-4xl mx-auto px-4 py-8">
-      {/* Back button */}
-      <div className="mb-6">
-        <Link href="/blog" className="text-sm text-blue-600 hover:underline">
-          ← Powrót do bloga
-        </Link>
-      </div>
-
-      {/* Hero Image */}
-      {heroImage && (
-        <div className="mb-8">
-          <img
-            src={heroImage}
-            alt={title}
-            className="w-full h-auto rounded-2xl object-cover shadow-lg"
-            style={{ maxHeight: '500px' }}
-          />
-        </div>
-      )}
-
-      {/* Article content */}
-      <article
-        className="prose prose-lg prose-slate max-w-none
-          prose-headings:font-bold prose-headings:text-gray-900
-          prose-h1:text-4xl prose-h1:mb-4
-          prose-h2:text-3xl prose-h2:mt-8 prose-h2:mb-4
-          prose-h3:text-2xl prose-h3:mt-6 prose-h3:mb-3
-          prose-p:text-gray-700 prose-p:leading-relaxed
-          prose-a:text-blue-600 prose-a:no-underline hover:prose-a:underline
-          prose-strong:text-gray-900 prose-strong:font-semibold
-          prose-ul:list-disc prose-ul:pl-6
-          prose-li:text-gray-700
-          prose-img:rounded-xl prose-img:shadow-md"
-        dangerouslySetInnerHTML={{ __html: htmlContent! }}
-      />
-
-      {/* Share section */}
-      <section className="mt-12 pt-8 border-t border-gray-200">
-        <p className="text-lg font-semibold text-gray-900 mb-4">
-          Podobał Ci się artykuł? Podziel się nim!
-        </p>
-      </section>
-
-      {/* Related posts section */}
-      <section className="mt-8">
+    <div style={{
+      minHeight: '100vh',
+      background: 'linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%)',
+      padding: '40px 20px'
+    }}>
+      <div style={{ maxWidth: '800px', margin: '0 auto' }}>
+        {/* Back button */}
         <Link
           href="/blog"
-          className="inline-flex items-center text-blue-600 hover:underline"
+          style={{
+            marginBottom: '24px',
+            display: 'inline-flex',
+            alignItems: 'center',
+            color: '#10b981',
+            textDecoration: 'none',
+            fontSize: '16px',
+            fontWeight: '600'
+          }}
         >
-          ← Zobacz więcej artykułów
+          ← Powrót do bloga
         </Link>
-      </section>
-    </main>
+        
+        {/* Hero Image */}
+        {heroImage && (
+          <div style={{
+            marginTop: '20px',
+            marginBottom: '30px',
+            borderRadius: '20px',
+            overflow: 'hidden',
+            boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)'
+          }}>
+            <img
+              src={heroImage}
+              alt={title}
+              style={{
+                width: '100%',
+                height: 'auto',
+                maxHeight: '500px',
+                objectFit: 'cover',
+                display: 'block'
+              }}
+            />
+          </div>
+        )}
+        
+        {/* Article content */}
+        <article 
+          style={{
+            background: 'rgba(255, 255, 255, 0.95)',
+            borderRadius: '20px',
+            overflow: 'hidden',
+            boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)',
+            marginTop: '20px'
+          }}
+        >
+          <div 
+            style={{ 
+              padding: '40px',
+              color: '#4b5563', 
+              fontSize: '16px', 
+              lineHeight: '1.7'
+            }}
+            dangerouslySetInnerHTML={{ __html: htmlContent }}
+          />
+          
+          {/* Share section */}
+          <div style={{
+            borderTop: '1px solid #e5e7eb',
+            padding: '24px 40px',
+            textAlign: 'center',
+            background: '#f9fafb'
+          }}>
+            <p style={{ color: '#6b7280', marginBottom: '16px', fontSize: '14px' }}>
+              Podobał Ci się artykuł? Podziel się nim!
+            </p>
+          </div>
+        </article>
+        
+        {/* Related posts section */}
+        <div style={{
+          marginTop: '40px',
+          padding: '20px',
+          background: 'rgba(255, 255, 255, 0.8)',
+          borderRadius: '12px',
+          textAlign: 'center'
+        }}>
+          <Link 
+            href="/blog"
+            style={{
+              color: '#10b981',
+              textDecoration: 'none',
+              fontWeight: '600'
+            }}
+          >
+            ← Zobacz więcej artykułów
+          </Link>
+        </div>
+      </div>
+    </div>
   );
 }
