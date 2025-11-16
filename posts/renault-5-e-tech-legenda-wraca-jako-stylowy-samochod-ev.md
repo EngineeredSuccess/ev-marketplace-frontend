@@ -10,7 +10,7 @@ date: 2025-11-16T15:41:57.375Z
 seo:
   metaTitle: Renault 5 E-Tech: Legenda wraca jako stylowy samochód elektryczny
   metaDescription: Poznaj nowe Renault 5 E-Tech: cena, zasięg do 400 km, retro design i potencjał z programu „Mój Elektryk”. Sprawdź, czy to idealny elektryk do polskiego miasta.
-  ogImage: https://bwqvpkqbalsbsptpopmb.supabase.co/storage/v1/object/public/fotki/styl-soft-manga-zblienie-na-desk-rozdzielcz-nowego.png
+ogImage: https://bwqvpkqbalsbsptpopmb.supabase.co/storage/v1/object/public/fotki/styl-soft-manga-zblienie-na-desk-rozdzielcz-nowego.png
 ---
 
 # Renault 5 E-Tech: Legenda wraca jako stylowy samochód EV
