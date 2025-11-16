@@ -42,7 +42,11 @@ function markdownToHtml(markdown: string, title: string): string {
   html = html.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank" rel="noopener noreferrer">$1</a>');
   
   // 4. Convert images
-  html = html.replace(/!\[([^\]]*)\]\(([^)]+)\)/g, '<img src="$2" alt="$1" style="max-width: 100%; height: auto; border-radius: 8px; margin: 1.5rem 0;" />');
+  // 4. Convert images: ![alt](url) -> <img src="url" alt="alt" />
+html = html.replace(
+  /!\[([^\]]*)\]\(([^)]+)\)/g,
+  '<img src="$2" alt="$1" class="w-full h-auto rounded-xl my-6 object-cover" />'
+);
   
   // 5. Convert lists
   // First, identify list blocks
