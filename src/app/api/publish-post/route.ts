@@ -187,9 +187,9 @@ tags: ${data.tags.join(', ')}
 featured: ${data.featured || false}
 date: ${new Date().toISOString()}
 ${data.seo ? `seo:
-metaTitle: ${data.seo.metaTitle || ''}
-metaDescription: ${data.seo.metaDescription || ''}
-ogImage: ${data.seo.ogImage || ''}` : ''}
+  metaTitle: ${data.seo.metaTitle || ''}
+  metaDescription: ${data.seo.metaDescription || ''}` : ''}
+${data.seo?.ogImage ? `ogImage: ${data.seo.ogImage}` : ''}
 ---
 ${data.content}
 `;
