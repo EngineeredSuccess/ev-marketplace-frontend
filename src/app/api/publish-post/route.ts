@@ -25,8 +25,8 @@ interface PublishResponse {
   error?: string;
 }
 
-// Improved Markdown to HTML converter
-function markdownToHtml(markdown: string): string {
+// Improved Markdown to HTML converter with breadcrumbs and semantic structure
+function markdownToHtml(markdown: string, title: string): string {
   let html = markdown;
   
   // 1. Convert headers (must be done before paragraphs)
@@ -118,7 +118,40 @@ function markdownToHtml(markdown: string): string {
   // 9. Clean up extra whitespace
   html = html.replace(/\n{3,}/g, '\n\n');
   
-  return html;
+  // 10. Wrap content in semantic HTML with breadcrumbs
+  const breadcrumbs = `<!-- Breadcrumb Navigation -->
+<nav aria-label="Breadcrumb" role="navigation">
+  <ol itemscope itemtype="https://schema.org/BreadcrumbList">
+    <li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+      <a href="/" itemprop="item"><span itemprop="name">Strona główna</span></a>
+      <meta itemprop="position" content="1" />
+      <span aria-label="separator"> › </span>
+    </li>
+    <li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+      <a href="/blog" itemprop="item"><span itemprop="name">Blog</span></a>
+      <meta itemprop="position" content="2" />
+      <span aria-label="separator"> › </span>
+    </li>
+    <li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem" aria-current="page">
+      <span itemprop="name">${title}</span>
+      <meta itemprop="position" content="3" />
+    </li>
+  </ol>
+</nav>
+
+<main>
+  <article itemscope itemtype="https://schema.org/Article">`;
+  
+  const closingTags = `  </article>
+</main>`;
+  
+  // Extract the first h1 and wrap it in a header
+  const h1Match = html.match(/<h1>(.*?)<\/h1>/);
+  if (h1Match) {
+    html = html.replace(/<h1>(.*?)<\/h1>/, '<header>\n      <h1 itemprop="headline">$1</h1>\n    </header>');
+  }
+  
+  return breadcrumbs + '\n' + html + '\n' + closingTags;
 }
 
 export async function POST(request: NextRequest) {
@@ -164,7 +197,7 @@ ${data.content}
 
     // 2. Create HTML file (automatically converted from Markdown)
     const htmlPath = `posts/${data.slug}.html`;
-    const htmlContent = markdownToHtml(data.content);
+    const htmlContent = markdownToHtml(data.content, data.title);
 
     // Get current file SHAs if they exist (for updates)
     let mdSha: string | undefined;
