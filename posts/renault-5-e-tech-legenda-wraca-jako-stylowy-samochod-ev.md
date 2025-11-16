@@ -6,7 +6,7 @@ author: iViMarket
 category: samochody elektryczne
 tags: Renault 5 EV, Renault 5 E-Tech, samochody elektryczne, tani EV, auto elektryczne do miasta, zasięg EV, ładowanie samochodu, Mój Elektryk, nowe Renault
 featured: true
-date: 2025-11-15T20:03:22.742Z
+date: 2025-11-16T15:41:57.375Z
 seo:
   metaTitle: Renault 5 E-Tech: Legenda wraca jako stylowy samochód elektryczny
   metaDescription: Poznaj nowe Renault 5 E-Tech: cena, zasięg do 400 km, retro design i potencjał z programu „Mój Elektryk”. Sprawdź, czy to idealny elektryk do polskiego miasta.
